@@ -1,0 +1,6 @@
+{
+  "name": "دانشکده مهندسی مکانیک دانشگاه شریف",
+  "description": "سامانه جامع دانشکده مهندسی مکانیک دانشگاه صنعتی شریف — ارتباط با صنعت، آزمایشگاه‌ها، هیئت علمی، پروژه‌ها و جستجوی پیشرفته",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
