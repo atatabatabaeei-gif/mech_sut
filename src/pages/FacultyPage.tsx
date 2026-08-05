@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Users, ChevronLeft } from 'lucide-react';
+import { Search, Users, ArrowLeft } from 'lucide-react';
 import { getFaculty } from '../services/storage';
 
 export const FacultyPage: React.FC = () => {
@@ -109,9 +109,15 @@ export const FacultyPage: React.FC = () => {
                 {member.shortDesc}
               </p>
 
-              <button className="mt-auto text-xs font-black py-2.5 px-4 border-2 border-slate-900 group-hover:bg-slate-900 group-hover:text-white transition-all text-right flex items-center justify-between">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/faculty/${member.id}`);
+                }}
+                className="mt-auto w-full text-xs font-black py-2.5 px-4 border-2 border-slate-900 group-hover:bg-slate-900 group-hover:text-white transition-all text-center flex items-center justify-between"
+              >
                 <span>مشاهده رزومه کامل</span>
-                <span>←</span>
+                <ArrowLeft className="w-3.5 h-3.5" />
               </button>
             </div>
           ))}

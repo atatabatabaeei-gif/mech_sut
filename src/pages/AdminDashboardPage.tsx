@@ -51,6 +51,7 @@ import {
 } from '../services/storage';
 import { Lab, FacultyMember, IndustrialProject, CollaborationRequest, FooterConfig, CollaborationPageConfig, HomePageConfig } from '../types';
 import { Toast } from '../components/Toast';
+import { PDFExportModal } from '../components/PDFExportModal';
 
 export const AdminDashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -64,6 +65,7 @@ export const AdminDashboardPage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'requests' | 'labs' | 'faculty' | 'projects' | 'home' | 'collaboration' | 'footer' | 'tutorial' | 'security'>('requests');
   const [toastMsg, setToastMsg] = useState('');
+  const [exportModal, setExportModal] = useState<{ type: 'faculty' | 'project'; data: FacultyMember | IndustrialProject } | null>(null);
 
   // Password Change State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -1128,14 +1130,24 @@ export const AdminDashboardPage: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
+                      onClick={() => setExportModal({ type: 'faculty', data: f })}
+                      className="px-3 py-2 bg-[#1B1B1E] text-amber-500 hover:text-amber-400 hover:border-amber-500/50 rounded-xl border border-[#28282D] flex items-center gap-1.5 text-xs font-bold transition-colors"
+                      title="دانلود شناسنامه / رزومه (PDF)"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>دانلود PDF</span>
+                    </button>
+                    <button
                       onClick={() => handleEditFacClick(f)}
                       className="p-2 bg-[#1B1B1E] text-[#A0A0A0] hover:text-[#E8530D] rounded-xl border border-[#28282D]"
+                      title="ویرایش"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteFaculty(f.id)}
                       className="p-2 bg-[#1B1B1E] text-[#A0A0A0] hover:text-rose-400 rounded-xl border border-[#28282D]"
+                      title="حذف"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -1261,14 +1273,24 @@ export const AdminDashboardPage: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
+                      onClick={() => setExportModal({ type: 'project', data: p })}
+                      className="px-3 py-2 bg-[#1B1B1E] text-amber-500 hover:text-amber-400 hover:border-amber-500/50 rounded-xl border border-[#28282D] flex items-center gap-1.5 text-xs font-bold transition-colors"
+                      title="دانلود شناسنامه پروژه (PDF)"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>دانلود PDF</span>
+                    </button>
+                    <button
                       onClick={() => handleEditProjClick(p)}
                       className="p-2 bg-[#1B1B1E] text-[#A0A0A0] hover:text-[#E8530D] rounded-xl border border-[#28282D]"
+                      title="ویرایش"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteProject(p.id)}
                       className="p-2 bg-[#1B1B1E] text-[#A0A0A0] hover:text-rose-400 rounded-xl border border-[#28282D]"
+                      title="حذف"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -2117,6 +2139,14 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
 
         </div>
+      )}
+
+      {exportModal && (
+        <PDFExportModal
+          type={exportModal.type}
+          data={exportModal.data}
+          onClose={() => setExportModal(null)}
+        />
       )}
 
     </div>
