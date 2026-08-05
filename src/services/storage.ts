@@ -3,7 +3,7 @@ import { INITIAL_LABS, INITIAL_FACULTY, INITIAL_PROJECTS, INITIAL_REQUESTS } fro
 
 const KEYS = {
   LABS: 'sharif_me_labs_v3',
-  FACULTY: 'sharif_me_faculty_v3',
+  FACULTY: 'sharif_me_faculty_v5',
   PROJECTS: 'sharif_me_projects_v3',
   REQUESTS: 'sharif_me_requests_v2',
   LOGS: 'sharif_me_audit_logs',
