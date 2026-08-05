@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
 
 @layer base {
   :root {
@@ -106,10 +107,14 @@
     position: static !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 0 !important;
     background-color: #ffffff !important;
     color: #0f172a !important;
     display: block !important;
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  }
+
+  #pdf-printable-content * {
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif !important;
   }
 
   /* 5. Force exact colors, badges, borders, and images in PDF print output */

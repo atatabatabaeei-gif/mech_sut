@@ -123,7 +123,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
         </div>
 
         {/* PRINTABLE DATASHEET CONTENT CONTAINER */}
-        <div id="pdf-printable-content" className="p-8 sm:p-12 space-y-8 bg-white text-slate-900 font-sans">
+        <div id="pdf-printable-content" className="p-8 sm:p-12 space-y-8 bg-white text-slate-900 font-['Vazirmatn',sans-serif]">
           
           {/* Header Banner */}
           <div className="border-b-4 border-slate-900 pb-6 flex items-center justify-between gap-4">
@@ -300,16 +300,11 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
             </div>
           )}
 
-          {/* Official Footer Verification Stamp */}
+          {/* Official Footer */}
           <div className="pt-8 border-t-2 border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
             <div className="space-y-1 text-center sm:text-right">
               <p className="font-bold text-slate-900">دانشگاه صنعتی شریف — خیابان آزادی، تهران، ایران</p>
-              <p className="text-[11px] text-slate-500">محل مهر و تاییدیه بایگانی دیجیتال دانشکده مهندسی مکانیک</p>
-            </div>
-            <div className="border-2 border-dashed border-slate-400 p-3 text-center w-44 bg-slate-50 font-mono text-[10px] space-y-1 shrink-0">
-              <div className="font-bold text-slate-900">SUT MECHANICAL</div>
-              <div className="text-emerald-700 font-bold">VERIFIED PDF DOCUMENT</div>
-              <div className="text-[9px] text-slate-400">کد اعتبارسنجی: {serialNo}</div>
+              <p className="text-[11px] text-slate-500">بایگانی دیجیتال دانشکده مهندسی مکانیک</p>
             </div>
           </div>
 
