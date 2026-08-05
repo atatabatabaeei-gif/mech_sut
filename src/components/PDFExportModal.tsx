@@ -91,7 +91,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
 
   // IF ADMIN, DISPLAY FULL PRINTABLE DATASHEET
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 overflow-y-auto no-print">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 overflow-y-auto">
       <div className="bg-white border-2 border-slate-900 w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col my-auto relative">
         
         {/* Modal Toolbar (Sticky top) - Hidden during print */}
