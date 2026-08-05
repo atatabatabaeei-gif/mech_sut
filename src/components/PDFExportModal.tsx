@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Download, Printer, X, ShieldCheck, Lock, ShieldAlert, FileText, Building2, User, Award, BookOpen, MapPin, Phone, Mail, LogIn } from 'lucide-react';
 import { FacultyMember, IndustrialProject } from '../types';
@@ -31,7 +32,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
 
   // If NOT ADMIN, display Access Denied / Admin Login Prompt
   if (!isAdmin) {
-    return (
+    return createPortal(
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 overflow-y-auto no-print">
         <div className="bg-white border-2 border-slate-900 w-full max-w-lg shadow-2xl relative p-6 sm:p-8 space-y-6 text-center">
           
@@ -85,12 +86,13 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
           </div>
 
         </div>
-      </div>
+      </div>,
+      document.body
     );
   }
 
   // IF ADMIN, DISPLAY FULL PRINTABLE DATASHEET
-  return (
+  return createPortal(
     <div className="pdf-export-modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 overflow-y-auto">
       <div className="pdf-export-modal-card bg-white border-2 border-slate-900 w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col my-auto relative">
         
@@ -314,6 +316,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
