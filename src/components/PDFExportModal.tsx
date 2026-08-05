@@ -1,13 +1,13 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { Download, Printer, X, ShieldCheck, Lock, ShieldAlert, FileText, Building2, User, Award, BookOpen, MapPin, Phone, Mail, LogIn } from 'lucide-react';
-import { FacultyMember, IndustrialProject } from '../types';
+import { Download, Printer, X, ShieldCheck, Lock, ShieldAlert, FileText, Building2, User, Award, BookOpen, MapPin, Phone, Mail, LogIn, FlaskConical, Wrench } from 'lucide-react';
+import { FacultyMember, IndustrialProject, Lab } from '../types';
 import { getAdminState } from '../services/storage';
 
 interface PDFExportModalProps {
-  type: 'faculty' | 'project';
-  data: FacultyMember | IndustrialProject | null;
+  type: 'faculty' | 'project' | 'lab';
+  data: FacultyMember | IndustrialProject | Lab | null;
   onClose: () => void;
 }
 
@@ -25,9 +25,12 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
   const currentDate = new Date().toLocaleDateString('fa-IR');
   const serialNo = type === 'faculty' 
     ? `SUT-ME-FAC-${data.id.toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`
+    : type === 'lab'
+    ? `SUT-ME-LAB-${data.id.toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`
     : `SUT-ME-PRJ-${data.id.toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
   const member = type === 'faculty' ? (data as FacultyMember) : null;
+  const lab = type === 'lab' ? (data as Lab) : null;
   const project = type === 'project' ? (data as IndustrialProject) : null;
 
   // If NOT ADMIN, display Access Denied / Admin Login Prompt
@@ -53,16 +56,16 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               دسترسی غیرمجاز
             </span>
             <h3 className="text-xl font-black text-slate-900">
-              دانلود شناسنامه و رزومه فقط برای مدیران ممکن است
+              دانلود شناسنامه فقط برای مدیران ممکن است
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm mx-auto">
-              قابلیت استخراج و چاپ فایل PDF شناسنامه اعضای هیئت علمی و پروژه‌های صنعتی فقط برای کاربران دارای سطح دسترسی مدیریت (Admin) فعال می‌باشد.
+              قابلیت استخراج و چاپ فایل PDF شناسنامه اعضای هیئت علمی، آزمایشگاه‌ها و پروژه‌های صنعتی فقط برای کاربران دارای سطح دسترسی مدیریت (Admin) فعال می‌باشد.
             </p>
           </div>
 
           <div className="bg-slate-50 border border-slate-200 p-4 text-xs text-slate-700 font-bold space-y-1">
             <div>دانشگاه صنعتی شریف — دانشکده مهندسی مکانیک</div>
-            <div className="text-slate-500 font-normal">جهت دانلود رزومه، لطفاً با حساب کاربری مدیریت وارد شوید.</div>
+            <div className="text-slate-500 font-normal">جهت دانلود شناسنامه و رزومه، لطفاً با حساب کاربری مدیریت وارد شوید.</div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
@@ -101,7 +104,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
           <div className="flex items-center gap-2">
             <FileText className="w-5 h-5 text-amber-500" />
             <h3 className="font-bold text-sm sm:text-base">
-              پیش‌نمایش سند PDF — {type === 'faculty' ? 'شناسنامه رزومه عضو هیئت علمی' : 'شناسنامه پروژه صنعتی'}
+              پیش‌نمایش سند PDF — {type === 'faculty' ? 'شناسنامه رزومه عضو هیئت علمی' : type === 'lab' ? 'شناسنامه تخصصی آزمایشگاه' : 'شناسنامه پروژه صنعتی'}
             </h3>
           </div>
           <div className="flex items-center gap-3">
@@ -135,7 +138,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                 </h4>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
-                {type === 'faculty' ? 'شناسنامه رسمی و رزومه علمی هیئت علمی' : 'شناسنامه فنی و اجرایی پروژه صنعتی'}
+                {type === 'faculty' ? 'شناسنامه رسمی و رزومه علمی هیئت علمی' : type === 'lab' ? 'شناسنامه فنی و تجهیزات تخصصی آزمایشگاه' : 'شناسنامه فنی و اجرایی پروژه صنعتی'}
               </h1>
               <p className="text-xs text-slate-500 font-semibold">
                 سامانه جامع ارتباط با صنعت و پژوهش‌های تخصصی — شریف
@@ -221,6 +224,117 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* LAB CONTENT */}
+          {type === 'lab' && lab && (
+            <div className="space-y-8">
+              {/* Lab Card Summary */}
+              <div className="bg-slate-50 border-2 border-slate-900 p-6 space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-300 pb-3">
+                  <span className="bg-blue-800 text-white text-xs font-bold px-3 py-1">
+                    آزمایشگاه پژوهشی — {lab.field}
+                  </span>
+                  <div className="flex items-center gap-3 text-xs font-bold text-slate-700">
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-blue-800" />
+                      {lab.location}
+                    </span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1">
+                      <Mail className="w-3.5 h-3.5 text-blue-800" />
+                      {lab.contactEmail}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-6 items-start">
+                  <img
+                    src={lab.imageUrl}
+                    alt={lab.name}
+                    className="w-full md:w-56 h-36 object-cover border border-slate-300 shrink-0 bg-white rounded"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=400';
+                    }}
+                  />
+                  <div className="space-y-2 flex-1">
+                    <div className="flex items-center gap-2 text-xs font-bold text-amber-700">
+                      <User className="w-4 h-4" />
+                      <span>سرپرست علمی آزمایشگاه: {lab.supervisorName}</span>
+                    </div>
+                    <h2 className="text-2xl font-black text-slate-900">{lab.name}</h2>
+                    <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">{lab.shortDesc}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Full Description / Overview */}
+              <div className="space-y-2">
+                <h3 className="text-base font-black text-slate-900 border-r-4 border-amber-600 pr-2 flex items-center gap-2">
+                  <FlaskConical className="w-4 h-4 text-amber-600" />
+                  معرفی و حوزه فعالیت تخصصی آزمایشگاه
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50 border border-slate-200 p-4 whitespace-pre-line">
+                  {lab.fullDesc}
+                </p>
+              </div>
+
+              {/* Equipment & Specifications */}
+              {lab.equipment && lab.equipment.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="text-base font-black text-slate-900 border-r-4 border-blue-800 pr-2 flex items-center gap-2">
+                    <Wrench className="w-4 h-4 text-blue-800" />
+                    تجهیزات، ابزارآلات و زیرساخت‌های آزمایشگاهی
+                  </h3>
+                  <div className="space-y-2">
+                    {lab.equipment.map((eq, idx) => (
+                      <div key={idx} className="bg-slate-50 border border-slate-200 p-3 text-xs text-slate-800 space-y-1">
+                        <div className="font-bold text-slate-900 flex items-center gap-2">
+                          <span className="w-2 h-2 bg-amber-600 rounded-full"></span>
+                          <span>{eq.name}</span>
+                        </div>
+                        <p className="text-slate-600 pr-4">مشخصات فنی: {eq.specs}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Members */}
+              {lab.members && lab.members.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="text-base font-black text-slate-900 border-r-4 border-amber-600 pr-2 flex items-center gap-2">
+                    <User className="w-4 h-4 text-amber-600" />
+                    اعضای تیم و پژوهشگران آزمایشگاه
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {lab.members.map((mem, idx) => (
+                      <span key={idx} className="bg-slate-100 border border-slate-300 text-slate-900 text-xs font-bold px-3 py-1">
+                        {mem}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Achievements */}
+              {lab.achievements && lab.achievements.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="text-base font-black text-slate-900 border-r-4 border-blue-800 pr-2 flex items-center gap-2">
+                    <Award className="w-4 h-4 text-blue-800" />
+                    افتخارات و دستاوردهای علمی و پژوهشی
+                  </h3>
+                  <ul className="space-y-2">
+                    {lab.achievements.map((ach, idx) => (
+                      <li key={idx} className="bg-slate-50 border border-slate-200 p-3 text-xs text-slate-800 font-bold flex items-center gap-2">
+                        <span className="w-2 h-2 bg-blue-800 rounded-full shrink-0"></span>
+                        <span>{ach}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
             </div>

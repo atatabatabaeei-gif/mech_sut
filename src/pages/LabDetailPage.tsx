@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate, NavLink } from 'react-router-dom';
 import {
   ArrowRight,
@@ -11,9 +11,11 @@ import {
   MapPin,
   ChevronLeft,
   Image as ImageIcon,
-  Send
+  Send,
+  Download
 } from 'lucide-react';
 import { getLabs, getProjects } from '../services/storage';
+import { PDFExportModal } from '../components/PDFExportModal';
 
 export const LabDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +23,7 @@ export const LabDetailPage: React.FC = () => {
   const labs = getLabs();
   const lab = labs.find((l) => l.id === id);
   const allProjects = getProjects();
+  const [showPdfModal, setShowPdfModal] = useState(false);
 
   if (!lab) {
     return (
@@ -96,13 +99,24 @@ export const LabDetailPage: React.FC = () => {
             </NavLink>
           </div>
 
-          <button
-            onClick={() => navigate(`/collaboration?targetLab=${encodeURIComponent(lab.name)}`)}
-            className="bg-blue-800 hover:bg-blue-900 text-white px-6 py-2.5 text-xs font-black transition-all flex items-center justify-center gap-2 shadow-md"
-          >
-            <Send className="w-4 h-4" />
-            <span>ارسال درخواست پروژه یا خدمات به این آزمایشگاه</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setShowPdfModal(true)}
+              className="bg-amber-600 hover:bg-amber-700 text-slate-900 px-4 py-2.5 text-xs font-black transition-all flex items-center justify-center gap-2 shadow-md"
+              title="دانلود شناسنامه تخصصی آزمایشگاه (PDF)"
+            >
+              <Download className="w-4 h-4" />
+              <span>دانلود شناسنامه PDF</span>
+            </button>
+
+            <button
+              onClick={() => navigate(`/collaboration?targetLab=${encodeURIComponent(lab.name)}`)}
+              className="bg-blue-800 hover:bg-blue-900 text-white px-6 py-2.5 text-xs font-black transition-all flex items-center justify-center gap-2 shadow-md"
+            >
+              <Send className="w-4 h-4" />
+              <span>ارسال درخواست پروژه یا خدمات به این آزمایشگاه</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -250,6 +264,14 @@ export const LabDetailPage: React.FC = () => {
         </div>
 
       </div>
+
+      {showPdfModal && (
+        <PDFExportModal
+          type="lab"
+          data={lab}
+          onClose={() => setShowPdfModal(false)}
+        />
+      )}
 
     </div>
   );
