@@ -49,12 +49,17 @@
 
 /* Print Rules for Clean PDF Export */
 @media print {
-  /* Hide all elements on the page by default */
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  /* 1. Hide all elements visually by default */
   body * {
     visibility: hidden !important;
   }
 
-  /* Hide items marked as no-print */
+  /* 2. Hide items marked as no-print */
   .no-print,
   nav,
   footer,
@@ -63,36 +68,60 @@
     display: none !important;
   }
 
-  /* Make ONLY the PDF printable datasheet and its children visible */
+  /* 3. Make ONLY the PDF printable datasheet and its children visible */
   #pdf-printable-content,
   #pdf-printable-content * {
     visibility: visible !important;
   }
 
-  /* Position the printable content fixed at the top-left of the printed page */
+  /* 4. Position the printable content absolutely at top-left so it flows naturally */
   #pdf-printable-content {
-    position: fixed !important;
+    position: absolute !important;
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
     height: auto !important;
     margin: 0 !important;
-    padding: 24px !important;
+    padding: 16px !important;
     background-color: #ffffff !important;
     color: #0f172a !important;
-    z-index: 999999 !important;
     overflow: visible !important;
   }
 
-  body {
+  /* 5. Reset body, html, and modal wrapper styles */
+  html, body, #root {
     background-color: #ffffff !important;
     color: #000000 !important;
     padding: 0 !important;
     margin: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
     overflow: visible !important;
   }
 
-  /* Preserve colors, badges, and borders in PDF output */
+  .pdf-export-modal-overlay {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  .pdf-export-modal-card {
+    position: static !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    display: block !important;
+  }
+
+  /* 6. Preserve colors, badges, and borders in PDF output */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;

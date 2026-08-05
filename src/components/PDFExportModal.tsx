@@ -91,8 +91,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
 
   // IF ADMIN, DISPLAY FULL PRINTABLE DATASHEET
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-white border-2 border-slate-900 w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col my-auto relative">
+    <div className="pdf-export-modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 overflow-y-auto">
+      <div className="pdf-export-modal-card bg-white border-2 border-slate-900 w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col my-auto relative">
         
         {/* Modal Toolbar (Sticky top) - Hidden during print */}
         <div className="sticky top-0 bg-slate-900 text-white p-4 flex items-center justify-between z-20 no-print border-b-2 border-slate-900">
@@ -121,7 +121,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
         </div>
 
         {/* PRINTABLE DATASHEET CONTENT CONTAINER */}
-        <div id="pdf-printable-content" className="p-8 sm:p-12 space-y-8 bg-white text-slate-900 font-sans print:p-6 print:m-0">
+        <div id="pdf-printable-content" className="p-8 sm:p-12 space-y-8 bg-white text-slate-900 font-sans">
           
           {/* Header Banner */}
           <div className="border-b-4 border-slate-900 pb-6 flex items-center justify-between gap-4">
@@ -159,7 +159,10 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                 <img
                   src={member.avatarUrl}
                   alt={member.name}
-                  className="w-32 h-32 rounded object-cover border-2 border-slate-900 shrink-0 bg-white"
+                  className="w-32 h-32 rounded object-cover border-2 border-slate-900 shrink-0 bg-slate-200"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300';
+                  }}
                 />
                 <div className="space-y-3 flex-1 text-center md:text-right">
                   <div className="inline-block bg-slate-900 text-white text-xs font-bold px-3 py-1">
