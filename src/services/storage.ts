@@ -223,6 +223,168 @@ export const saveProjects = (projects: IndustrialProject[]): void => {
   localStorage.setItem(KEYS.PROJECTS, JSON.stringify(projects));
 };
 
+export const renameLabField = (oldField: string, newField: string): number => {
+  const labs = getLabs();
+  let count = 0;
+  const updated = labs.map((lab) => {
+    if (lab.field === oldField) {
+      count++;
+      return { ...lab, field: newField };
+    }
+    return lab;
+  });
+  if (count > 0) {
+    saveLabs(updated);
+    addSecurityLog({
+      action: 'ویرایش نام گرایش/فیلتر آزمایشگاه‌ها',
+      status: 'موفق',
+      details: `گرایش "${oldField}" به "${newField}" در ${count} آزمایشگاه تغییر کرد.`
+    });
+  }
+  return count;
+};
+
+export const deleteLabField = (fieldToDelete: string, fallbackField: string = 'عمومی'): number => {
+  const labs = getLabs();
+  let count = 0;
+  const updated = labs.map((lab) => {
+    if (lab.field === fieldToDelete) {
+      count++;
+      return { ...lab, field: fallbackField };
+    }
+    return lab;
+  });
+  if (count > 0) {
+    saveLabs(updated);
+    addSecurityLog({
+      action: 'حذف/ادغام گرایش آزمایشگاه‌ها',
+      status: 'موفق',
+      details: `گرایش "${fieldToDelete}" حذف و ${count} مورد به "${fallbackField}" منتقل شدند.`
+    });
+  }
+  return count;
+};
+
+export const renameFacultyField = (oldField: string, newField: string): number => {
+  const faculty = getFaculty();
+  let count = 0;
+  const updated = faculty.map((f) => {
+    if (f.field === oldField) {
+      count++;
+      return { ...f, field: newField };
+    }
+    return f;
+  });
+  if (count > 0) {
+    saveFaculty(updated);
+    addSecurityLog({
+      action: 'ویرایش نام گرایش/فیلتر هیئت علمی',
+      status: 'موفق',
+      details: `گرایش "${oldField}" به "${newField}" در ${count} استاد تغییر کرد.`
+    });
+  }
+  return count;
+};
+
+export const deleteFacultyField = (fieldToDelete: string, fallbackField: string = 'سایر'): number => {
+  const faculty = getFaculty();
+  let count = 0;
+  const updated = faculty.map((f) => {
+    if (f.field === fieldToDelete) {
+      count++;
+      return { ...f, field: fallbackField };
+    }
+    return f;
+  });
+  if (count > 0) {
+    saveFaculty(updated);
+    addSecurityLog({
+      action: 'حذف/ادغام گرایش هیئت علمی',
+      status: 'موفق',
+      details: `گرایش "${fieldToDelete}" حذف و ${count} مورد به "${fallbackField}" منتقل شدند.`
+    });
+  }
+  return count;
+};
+
+export const renameProjectCategory = (oldCategory: string, newCategory: string): number => {
+  const projects = getProjects();
+  let count = 0;
+  const updated = projects.map((p) => {
+    if (p.category === oldCategory) {
+      count++;
+      return { ...p, category: newCategory };
+    }
+    return p;
+  });
+  if (count > 0) {
+    saveProjects(updated);
+    addSecurityLog({
+      action: 'ویرایش نام دسته‌بندی/فیلتر پروژه‌های صنعتی',
+      status: 'موفق',
+      details: `دسته‌بندی "${oldCategory}" به "${newCategory}" در ${count} پروژه تغییر کرد.`
+    });
+  }
+  return count;
+};
+
+export const deleteProjectCategory = (categoryToDelete: string, fallbackCategory: string = 'سایر صنایع'): number => {
+  const projects = getProjects();
+  let count = 0;
+  const updated = projects.map((p) => {
+    if (p.category === categoryToDelete) {
+      count++;
+      return { ...p, category: fallbackCategory };
+    }
+    return p;
+  });
+  if (count > 0) {
+    saveProjects(updated);
+    addSecurityLog({
+      action: 'حذف/ادغام دسته‌بندی پروژه‌ها',
+      status: 'موفق',
+      details: `دسته‌بندی "${categoryToDelete}" حذف و ${count} مورد به "${fallbackCategory}" منتقل شدند.`
+    });
+  }
+  return count;
+};
+
+const CUSTOM_CAT_KEY = 'sharif_me_custom_categories_v1';
+
+export interface CustomCategories {
+  labs: string[];
+  faculty: string[];
+  projects: string[];
+}
+
+export const getCustomCategories = (): CustomCategories => {
+  try {
+    const data = localStorage.getItem(CUSTOM_CAT_KEY);
+    if (!data) return { labs: [], faculty: [], projects: [] };
+    return JSON.parse(data);
+  } catch {
+    return { labs: [], faculty: [], projects: [] };
+  }
+};
+
+export const saveCustomCategories = (cats: CustomCategories): void => {
+  localStorage.setItem(CUSTOM_CAT_KEY, JSON.stringify(cats));
+};
+
+export const addCustomCategory = (type: 'labs' | 'faculty' | 'projects', categoryName: string): void => {
+  const current = getCustomCategories();
+  const trimmed = categoryName.trim();
+  if (!trimmed || current[type].includes(trimmed)) return;
+  current[type].push(trimmed);
+  saveCustomCategories(current);
+};
+
+export const removeCustomCategory = (type: 'labs' | 'faculty' | 'projects', categoryName: string): void => {
+  const current = getCustomCategories();
+  current[type] = current[type].filter((c) => c !== categoryName);
+  saveCustomCategories(current);
+};
+
 export const getRequests = (): CollaborationRequest[] => {
   try {
     const data = localStorage.getItem(KEYS.REQUESTS);

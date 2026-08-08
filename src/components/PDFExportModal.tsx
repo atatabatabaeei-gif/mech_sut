@@ -47,12 +47,12 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
             <X className="w-6 h-6" />
           </button>
 
-          <div className="w-16 h-16 bg-amber-100 border-2 border-amber-600 rounded-full flex items-center justify-center mx-auto text-amber-700">
+          <div className="w-16 h-16 bg-orange-100 border-2 border-orange-500 rounded-full flex items-center justify-center mx-auto text-orange-600">
             <Lock className="w-8 h-8" />
           </div>
 
           <div className="space-y-2">
-            <span className="bg-amber-600 text-slate-900 text-[11px] font-black px-2.5 py-1 inline-block uppercase tracking-wider">
+            <span className="bg-orange-500 text-black text-[11px] font-black px-2.5 py-1 inline-block uppercase tracking-wider">
               دسترسی غیرمجاز
             </span>
             <h3 className="text-xl font-black text-slate-900">
@@ -76,7 +76,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               }}
               className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-black py-3 px-4 text-xs flex items-center justify-center gap-2 transition-all shadow-md"
             >
-              <LogIn className="w-4 h-4 text-amber-500" />
+              <LogIn className="w-4 h-4 text-orange-500" />
               <span>ورود به پنل مدیریت</span>
             </button>
 
@@ -100,9 +100,9 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
       <div className="pdf-export-modal-card bg-white border-2 border-slate-900 w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col my-auto relative">
         
         {/* Modal Toolbar (Sticky top) - Hidden during print */}
-        <div className="sticky top-0 bg-slate-900 text-white p-4 flex items-center justify-between z-20 no-print border-b-2 border-slate-900">
+        <div className="sticky top-0 bg-black text-white p-4 flex items-center justify-between z-20 no-print border-b-2 border-orange-500">
           <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-amber-500" />
+            <FileText className="w-5 h-5 text-orange-500" />
             <h3 className="font-bold text-sm sm:text-base">
               پیش‌نمایش سند PDF — {type === 'faculty' ? 'شناسنامه رزومه عضو هیئت علمی' : type === 'lab' ? 'شناسنامه تخصصی آزمایشگاه' : 'شناسنامه پروژه صنعتی'}
             </h3>
@@ -110,7 +110,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
           <div className="flex items-center gap-3">
             <button
               onClick={handlePrint}
-              className="bg-amber-600 hover:bg-amber-700 text-slate-900 font-black px-4 py-2 text-xs flex items-center gap-2 transition-all shadow"
+              className="bg-orange-500 hover:bg-orange-600 text-black font-black px-4 py-2 text-xs flex items-center gap-2 transition-all shadow"
             >
               <Printer className="w-4 h-4" />
               <span>دانلود / چاپ فایل PDF</span>
@@ -132,7 +132,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
           <div className="border-b-4 border-slate-900 pb-6 flex items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="w-3 h-3 bg-blue-800 inline-block"></span>
+                <span className="w-3 h-3 bg-orange-500 inline-block"></span>
                 <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                   دانشگاه صنعتی شریف — دانشکده مهندسی مکانیک
                 </h4>
@@ -149,8 +149,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
             <div className="text-left font-mono text-xs text-slate-600 border border-slate-300 p-3 bg-slate-50 space-y-1 shrink-0">
               <div><span className="font-bold">شماره کلاسه:</span> {serialNo}</div>
               <div><span className="font-bold">تاریخ صدور:</span> {currentDate}</div>
-              <div className="text-[10px] text-emerald-700 font-bold flex items-center justify-end gap-1">
-                <ShieldCheck className="w-3 h-3" />
+              <div className="text-[10px] text-orange-600 font-bold flex items-center justify-end gap-1">
+                <ShieldCheck className="w-3 h-3 text-orange-500" />
                 <span>دارای تاییدیه دانشکده</span>
               </div>
             </div>
@@ -176,18 +176,17 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                   <h2 className="text-3xl font-black text-slate-900">{member.name}</h2>
                   <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">{member.shortDesc}</p>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-slate-800 font-bold pt-2 border-t border-slate-300">
-                    <div className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-blue-800" />{member.office}</div>
-                    <div className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-blue-800" />{member.phone}</div>
-                    <div className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-blue-800" />{member.email}</div>
+                  <div className="flex items-center gap-1.5 text-xs text-slate-800 font-bold pt-2 border-t border-slate-300">
+                    <Building2 className="w-3.5 h-3.5 text-orange-500" />
+                    <span>دانشکده مهندسی مکانیک</span>
                   </div>
                 </div>
               </div>
 
               {/* Biography */}
               <div className="space-y-2">
-                <h3 className="text-base font-black text-slate-900 border-r-4 border-amber-600 pr-2 flex items-center gap-2">
-                  <User className="w-4 h-4 text-amber-600" />
+                <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
+                  <User className="w-4 h-4 text-orange-500" />
                   بیوگرافی و سوابق علمی
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50 border border-slate-200 p-4">
@@ -197,8 +196,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
 
               {/* Skills & Specializations */}
               <div className="space-y-2">
-                <h3 className="text-base font-black text-slate-900 border-r-4 border-blue-800 pr-2 flex items-center gap-2">
-                  <Award className="w-4 h-4 text-blue-800" />
+                <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
+                  <Award className="w-4 h-4 text-orange-500" />
                   حوزه‌های تخصصی و مهارت‌ها
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -213,8 +212,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               {/* Selected Publications */}
               {member.publications.length > 0 && (
                 <div className="space-y-2">
-                  <h3 className="text-base font-black text-slate-900 border-r-4 border-amber-600 pr-2 flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-amber-600" />
+                  <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-orange-500" />
                     گزیده مقالات و انتشارات شاخص
                   </h3>
                   <div className="space-y-2">
@@ -235,17 +234,17 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               {/* Lab Card Summary */}
               <div className="bg-slate-50 border-2 border-slate-900 p-6 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-300 pb-3">
-                  <span className="bg-blue-800 text-white text-xs font-bold px-3 py-1">
+                  <span className="bg-slate-900 text-white text-xs font-bold px-3 py-1 border-r-2 border-orange-500">
                     آزمایشگاه پژوهشی — {lab.field}
                   </span>
                   <div className="flex items-center gap-3 text-xs font-bold text-slate-700">
                     <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-blue-800" />
+                      <MapPin className="w-3.5 h-3.5 text-orange-500" />
                       {lab.location}
                     </span>
                     <span>•</span>
                     <span className="flex items-center gap-1">
-                      <Mail className="w-3.5 h-3.5 text-blue-800" />
+                      <Mail className="w-3.5 h-3.5 text-orange-500" />
                       {lab.contactEmail}
                     </span>
                   </div>
@@ -261,7 +260,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                     }}
                   />
                   <div className="space-y-2 flex-1">
-                    <div className="flex items-center gap-2 text-xs font-bold text-amber-700">
+                    <div className="flex items-center gap-2 text-xs font-bold text-orange-600">
                       <User className="w-4 h-4" />
                       <span>سرپرست علمی آزمایشگاه: {lab.supervisorName}</span>
                     </div>
@@ -273,8 +272,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
 
               {/* Full Description / Overview */}
               <div className="space-y-2">
-                <h3 className="text-base font-black text-slate-900 border-r-4 border-amber-600 pr-2 flex items-center gap-2">
-                  <FlaskConical className="w-4 h-4 text-amber-600" />
+                <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
+                  <FlaskConical className="w-4 h-4 text-orange-500" />
                   معرفی و حوزه فعالیت تخصصی آزمایشگاه
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50 border border-slate-200 p-4 whitespace-pre-line">
@@ -285,15 +284,15 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               {/* Equipment & Specifications */}
               {lab.equipment && lab.equipment.length > 0 && (
                 <div className="space-y-2">
-                  <h3 className="text-base font-black text-slate-900 border-r-4 border-blue-800 pr-2 flex items-center gap-2">
-                    <Wrench className="w-4 h-4 text-blue-800" />
+                  <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
+                    <Wrench className="w-4 h-4 text-orange-500" />
                     تجهیزات، ابزارآلات و زیرساخت‌های آزمایشگاهی
                   </h3>
                   <div className="space-y-2">
                     {lab.equipment.map((eq, idx) => (
                       <div key={idx} className="bg-slate-50 border border-slate-200 p-3 text-xs text-slate-800 space-y-1">
                         <div className="font-bold text-slate-900 flex items-center gap-2">
-                          <span className="w-2 h-2 bg-amber-600 rounded-full"></span>
+                          <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
                           <span>{eq.name}</span>
                         </div>
                         <p className="text-slate-600 pr-4">مشخصات فنی: {eq.specs}</p>
@@ -306,8 +305,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               {/* Members */}
               {lab.members && lab.members.length > 0 && (
                 <div className="space-y-2">
-                  <h3 className="text-base font-black text-slate-900 border-r-4 border-amber-600 pr-2 flex items-center gap-2">
-                    <User className="w-4 h-4 text-amber-600" />
+                  <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
+                    <User className="w-4 h-4 text-orange-500" />
                     اعضای تیم و پژوهشگران آزمایشگاه
                   </h3>
                   <div className="flex flex-wrap gap-2">
@@ -323,14 +322,14 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               {/* Achievements */}
               {lab.achievements && lab.achievements.length > 0 && (
                 <div className="space-y-2">
-                  <h3 className="text-base font-black text-slate-900 border-r-4 border-blue-800 pr-2 flex items-center gap-2">
-                    <Award className="w-4 h-4 text-blue-800" />
+                  <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
+                    <Award className="w-4 h-4 text-orange-500" />
                     افتخارات و دستاوردهای علمی و پژوهشی
                   </h3>
                   <ul className="space-y-2">
                     {lab.achievements.map((ach, idx) => (
                       <li key={idx} className="bg-slate-50 border border-slate-200 p-3 text-xs text-slate-800 font-bold flex items-center gap-2">
-                        <span className="w-2 h-2 bg-blue-800 rounded-full shrink-0"></span>
+                        <span className="w-2 h-2 bg-orange-500 rounded-full shrink-0"></span>
                         <span>{ach}</span>
                       </li>
                     ))}
@@ -346,13 +345,13 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               {/* Project Card Summary */}
               <div className="bg-slate-50 border-2 border-slate-900 p-6 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-300 pb-3">
-                  <span className="bg-blue-800 text-white text-xs font-bold px-3 py-1">
+                  <span className="bg-slate-900 text-white text-xs font-bold px-3 py-1 border-r-2 border-orange-500">
                     دسته‌بندی: {project.category}
                   </span>
                   <div className="flex items-center gap-3 text-xs font-bold text-slate-700">
                     <span>سال اجرای پروژه: {project.year}</span>
                     <span>•</span>
-                    <span className="text-emerald-700">وضعیت: {project.status}</span>
+                    <span className="text-orange-600 font-bold">وضعیت: {project.status}</span>
                   </div>
                 </div>
 
@@ -363,7 +362,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                     className="w-full md:w-56 h-36 object-cover border border-slate-300 shrink-0 bg-white"
                   />
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-bold text-amber-700">
+                    <div className="flex items-center gap-2 text-xs font-bold text-orange-600">
                       <Building2 className="w-4 h-4" />
                       <span>طرف قرارداد / کارفرما: {project.clientCompany}</span>
                     </div>
@@ -375,7 +374,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
 
               {/* Full Description */}
               <div className="space-y-2">
-                <h3 className="text-base font-black text-slate-900 border-r-4 border-amber-600 pr-2">
+                <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2">
                   تشریح کامل پروژه و اهداف مهندسی
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50 border border-slate-200 p-4">
@@ -398,13 +397,13 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               {/* Outcomes */}
               {project.outcomes && project.outcomes.length > 0 && (
                 <div className="space-y-2">
-                  <h3 className="text-base font-black text-slate-900 border-r-4 border-blue-800 pr-2">
+                  <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2">
                     نتایج کلیدی و تحویلی‌های پروژه
                   </h3>
                   <ul className="space-y-2">
                     {project.outcomes.map((out, idx) => (
                       <li key={idx} className="bg-slate-50 border border-slate-200 p-3 text-xs text-slate-800 font-bold flex items-center gap-2">
-                        <span className="w-2 h-2 bg-blue-800 rounded-full shrink-0"></span>
+                        <span className="w-2 h-2 bg-orange-500 rounded-full shrink-0"></span>
                         <span>{out}</span>
                       </li>
                     ))}

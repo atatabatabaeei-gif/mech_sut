@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Users, ArrowLeft } from 'lucide-react';
-import { getFaculty } from '../services/storage';
+import { Search, Users, ArrowLeft, GraduationCap } from 'lucide-react';
+import { getFaculty, getCustomCategories } from '../services/storage';
+import { CategoryDropdownFilter, CategoryOption } from '../components/CategoryDropdownFilter';
 
 export const FacultyPage: React.FC = () => {
   const navigate = useNavigate();
@@ -9,7 +10,11 @@ export const FacultyPage: React.FC = () => {
   const [selectedField, setSelectedField] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const fields = ['all', ...Array.from(new Set(faculty.map((f) => f.field)))];
+  const rawFields = Array.from(new Set([...faculty.map((f) => f.field), ...getCustomCategories().faculty])).filter(Boolean);
+  const fieldOptions: CategoryOption[] = rawFields.map((field) => ({
+    id: field,
+    label: field,
+  }));
 
   const filteredFaculty = faculty.filter((member) => {
     const matchesField = selectedField === 'all' || member.field === selectedField;
@@ -25,8 +30,8 @@ export const FacultyPage: React.FC = () => {
     <div className="pt-24 min-h-screen pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
       
       {/* Page Header */}
-      <div className="bg-white border-r-8 border-blue-800 p-8 shadow-sm space-y-3">
-        <span className="text-amber-600 font-bold text-xs tracking-widest uppercase block">
+      <div className="bg-white border-r-8 border-orange-500 p-8 shadow-sm space-y-3">
+        <span className="text-orange-600 font-bold text-xs tracking-widest uppercase block">
           نیروی انسانی و پژوهشگران
         </span>
         <h1 className="text-3xl sm:text-5xl font-black text-slate-900">
@@ -38,23 +43,23 @@ export const FacultyPage: React.FC = () => {
       </div>
 
       {/* Filter Bar & Search Input */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between border-b border-slate-300 pb-6">
+      <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between border-b border-slate-300 pb-6">
         
-        {/* Field Category Filter Tabs */}
-        <div className="flex flex-wrap gap-2 w-full md:w-auto">
-          {fields.map((f) => (
-            <button
-              key={f}
-              onClick={() => setSelectedField(f)}
-              className={`px-4 py-2 text-xs font-black transition-all border-2 ${
-                selectedField === f
-                  ? 'bg-slate-900 text-white border-slate-900'
-                  : 'bg-white text-slate-700 border-slate-300 hover:border-slate-900'
-              }`}
-            >
-              {f === 'all' ? 'همه اساتید' : f}
-            </button>
-          ))}
+        {/* Collapsible Category Dropdown Filter */}
+        <div className="flex items-center gap-3">
+          <CategoryDropdownFilter
+            options={fieldOptions}
+            selectedId={selectedField}
+            onSelect={setSelectedField}
+            placeholder="گرایش تخصصی استاد"
+            allLabel="همه گرایش‌های تخصصی"
+            icon={<GraduationCap className="w-4 h-4" />}
+          />
+          {selectedField !== 'all' && (
+            <span className="hidden sm:inline-block text-xs font-bold text-orange-600 bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-md">
+              تعداد اساتید این گرایش: {filteredFaculty.length} نفر
+            </span>
+          )}
         </div>
 
         {/* Search Input */}
@@ -65,7 +70,7 @@ export const FacultyPage: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="جستجوی نام یا مهارت..."
-            className="w-full bg-white border border-slate-300 text-slate-900 text-xs sm:text-sm pr-10 pl-4 py-2.5 focus:outline-none focus:border-blue-800 transition-colors"
+            className="w-full bg-white border border-slate-300 rounded-lg text-slate-900 text-xs sm:text-sm pr-10 pl-4 py-2.5 focus:outline-none focus:border-orange-500 transition-colors shadow-sm"
           />
         </div>
       </div>
@@ -77,7 +82,7 @@ export const FacultyPage: React.FC = () => {
           <p className="text-slate-600 text-base">استادی با مشخصات مورد نظر یافت نشد.</p>
           <button
             onClick={() => { setSelectedField('all'); setSearchQuery(''); }}
-            className="text-blue-800 hover:underline text-sm font-bold"
+            className="text-orange-600 hover:underline text-sm font-bold"
           >
             پاک کردن فیلترها
           </button>
@@ -97,11 +102,11 @@ export const FacultyPage: React.FC = () => {
                   className="w-20 h-20 bg-slate-200 rounded object-cover shrink-0 border border-slate-300"
                 />
                 <div>
-                  <h2 className="font-black text-lg text-slate-900 group-hover:text-blue-800 transition-colors">
+                  <h2 className="font-black text-lg text-slate-900 group-hover:text-orange-600 transition-colors">
                     {member.name}
                   </h2>
-                  <p className="text-blue-700 text-xs font-bold">{member.title}</p>
-                  <span className="text-[11px] text-amber-700 font-semibold block mt-0.5">{member.field}</span>
+                  <p className="text-orange-600 text-xs font-bold">{member.title}</p>
+                  <span className="text-[11px] text-slate-600 font-semibold block mt-0.5">{member.field}</span>
                 </div>
               </div>
 

@@ -17,15 +17,15 @@ export const Toast: React.FC<ToastProps> = ({ message, type = 'success', onClose
   }, [onClose, duration]);
 
   const icons = {
-    success: <CheckCircle2 className="w-5 h-5 text-emerald-400" />,
-    error: <AlertCircle className="w-5 h-5 text-rose-400" />,
-    info: <Info className="w-5 h-5 text-sky-400" />
+    success: <CheckCircle2 className="w-5 h-5 text-orange-500" />,
+    error: <AlertCircle className="w-5 h-5 text-orange-500" />,
+    info: <Info className="w-5 h-5 text-orange-500" />
   };
 
   const borders = {
-    success: 'border-emerald-500/30 bg-[#1B1B1E]',
-    error: 'border-rose-500/30 bg-[#1B1B1E]',
-    info: 'border-sky-500/30 bg-[#1B1B1E]'
+    success: 'border-orange-500/50 bg-black',
+    error: 'border-orange-500/50 bg-black',
+    info: 'border-orange-500/50 bg-black'
   };
 
   return (

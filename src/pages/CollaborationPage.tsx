@@ -147,8 +147,8 @@ export const CollaborationPage: React.FC = () => {
       )}
 
       {/* Page Header */}
-      <div className="bg-white border-r-8 border-blue-800 p-8 shadow-sm space-y-3">
-        <span className="text-amber-600 font-bold text-xs tracking-widest uppercase block">
+      <div className="bg-white border-r-8 border-orange-500 p-8 shadow-sm space-y-3">
+        <span className="text-orange-600 font-bold text-xs tracking-widest uppercase block">
           {config.headerCategory}
         </span>
         <h1 className="text-3xl sm:text-5xl font-black text-slate-900">
@@ -162,13 +162,13 @@ export const CollaborationPage: React.FC = () => {
       {/* ═══════════ 1. BENEFITS OF COLLABORATION ═══════════ */}
       {config.benefits && config.benefits.length > 0 && (
         <section className="space-y-6">
-          <h2 className="text-2xl font-black text-slate-900 border-r-4 border-amber-600 pr-3">
+          <h2 className="text-2xl font-black text-slate-900 border-r-4 border-orange-500 pr-3">
             {config.benefitsTitle}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {config.benefits.map((benefit, idx) => (
               <div key={idx} className="bg-white border border-slate-200 p-6 shadow-sm space-y-3">
-                <div className="w-10 h-10 bg-slate-900 text-amber-400 font-black flex items-center justify-center text-sm">
+                <div className="w-10 h-10 bg-black text-orange-400 font-black flex items-center justify-center text-sm border border-orange-500/30">
                   {benefit.num || `۰${idx + 1}`}
                 </div>
                 <h3 className="text-lg font-black text-slate-900">{benefit.title}</h3>
@@ -185,7 +185,7 @@ export const CollaborationPage: React.FC = () => {
       {config.models && config.models.length > 0 && (
         <section className="bg-white p-8 sm:p-10 border border-slate-200 shadow-sm space-y-8">
           <div className="text-right space-y-2">
-            <span className="text-amber-600 font-bold text-xs tracking-widest uppercase block">
+            <span className="text-orange-600 font-bold text-xs tracking-widest uppercase block">
               الگوهای تعامل
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
@@ -195,8 +195,8 @@ export const CollaborationPage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {config.models.map((model, idx) => (
-              <div key={idx} className="bg-slate-50 border border-slate-200 p-6 space-y-4 hover:border-blue-800 transition-all">
-                <div className="w-12 h-12 bg-blue-800 text-white flex items-center justify-center font-bold">
+              <div key={idx} className="bg-slate-50 border border-slate-200 p-6 space-y-4 hover:border-orange-500 transition-all">
+                <div className="w-12 h-12 bg-orange-500 text-black flex items-center justify-center font-bold">
                   {idx === 0 ? <FlaskConical className="w-6 h-6" /> : idx === 1 ? <Cpu className="w-6 h-6" /> : <GraduationCap className="w-6 h-6" />}
                 </div>
                 <h3 className="text-xl font-black text-slate-900">{model.title}</h3>
@@ -212,7 +212,7 @@ export const CollaborationPage: React.FC = () => {
       {/* ═══════════ 3. PARTNERS & LOGOS ═══════════ */}
       {config.partners && config.partners.length > 0 && (
         <section className="space-y-6">
-          <h2 className="text-2xl font-black text-slate-900 border-r-4 border-blue-800 pr-3">
+          <h2 className="text-2xl font-black text-slate-900 border-r-4 border-orange-500 pr-3">
             {config.partnersTitle}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
@@ -236,7 +236,7 @@ export const CollaborationPage: React.FC = () => {
         <div className="lg:col-span-8 bg-white border border-slate-200 p-8 sm:p-10 shadow-sm space-y-8">
           
           <div className="space-y-2 border-b border-slate-200 pb-6">
-            <span className="text-amber-600 font-bold text-xs tracking-widest uppercase block">
+            <span className="text-orange-600 font-bold text-xs tracking-widest uppercase block">
               فرم استاندارد هوشمند
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
@@ -251,7 +251,7 @@ export const CollaborationPage: React.FC = () => {
             
             {/* Target pre-selection banner if applicable */}
             {targetEntityName && (
-              <div className="bg-slate-100 border-r-4 border-amber-600 p-4 flex items-center justify-between text-xs text-slate-900">
+              <div className="bg-slate-100 border-r-4 border-orange-500 p-4 flex items-center justify-between text-xs text-slate-900">
                 <span className="font-bold">درخواست ارسال مستقیم به: {targetEntityName}</span>
                 <button
                   type="button"
@@ -266,7 +266,7 @@ export const CollaborationPage: React.FC = () => {
             {/* Step 1: Contact Details */}
             <div className="space-y-4">
               <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
-                <span className="w-5 h-5 bg-slate-900 text-white text-xs flex items-center justify-center font-bold">۱</span>
+                <span className="w-5 h-5 bg-black text-white text-xs flex items-center justify-center font-bold">۱</span>
                 مشخصات درخواست‌دهنده
               </h3>
 
@@ -279,7 +279,7 @@ export const CollaborationPage: React.FC = () => {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="مثال: مهندس احمد رضایی"
-                    className="w-full bg-white border border-slate-300 px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-blue-800 transition-colors"
+                    className="w-full bg-white border border-slate-300 px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-orange-500 transition-colors"
                   />
                 </div>
 
@@ -290,7 +290,7 @@ export const CollaborationPage: React.FC = () => {
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
                     placeholder="مثال: شرکت توربو ژنراتور پارس"
-                    className="w-full bg-white border border-slate-300 px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-blue-800 transition-colors"
+                    className="w-full bg-white border border-slate-300 px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-orange-500 transition-colors"
                   />
                 </div>
 
@@ -302,7 +302,7 @@ export const CollaborationPage: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@company.com"
-                    className="w-full bg-white border border-slate-300 px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-blue-800 transition-colors text-left dir-ltr"
+                    className="w-full bg-white border border-slate-300 px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-orange-500 transition-colors text-left dir-ltr"
                   />
                 </div>
 
@@ -313,7 +313,7 @@ export const CollaborationPage: React.FC = () => {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="۰۹۱۲..."
-                    className="w-full bg-white border border-slate-300 px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-blue-800 transition-colors text-left dir-ltr"
+                    className="w-full bg-white border border-slate-300 px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-orange-500 transition-colors text-left dir-ltr"
                   />
                 </div>
               </div>
@@ -322,7 +322,7 @@ export const CollaborationPage: React.FC = () => {
             {/* Step 2: Collaboration Parameters */}
             <div className="space-y-4 pt-4 border-t border-slate-200">
               <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
-                <span className="w-5 h-5 bg-slate-900 text-white text-xs flex items-center justify-center font-bold">۲</span>
+                <span className="w-5 h-5 bg-black text-white text-xs flex items-center justify-center font-bold">۲</span>
                 الگو و حوزه تخصصی همکاری
               </h3>
 
@@ -332,7 +332,7 @@ export const CollaborationPage: React.FC = () => {
                   <select
                     value={collabType}
                     onChange={(e) => setCollabType(e.target.value as any)}
-                    className="w-full bg-white border border-slate-300 px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-blue-800 transition-colors"
+                    className="w-full bg-white border border-slate-300 px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-orange-500 transition-colors"
                   >
                     <option value="پژوهش مشترک">پژوهش مشترک R&D</option>
                     <option value="تحقیق قراردادی">تحقیق قراردادی و بومی‌سازی</option>
@@ -348,7 +348,7 @@ export const CollaborationPage: React.FC = () => {
                   <select
                     value={specializedField}
                     onChange={(e) => setSpecializedField(e.target.value)}
-                    className="w-full bg-white border border-slate-300 px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-blue-800 transition-colors"
+                    className="w-full bg-white border border-slate-300 px-4 py-3 text-slate-900 text-sm focus:outline-none focus:border-orange-500 transition-colors"
                   >
                     <option value="مکانیک سیالات و دینامیک محاسباتی">مکانیک سیالات و CFD</option>
                     <option value="رباتیک و اتوماسیون">رباتیک و اتوماسیون صنعتی</option>
@@ -366,7 +366,7 @@ export const CollaborationPage: React.FC = () => {
             {/* Step 3: Project Description & Proposal Upload */}
             <div className="space-y-4 pt-4 border-t border-slate-200">
               <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
-                <span className="w-5 h-5 bg-slate-900 text-white text-xs flex items-center justify-center font-bold">۳</span>
+                <span className="w-5 h-5 bg-black text-white text-xs flex items-center justify-center font-bold">۳</span>
                 شرح نیازمندی و آپلود فایل پروپوزال (Word / PDF)
               </h3>
 
@@ -378,7 +378,7 @@ export const CollaborationPage: React.FC = () => {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="چالش فنی، ابعاد پروژه، قطعه مورد نظر یا هدف صورت مسئله همکاری خود را به اختصار شرح دهید..."
-                  className="w-full bg-white border border-slate-300 p-4 text-slate-900 text-sm focus:outline-none focus:border-blue-800 transition-colors leading-relaxed"
+                  className="w-full bg-white border border-slate-300 p-4 text-slate-900 text-sm focus:outline-none focus:border-orange-500 transition-colors leading-relaxed"
                 />
               </div>
 
@@ -389,9 +389,9 @@ export const CollaborationPage: React.FC = () => {
                 </label>
 
                 {attachedFile ? (
-                  <div className="bg-slate-50 border-2 border-slate-900 p-4 flex items-center justify-between text-xs text-slate-900">
+                  <div className="bg-slate-50 border-2 border-black p-4 flex items-center justify-between text-xs text-slate-900">
                     <div className="flex items-center gap-3">
-                      <FileText className="w-6 h-6 text-blue-800" />
+                      <FileText className="w-6 h-6 text-orange-500" />
                       <div>
                         <span className="font-bold block">{attachedFile.name}</span>
                         <span className="text-slate-500">حجم فایل: {attachedFile.sizeStr}</span>
@@ -412,8 +412,8 @@ export const CollaborationPage: React.FC = () => {
                     onDrop={handleDrop}
                     className={`border-2 border-dashed p-6 text-center transition-all cursor-pointer ${
                       isDragging
-                        ? 'border-blue-800 bg-blue-50'
-                        : 'border-slate-300 bg-slate-50 hover:border-slate-900'
+                        ? 'border-orange-500 bg-orange-500/10'
+                        : 'border-slate-300 bg-slate-50 hover:border-black'
                     }`}
                   >
                     <input
@@ -424,7 +424,7 @@ export const CollaborationPage: React.FC = () => {
                       id="file-upload-input"
                     />
                     <label htmlFor="file-upload-input" className="cursor-pointer space-y-2 block">
-                      <Upload className="w-8 h-8 text-blue-800 mx-auto" />
+                      <Upload className="w-8 h-8 text-orange-500 mx-auto" />
                       <span className="text-xs text-slate-900 font-bold block">
                         کشیدن یا کلیک جهت آپلود فایل RFP / پروپوزال
                       </span>
@@ -448,7 +448,7 @@ export const CollaborationPage: React.FC = () => {
             <div className="pt-4">
               <button
                 type="submit"
-                className="w-full bg-blue-800 hover:bg-blue-900 text-white py-4 font-black text-sm transition-all flex items-center justify-center gap-2 shadow-sm"
+                className="w-full bg-orange-500 hover:bg-orange-600 text-black py-4 font-black text-sm transition-all flex items-center justify-center gap-2 shadow-sm"
               >
                 <Send className="w-5 h-5" />
                 <span>ثبت نهایی و ارسال درخواست به مدیریت پژوهش</span>
@@ -463,13 +463,13 @@ export const CollaborationPage: React.FC = () => {
         <div className="lg:col-span-4 space-y-8">
           
           <div className="bg-white border border-slate-200 p-8 shadow-sm space-y-6">
-            <h3 className="font-black text-xl text-slate-900 border-r-4 border-amber-600 pr-2">
+            <h3 className="font-black text-xl text-slate-900 border-r-4 border-orange-500 pr-2">
               مراحل بررسی درخواست شما
             </h3>
 
             <div className="space-y-6 relative">
               <div className="flex gap-4">
-                <div className="w-8 h-8 bg-blue-800 text-white font-black flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 bg-orange-500 text-black font-black flex items-center justify-center shrink-0">
                   ۱
                 </div>
                 <div>
@@ -479,7 +479,7 @@ export const CollaborationPage: React.FC = () => {
               </div>
 
               <div className="flex gap-4">
-                <div className="w-8 h-8 bg-white border-2 border-slate-900 text-slate-900 font-black flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 bg-white border-2 border-black text-slate-900 font-black flex items-center justify-center shrink-0">
                   ۲
                 </div>
                 <div>
@@ -500,12 +500,12 @@ export const CollaborationPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-[#0F172A] border-t-4 border-amber-600 p-8 text-white shadow-md space-y-4">
+          <div className="bg-black border-t-4 border-orange-500 p-8 text-white shadow-md space-y-4">
             <h3 className="font-black text-lg text-white">تماس مستقیم با مدیریت صنعت</h3>
             <p className="text-xs text-slate-300 leading-relaxed">
               در صورت تمایل به ارتباط تلفنی یا ارسال پروپوزال از طریق فکس یا ایمیل مستقیم:
             </p>
-            <div className="space-y-2 text-xs text-amber-400 font-mono bg-slate-900/60 p-4 border border-slate-700">
+            <div className="space-y-2 text-xs text-orange-400 font-mono bg-slate-900 p-4 border border-slate-800">
               <p>ایمیل: {config.directContactEmail}</p>
               <p>تلفن: {config.directContactPhone}</p>
               <p>نمابر: {config.directContactFax}</p>
@@ -518,9 +518,9 @@ export const CollaborationPage: React.FC = () => {
 
       {/* SUCCESS MODAL */}
       {submittedReq && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
-          <div className="bg-white border-4 border-slate-900 p-8 max-w-xl w-full text-right space-y-6 shadow-2xl">
-            <div className="flex items-center gap-3 text-emerald-700">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-white border-4 border-black p-8 max-w-xl w-full text-right space-y-6 shadow-2xl">
+            <div className="flex items-center gap-3 text-orange-600">
               <CheckCircle2 className="w-8 h-8 shrink-0" />
               <div>
                 <h3 className="text-xl font-black text-slate-900">درخواست همکاری شما با موفقیت به ثبت رسید</h3>
@@ -539,7 +539,7 @@ export const CollaborationPage: React.FC = () => {
               </div>
               <div className="flex justify-between py-1 border-b border-slate-200">
                 <span>نوع تعامل:</span>
-                <span className="text-blue-800 font-bold">{submittedReq.collabType}</span>
+                <span className="text-orange-600 font-bold">{submittedReq.collabType}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-200">
                 <span>حوزه تخصصی:</span>
@@ -548,7 +548,7 @@ export const CollaborationPage: React.FC = () => {
               {submittedReq.attachedFileName && (
                 <div className="flex justify-between py-1">
                   <span>فایل ضمیمه‌شده:</span>
-                  <span className="text-emerald-700 font-bold">{submittedReq.attachedFileName}</span>
+                  <span className="text-orange-600 font-bold">{submittedReq.attachedFileName}</span>
                 </div>
               )}
             </div>
@@ -559,7 +559,7 @@ export const CollaborationPage: React.FC = () => {
 
             <button
               onClick={resetForm}
-              className="w-full bg-slate-900 text-white py-3 font-black text-sm hover:bg-slate-800 transition-all"
+              className="w-full bg-black text-white py-3 font-black text-sm hover:bg-slate-800 transition-all"
             >
               بستن و بازگشت
             </button>

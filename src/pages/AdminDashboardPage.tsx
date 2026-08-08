@@ -27,7 +27,13 @@ import {
   Save,
   RefreshCw,
   Building2,
-  Home
+  Home,
+  GraduationCap,
+  SlidersHorizontal,
+  Tag,
+  X,
+  Edit3,
+  Check
 } from 'lucide-react';
 import {
   getAdminState,
@@ -47,11 +53,21 @@ import {
   getCollaborationConfig,
   saveCollaborationConfig,
   getHomeConfig,
-  saveHomeConfig
+  saveHomeConfig,
+  renameLabField,
+  deleteLabField,
+  renameFacultyField,
+  deleteFacultyField,
+  renameProjectCategory,
+  deleteProjectCategory,
+  getCustomCategories,
+  addCustomCategory,
+  removeCustomCategory
 } from '../services/storage';
 import { Lab, FacultyMember, IndustrialProject, CollaborationRequest, FooterConfig, CollaborationPageConfig, HomePageConfig } from '../types';
 import { Toast } from '../components/Toast';
 import { PDFExportModal } from '../components/PDFExportModal';
+import { CategoryDropdownFilter, CategoryOption } from '../components/CategoryDropdownFilter';
 
 export const AdminDashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -142,6 +158,46 @@ export const AdminDashboardPage: React.FC = () => {
   const [projects, setProjectsState] = useState<IndustrialProject[]>([]);
   const [logs, setLogs] = useState(getSecurityLogs());
 
+  // Admin Filter States & Category Manager
+  const [adminLabFilter, setAdminLabFilter] = useState('all');
+  const [adminFacultyFilter, setAdminFacultyFilter] = useState('all');
+  const [adminProjectFilter, setAdminProjectFilter] = useState('all');
+
+  const [customCats, setCustomCats] = useState(getCustomCategories());
+  const [filterModal, setFilterModal] = useState<{
+    isOpen: boolean;
+    type: 'labs' | 'faculty' | 'projects';
+  }>({ isOpen: false, type: 'labs' });
+
+  const [editingCatOldName, setEditingCatOldName] = useState<string | null>(null);
+  const [editingCatNewName, setEditingCatNewName] = useState<string>('');
+  const [newCatInput, setNewCatInput] = useState<string>('');
+
+  const adminLabFieldOptions: CategoryOption[] = Array.from(
+    new Set([...labs.map((l) => l.field), ...customCats.labs])
+  ).filter(Boolean).map((f) => ({
+    id: String(f),
+    label: String(f),
+  }));
+
+  const adminFacultyFieldOptions: CategoryOption[] = Array.from(
+    new Set([...faculty.map((f) => f.field), ...customCats.faculty])
+  ).filter(Boolean).map((f) => ({
+    id: String(f),
+    label: String(f),
+  }));
+
+  const adminProjectCategoryOptions: CategoryOption[] = Array.from(
+    new Set([...projects.map((p) => p.category), ...customCats.projects])
+  ).filter(Boolean).map((c) => ({
+    id: String(c),
+    label: String(c),
+  }));
+
+  const filteredAdminLabs = labs.filter((l) => adminLabFilter === 'all' || l.field === adminLabFilter);
+  const filteredAdminFaculty = faculty.filter((f) => adminFacultyFilter === 'all' || f.field === adminFacultyFilter);
+  const filteredAdminProjects = projects.filter((p) => adminProjectFilter === 'all' || p.category === adminProjectFilter);
+
   // Load all data
   useEffect(() => {
     setRequestsState(getRequests());
@@ -149,7 +205,81 @@ export const AdminDashboardPage: React.FC = () => {
     setFacultyState(getFaculty());
     setProjectsState(getProjects());
     setLogs(getSecurityLogs());
+    setCustomCats(getCustomCategories());
   }, []);
+
+  // ----------------- CATEGORY & FILTER MANAGEMENT HANDLERS -----------------
+  const handleRenameCategoryAction = (oldName: string) => {
+    if (!editingCatNewName.trim() || editingCatNewName.trim() === oldName) {
+      setEditingCatOldName(null);
+      return;
+    }
+    const newName = editingCatNewName.trim();
+
+    if (filterModal.type === 'labs') {
+      const count = renameLabField(oldName, newName);
+      removeCustomCategory('labs', oldName);
+      addCustomCategory('labs', newName);
+      setCustomCats(getCustomCategories());
+      setLabsState(getLabs());
+      setToastMsg(`گرایش "${oldName}" به "${newName}" در ${count} آزمایشگاه تغییر نام داد.`);
+    } else if (filterModal.type === 'faculty') {
+      const count = renameFacultyField(oldName, newName);
+      removeCustomCategory('faculty', oldName);
+      addCustomCategory('faculty', newName);
+      setCustomCats(getCustomCategories());
+      setFacultyState(getFaculty());
+      setToastMsg(`گرایش "${oldName}" به "${newName}" در ${count} استاد تغییر نام داد.`);
+    } else {
+      const count = renameProjectCategory(oldName, newName);
+      removeCustomCategory('projects', oldName);
+      addCustomCategory('projects', newName);
+      setCustomCats(getCustomCategories());
+      setProjectsState(getProjects());
+      setToastMsg(`دسته‌بندی "${oldName}" به "${newName}" در ${count} پروژه تغییر نام داد.`);
+    }
+
+    setEditingCatOldName(null);
+    setEditingCatNewName('');
+  };
+
+  const handleDeleteCategoryAction = (catName: string) => {
+    if (!window.confirm(`آیا از حذف/ادغام گرایش "${catName}" اطمینان دارید؟`)) return;
+
+    if (filterModal.type === 'labs') {
+      const count = deleteLabField(catName, 'عمومی');
+      removeCustomCategory('labs', catName);
+      setCustomCats(getCustomCategories());
+      setLabsState(getLabs());
+      if (adminLabFilter === catName) setAdminLabFilter('all');
+      setToastMsg(`گرایش "${catName}" حذف شد و ${count} مورد به "عمومی" منتقل شدند.`);
+    } else if (filterModal.type === 'faculty') {
+      const count = deleteFacultyField(catName, 'سایر');
+      removeCustomCategory('faculty', catName);
+      setCustomCats(getCustomCategories());
+      setFacultyState(getFaculty());
+      if (adminFacultyFilter === catName) setAdminFacultyFilter('all');
+      setToastMsg(`گرایش "${catName}" حذف شد و ${count} مورد به "سایر" منتقل شدند.`);
+    } else {
+      const count = deleteProjectCategory(catName, 'سایر صنایع');
+      removeCustomCategory('projects', catName);
+      setCustomCats(getCustomCategories());
+      setProjectsState(getProjects());
+      if (adminProjectFilter === catName) setAdminProjectFilter('all');
+      setToastMsg(`دسته‌بندی "${catName}" حذف شد و ${count} مورد به "سایر صنایع" منتقل شدند.`);
+    }
+  };
+
+  const handleAddCategoryAction = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCatInput.trim()) return;
+    const trimmed = newCatInput.trim();
+
+    addCustomCategory(filterModal.type, trimmed);
+    setCustomCats(getCustomCategories());
+    setNewCatInput('');
+    setToastMsg(`گرایش/دسته‌بندی جدید "${trimmed}" اضافه شد.`);
+  };
 
   // ----------------- CHANGE PASSWORD HANDLER -----------------
   const handleChangePassword = (e: React.FormEvent) => {
@@ -728,7 +858,7 @@ export const AdminDashboardPage: React.FC = () => {
                           ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
                           : req.status === 'پذیرفته‌شده'
                           ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                          : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                          : 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
                       }`}>
                         {req.status}
                       </span>
@@ -870,14 +1000,31 @@ export const AdminDashboardPage: React.FC = () => {
 
               <div>
                 <label className="text-[#A0A0A0] block mb-1">حوزه تخصصی *</label>
-                <input
-                  type="text"
-                  required
-                  value={labField}
-                  onChange={(e) => setLabField(e.target.value)}
-                  placeholder="مثلاً: رباتیک و اتوماسیون"
-                  className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl px-3 py-2.5 text-white"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    required
+                    value={labField}
+                    onChange={(e) => setLabField(e.target.value)}
+                    placeholder="مثلاً: رباتیک و اتوماسیون"
+                    className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl px-3 py-2.5 text-white"
+                  />
+                  {adminLabFieldOptions.length > 0 && (
+                    <select
+                      onChange={(e) => {
+                        if (e.target.value) setLabField(e.target.value);
+                      }}
+                      value=""
+                      className="bg-[#1B1B1E] border border-[#28282D] text-[#A0A0A0] text-xs rounded-xl px-2 py-2.5 max-w-[130px] shrink-0 focus:outline-none hover:text-white"
+                      title="انتخاب از گرایش‌های موجود"
+                    >
+                      <option value="" disabled>انتخاب از لیست...</option>
+                      {adminLabFieldOptions.map((opt) => (
+                        <option key={opt.id} value={opt.id}>{opt.label}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
               </div>
 
               <div>
@@ -970,9 +1117,33 @@ export const AdminDashboardPage: React.FC = () => {
 
           {/* List */}
           <div className="lg:col-span-7 space-y-4">
-            <h2 className="text-xl font-heading font-bold text-white">لیست آزمایشگاه‌های فعال ({labs.length})</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#28282D]">
+              <h2 className="text-xl font-heading font-bold text-white">
+                لیست آزمایشگاه‌های فعال ({filteredAdminLabs.length} از {labs.length})
+              </h2>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setFilterModal({ isOpen: true, type: 'labs' })}
+                  className="px-3 py-2.5 bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white border border-orange-500/30 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0"
+                  title="مدیریت و تغییر خود فیلترها/گرایش‌ها"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  <span>ویرایش فیلترها</span>
+                </button>
+                <CategoryDropdownFilter
+                  options={adminLabFieldOptions}
+                  selectedId={adminLabFilter}
+                  onSelect={setAdminLabFilter}
+                  placeholder="فیلتر بر اساس حوزه تخصصی"
+                  allLabel="همه آزمایشگاه‌ها"
+                  variant="dark"
+                  icon={<FlaskConical className="w-4 h-4 text-orange-500" />}
+                />
+              </div>
+            </div>
             <div className="space-y-3">
-              {labs.map((lab) => (
+              {filteredAdminLabs.map((lab) => (
                 <div key={lab.id} className="bg-[#141416] border border-[#28282D] p-5 rounded-2xl flex items-center justify-between gap-4">
                   <div className="space-y-1">
                     <span className="text-[10px] text-[#E8530D] font-bold bg-[#E8530D]/10 px-2 py-0.5 rounded">{lab.field}</span>
@@ -982,7 +1153,7 @@ export const AdminDashboardPage: React.FC = () => {
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={() => setExportModal({ type: 'lab', data: lab })}
-                      className="px-3 py-2 bg-[#1B1B1E] text-amber-500 hover:text-amber-400 hover:border-amber-500/50 rounded-xl border border-[#28282D] flex items-center gap-1.5 text-xs font-bold transition-colors"
+                      className="px-3 py-2 bg-[#1B1B1E] text-orange-500 hover:text-orange-400 hover:border-orange-500/50 rounded-xl border border-[#28282D] flex items-center gap-1.5 text-xs font-bold transition-colors"
                       title="دانلود شناسنامه / تجهیزات (PDF)"
                     >
                       <Download className="w-4 h-4" />
@@ -1049,14 +1220,31 @@ export const AdminDashboardPage: React.FC = () => {
                 </div>
                 <div>
                   <label className="text-[#A0A0A0] block mb-1">حوزه تخصصی *</label>
-                  <input
-                    type="text"
-                    required
-                    value={facField}
-                    onChange={(e) => setFacField(e.target.value)}
-                    placeholder="مکانیک سیالات..."
-                    className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl px-3 py-2.5 text-white"
-                  />
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      required
+                      value={facField}
+                      onChange={(e) => setFacField(e.target.value)}
+                      placeholder="مکانیک سیالات..."
+                      className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl px-3 py-2.5 text-white"
+                    />
+                    {adminFacultyFieldOptions.length > 0 && (
+                      <select
+                        onChange={(e) => {
+                          if (e.target.value) setFacField(e.target.value);
+                        }}
+                        value=""
+                        className="bg-[#1B1B1E] border border-[#28282D] text-[#A0A0A0] text-xs rounded-xl px-1.5 py-2.5 max-w-[100px] shrink-0 focus:outline-none hover:text-white"
+                        title="انتخاب از گرایش‌های موجود"
+                      >
+                        <option value="" disabled>انتخاب...</option>
+                        {adminFacultyFieldOptions.map((opt) => (
+                          <option key={opt.id} value={opt.id}>{opt.label}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -1127,9 +1315,33 @@ export const AdminDashboardPage: React.FC = () => {
 
           {/* List */}
           <div className="lg:col-span-7 space-y-4">
-            <h2 className="text-xl font-heading font-bold text-white">لیست اعضای هیئت علمی ({faculty.length})</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#28282D]">
+              <h2 className="text-xl font-heading font-bold text-white">
+                لیست اعضای هیئت علمی ({filteredAdminFaculty.length} از {faculty.length})
+              </h2>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setFilterModal({ isOpen: true, type: 'faculty' })}
+                  className="px-3 py-2.5 bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white border border-orange-500/30 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0"
+                  title="مدیریت و تغییر خود فیلترها/گرایش‌ها"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  <span>ویرایش فیلترها</span>
+                </button>
+                <CategoryDropdownFilter
+                  options={adminFacultyFieldOptions}
+                  selectedId={adminFacultyFilter}
+                  onSelect={setAdminFacultyFilter}
+                  placeholder="فیلتر بر اساس گرایش"
+                  allLabel="همه اساتید"
+                  variant="dark"
+                  icon={<GraduationCap className="w-4 h-4 text-orange-500" />}
+                />
+              </div>
+            </div>
             <div className="space-y-3">
-              {faculty.map((f) => (
+              {filteredAdminFaculty.map((f) => (
                 <div key={f.id} className="bg-[#141416] border border-[#28282D] p-5 rounded-2xl flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <img src={f.avatarUrl} alt={f.name} className="w-12 h-12 rounded-full object-cover border border-[#E8530D]" />
@@ -1141,7 +1353,7 @@ export const AdminDashboardPage: React.FC = () => {
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={() => setExportModal({ type: 'faculty', data: f })}
-                      className="px-3 py-2 bg-[#1B1B1E] text-amber-500 hover:text-amber-400 hover:border-amber-500/50 rounded-xl border border-[#28282D] flex items-center gap-1.5 text-xs font-bold transition-colors"
+                      className="px-3 py-2 bg-[#1B1B1E] text-orange-500 hover:text-orange-400 hover:border-orange-500/50 rounded-xl border border-[#28282D] flex items-center gap-1.5 text-xs font-bold transition-colors"
                       title="دانلود شناسنامه / رزومه (PDF)"
                     >
                       <Download className="w-4 h-4" />
@@ -1207,14 +1419,31 @@ export const AdminDashboardPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-[#A0A0A0] block mb-1">حوزه صنعتی *</label>
-                  <input
-                    type="text"
-                    required
-                    value={projCategory}
-                    onChange={(e) => setProjCategory(e.target.value)}
-                    placeholder="خودروسازی..."
-                    className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl px-3 py-2.5 text-white"
-                  />
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      required
+                      value={projCategory}
+                      onChange={(e) => setProjCategory(e.target.value)}
+                      placeholder="خودروسازی..."
+                      className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl px-3 py-2.5 text-white"
+                    />
+                    {adminProjectCategoryOptions.length > 0 && (
+                      <select
+                        onChange={(e) => {
+                          if (e.target.value) setProjCategory(e.target.value);
+                        }}
+                        value=""
+                        className="bg-[#1B1B1E] border border-[#28282D] text-[#A0A0A0] text-xs rounded-xl px-1.5 py-2.5 max-w-[100px] shrink-0 focus:outline-none hover:text-white"
+                        title="انتخاب از حوزه‌های صنعتی موجود"
+                      >
+                        <option value="" disabled>انتخاب...</option>
+                        {adminProjectCategoryOptions.map((opt) => (
+                          <option key={opt.id} value={opt.id}>{opt.label}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <label className="text-[#A0A0A0] block mb-1">سال اجرا</label>
@@ -1273,9 +1502,33 @@ export const AdminDashboardPage: React.FC = () => {
 
           {/* List */}
           <div className="lg:col-span-7 space-y-4">
-            <h2 className="text-xl font-heading font-bold text-white">لیست پروژه‌های نمونه کار ({projects.length})</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#28282D]">
+              <h2 className="text-xl font-heading font-bold text-white">
+                لیست پروژه‌های نمونه کار ({filteredAdminProjects.length} از {projects.length})
+              </h2>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setFilterModal({ isOpen: true, type: 'projects' })}
+                  className="px-3 py-2.5 bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white border border-orange-500/30 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0"
+                  title="مدیریت و تغییر خود فیلترها/دسته‌بندی‌ها"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  <span>ویرایش فیلترها</span>
+                </button>
+                <CategoryDropdownFilter
+                  options={adminProjectCategoryOptions}
+                  selectedId={adminProjectFilter}
+                  onSelect={setAdminProjectFilter}
+                  placeholder="فیلتر بر اساس حوزه صنعتی"
+                  allLabel="همه پروژه‌ها"
+                  variant="dark"
+                  icon={<Briefcase className="w-4 h-4 text-orange-500" />}
+                />
+              </div>
+            </div>
             <div className="space-y-3">
-              {projects.map((p) => (
+              {filteredAdminProjects.map((p) => (
                 <div key={p.id} className="bg-[#141416] border border-[#28282D] p-5 rounded-2xl flex items-center justify-between gap-4">
                   <div className="space-y-1">
                     <span className="text-[10px] text-[#E8530D] font-bold">کارفرما: {p.clientCompany} ({p.year})</span>
@@ -1284,7 +1537,7 @@ export const AdminDashboardPage: React.FC = () => {
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={() => setExportModal({ type: 'project', data: p })}
-                      className="px-3 py-2 bg-[#1B1B1E] text-amber-500 hover:text-amber-400 hover:border-amber-500/50 rounded-xl border border-[#28282D] flex items-center gap-1.5 text-xs font-bold transition-colors"
+                      className="px-3 py-2 bg-[#1B1B1E] text-orange-500 hover:text-orange-400 hover:border-orange-500/50 rounded-xl border border-[#28282D] flex items-center gap-1.5 text-xs font-bold transition-colors"
                       title="دانلود شناسنامه پروژه (PDF)"
                     >
                       <Download className="w-4 h-4" />
@@ -2157,6 +2410,224 @@ export const AdminDashboardPage: React.FC = () => {
           data={exportModal.data}
           onClose={() => setExportModal(null)}
         />
+      )}
+
+      {/* Category / Filter Manager Modal */}
+      {filterModal.isOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-[#141416] border border-[#28282D] w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative text-right space-y-6">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-[#28282D] pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-orange-500/10 rounded-xl border border-orange-500/20 text-orange-500">
+                  <SlidersHorizontal className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-heading font-bold text-white">مدیریت و ویرایش خود فیلترها و گرایش‌ها</h3>
+                  <p className="text-xs text-[#A0A0A0]">تغییر نام یا حذف مستقیم دسته‌بندی‌ها و اعمال آنی بر روی تمامی آیتم‌ها</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterModal({ isOpen: false, type: 'labs' });
+                  setEditingCatOldName(null);
+                }}
+                className="p-1.5 rounded-lg text-[#A0A0A0] hover:text-white hover:bg-[#1B1B1E] transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Type Tabs */}
+            <div className="flex items-center gap-2 bg-[#1B1B1E] p-1.5 rounded-xl border border-[#28282D]">
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterModal({ isOpen: true, type: 'labs' });
+                  setEditingCatOldName(null);
+                }}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  filterModal.type === 'labs'
+                    ? 'bg-[#E8530D] text-white shadow'
+                    : 'text-[#A0A0A0] hover:text-white'
+                }`}
+              >
+                <FlaskConical className="w-4 h-4" />
+                <span>آزمایشگاه‌ها</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterModal({ isOpen: true, type: 'faculty' });
+                  setEditingCatOldName(null);
+                }}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  filterModal.type === 'faculty'
+                    ? 'bg-[#E8530D] text-white shadow'
+                    : 'text-[#A0A0A0] hover:text-white'
+                }`}
+              >
+                <GraduationCap className="w-4 h-4" />
+                <span>هیئت علمی</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterModal({ isOpen: true, type: 'projects' });
+                  setEditingCatOldName(null);
+                }}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  filterModal.type === 'projects'
+                    ? 'bg-[#E8530D] text-white shadow'
+                    : 'text-[#A0A0A0] hover:text-white'
+                }`}
+              >
+                <Briefcase className="w-4 h-4" />
+                <span>پروژه‌های صنعتی</span>
+              </button>
+            </div>
+
+            {/* Existing Categories List */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold text-orange-400 flex items-center gap-1.5">
+                <Tag className="w-4 h-4" />
+                <span>فهرست فیلترها / گرایش‌های موجود ({
+                  filterModal.type === 'labs'
+                    ? adminLabFieldOptions.length
+                    : filterModal.type === 'faculty'
+                    ? adminFacultyFieldOptions.length
+                    : adminProjectCategoryOptions.length
+                })</span>
+              </h4>
+
+              <div className="max-h-60 overflow-y-auto space-y-2 pr-1 scrollbar-thin scrollbar-thumb-slate-700">
+                {(filterModal.type === 'labs'
+                  ? adminLabFieldOptions
+                  : filterModal.type === 'faculty'
+                  ? adminFacultyFieldOptions
+                  : adminProjectCategoryOptions
+                ).map((opt) => {
+                  const catName = opt.label;
+                  const isEditing = editingCatOldName === catName;
+                  const count = filterModal.type === 'labs'
+                    ? labs.filter((l) => l.field === catName).length
+                    : filterModal.type === 'faculty'
+                    ? faculty.filter((f) => f.field === catName).length
+                    : projects.filter((p) => p.category === catName).length;
+
+                  return (
+                    <div
+                      key={catName}
+                      className="bg-[#1B1B1E] border border-[#28282D] p-3 rounded-xl flex items-center justify-between gap-3 text-xs"
+                    >
+                      {isEditing ? (
+                        <div className="flex items-center gap-2 w-full">
+                          <input
+                            type="text"
+                            value={editingCatNewName}
+                            onChange={(e) => setEditingCatNewName(e.target.value)}
+                            placeholder="نام جدید گرایش..."
+                            className="flex-1 bg-[#141416] border border-orange-500 rounded-lg px-3 py-1.5 text-white text-xs focus:outline-none"
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRenameCategoryAction(catName)}
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1 shrink-0"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>ذخیره</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEditingCatOldName(null)}
+                            className="bg-[#28282D] text-[#A0A0A0] hover:text-white px-2.5 py-1.5 rounded-lg font-bold transition-all shrink-0"
+                          >
+                            انصراف
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-2.5 truncate">
+                            <span className="font-bold text-white truncate">{catName}</span>
+                            <span className="bg-orange-500/10 text-orange-400 px-2 py-0.5 rounded-full text-[10px] font-bold border border-orange-500/20 shrink-0">
+                              {count} مورد
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingCatOldName(catName);
+                                setEditingCatNewName(catName);
+                              }}
+                              className="px-2.5 py-1.5 bg-[#28282D] hover:bg-orange-500/20 text-[#A0A0A0] hover:text-orange-400 rounded-lg transition-colors flex items-center gap-1 font-semibold"
+                              title="تغییر نام گرایش"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>ویرایش</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteCategoryAction(catName)}
+                              className="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white rounded-lg transition-colors flex items-center gap-1 font-semibold"
+                              title="حذف/ادغام این گرایش"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>حذف</span>
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Add New Category Section */}
+            <form onSubmit={handleAddCategoryAction} className="border-t border-[#28282D] pt-4 space-y-2">
+              <label className="text-xs font-bold text-[#A0A0A0] block">افزودن فیلتر / گرایش جدید به این بخش:</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newCatInput}
+                  onChange={(e) => setNewCatInput(e.target.value)}
+                  placeholder="مثلاً: هوش مصنوعی و بیومکانیک..."
+                  className="flex-1 bg-[#1B1B1E] border border-[#28282D] rounded-xl px-3 py-2 text-white text-xs focus:border-orange-500 focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  disabled={!newCatInput.trim()}
+                  className="bg-[#E8530D] hover:bg-[#F8631D] disabled:opacity-50 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>افزودن</span>
+                </button>
+              </div>
+            </form>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterModal({ isOpen: false, type: 'labs' });
+                  setEditingCatOldName(null);
+                }}
+                className="bg-[#1B1B1E] hover:bg-[#28282D] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all"
+              >
+                بستن پنجره
+              </button>
+            </div>
+
+          </div>
+        </div>
       )}
 
     </div>

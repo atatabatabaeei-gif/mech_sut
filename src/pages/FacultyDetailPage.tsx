@@ -3,9 +3,7 @@ import { useParams, useNavigate, NavLink } from 'react-router-dom';
 import {
   ArrowRight,
   User,
-  Mail,
-  Phone,
-  MapPin,
+  Building2,
   BookOpen,
   Briefcase,
   FlaskConical,
@@ -57,7 +55,7 @@ export const FacultyDetailPage: React.FC = () => {
       </div>
 
       {/* Profile Banner */}
-      <div className="bg-white border-r-8 border-blue-800 p-8 sm:p-10 shadow-sm relative overflow-hidden">
+      <div className="bg-white border-r-8 border-orange-500 p-8 sm:p-10 shadow-sm relative overflow-hidden">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10">
           
           <img
@@ -67,7 +65,7 @@ export const FacultyDetailPage: React.FC = () => {
           />
 
           <div className="space-y-4 text-center md:text-right flex-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-600 text-slate-900 text-xs font-bold uppercase">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-black text-orange-400 text-xs font-bold uppercase border border-orange-500/30">
               <span>{member.title}</span>
               <span>•</span>
               <span>{member.field}</span>
@@ -83,16 +81,8 @@ export const FacultyDetailPage: React.FC = () => {
 
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 pt-2 text-xs sm:text-sm text-slate-600 font-bold">
               <span className="flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-blue-800" />
-                {member.office}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Phone className="w-4 h-4 text-blue-800" />
-                {member.phone}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Mail className="w-4 h-4 text-blue-800" />
-                {member.email}
+                <Building2 className="w-4 h-4 text-orange-500" />
+                دانشکده مهندسی مکانیک
               </span>
             </div>
           </div>
@@ -100,7 +90,7 @@ export const FacultyDetailPage: React.FC = () => {
           <div className="flex flex-col gap-3 shrink-0 w-full md:w-auto">
             <button
               onClick={() => navigate(`/collaboration?targetFaculty=${encodeURIComponent(member.name)}`)}
-              className="bg-blue-800 hover:bg-blue-900 text-white px-6 py-3 text-xs font-black transition-all flex items-center justify-center gap-2 shadow-md"
+              className="bg-orange-500 hover:bg-orange-600 text-black px-6 py-3 text-xs font-black transition-all flex items-center justify-center gap-2 shadow-md"
             >
               <Send className="w-4 h-4" />
               <span>درخواست مشاوره یا تعریف پروژه</span>
@@ -130,8 +120,8 @@ export const FacultyDetailPage: React.FC = () => {
           
           {/* Biography */}
           <section className="bg-white border border-slate-200 p-8 shadow-sm space-y-4">
-            <h2 className="text-2xl font-black text-slate-900 border-r-4 border-amber-600 pr-3 flex items-center gap-2">
-              <User className="w-5 h-5 text-amber-600" />
+            <h2 className="text-2xl font-black text-slate-900 border-r-4 border-orange-500 pr-3 flex items-center gap-2">
+              <User className="w-5 h-5 text-orange-500" />
               بیوگرافی و سوابق پژوهشی
             </h2>
             <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
@@ -141,8 +131,8 @@ export const FacultyDetailPage: React.FC = () => {
 
           {/* Specializations & Skills */}
           <section className="bg-white border border-slate-200 p-8 shadow-sm space-y-4">
-            <h2 className="text-2xl font-black text-slate-900 border-r-4 border-blue-800 pr-3 flex items-center gap-2">
-              <Award className="w-5 h-5 text-blue-800" />
+            <h2 className="text-2xl font-black text-slate-900 border-r-4 border-orange-500 pr-3 flex items-center gap-2">
+              <Award className="w-5 h-5 text-orange-500" />
               حوزه‌های تخصصی و مهارت‌های کلیدی
             </h2>
             <div className="flex flex-wrap gap-2 pt-2">
@@ -159,8 +149,8 @@ export const FacultyDetailPage: React.FC = () => {
 
           {/* Selected Publications & Books */}
           <section className="bg-white border border-slate-200 p-8 shadow-sm space-y-4">
-            <h2 className="text-2xl font-black text-slate-900 border-r-4 border-amber-600 pr-3 flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-amber-600" />
+            <h2 className="text-2xl font-black text-slate-900 border-r-4 border-orange-500 pr-3 flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-orange-500" />
               گزیده انتشارات، مقالات و کتاب‌ها
             </h2>
             <div className="space-y-3">
@@ -179,8 +169,8 @@ export const FacultyDetailPage: React.FC = () => {
           
           {/* Supervised Labs */}
           <div className="bg-white border border-slate-200 p-6 shadow-sm space-y-4">
-            <h3 className="font-black text-xl text-slate-900 border-r-4 border-amber-600 pr-2 flex items-center gap-2">
-              <FlaskConical className="w-4 h-4 text-amber-600" />
+            <h3 className="font-black text-xl text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
+              <FlaskConical className="w-4 h-4 text-orange-500" />
               آزمایشگاه‌های تحت سرپرستی
             </h3>
 
@@ -192,10 +182,10 @@ export const FacultyDetailPage: React.FC = () => {
                   <NavLink
                     key={lab.id}
                     to={`/labs/${lab.id}`}
-                    className="block bg-slate-50 border border-slate-200 p-4 hover:border-blue-800 transition-colors group"
+                    className="block bg-slate-50 border border-slate-200 p-4 hover:border-orange-500 transition-colors group"
                   >
-                    <span className="text-[11px] text-amber-700 font-bold">{lab.field}</span>
-                    <h4 className="text-slate-900 text-sm font-black group-hover:text-blue-800 transition-colors">{lab.name}</h4>
+                    <span className="text-[11px] text-orange-600 font-bold">{lab.field}</span>
+                    <h4 className="text-slate-900 text-sm font-black group-hover:text-orange-600 transition-colors">{lab.name}</h4>
                     <span className="text-[11px] text-slate-500 block mt-1">مشاهده تجهیزات و سوابق ←</span>
                   </NavLink>
                 ))}
@@ -205,8 +195,8 @@ export const FacultyDetailPage: React.FC = () => {
 
           {/* Industrial Projects Led */}
           <div className="bg-white border border-slate-200 p-6 shadow-sm space-y-4">
-            <h3 className="font-black text-xl text-slate-900 border-r-4 border-blue-800 pr-2 flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-blue-800" />
+            <h3 className="font-black text-xl text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
+              <Briefcase className="w-4 h-4 text-orange-500" />
               پروژه‌های صنعتی هدایت‌شده
             </h3>
 
@@ -218,9 +208,9 @@ export const FacultyDetailPage: React.FC = () => {
                   <div
                     key={proj.id}
                     onClick={() => navigate('/projects')}
-                    className="bg-slate-50 border border-slate-200 p-4 cursor-pointer hover:border-blue-800 transition-colors space-y-1"
+                    className="bg-slate-50 border border-slate-200 p-4 cursor-pointer hover:border-orange-500 transition-colors space-y-1"
                   >
-                    <span className="text-[11px] text-amber-700 font-bold">{proj.clientCompany}</span>
+                    <span className="text-[11px] text-orange-600 font-bold">{proj.clientCompany}</span>
                     <h4 className="text-slate-900 text-sm font-black leading-snug">{proj.title}</h4>
                     <span className="text-[10px] text-slate-500 block">سال اجرای پروژه: {proj.year}</span>
                   </div>

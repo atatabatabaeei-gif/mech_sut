@@ -92,9 +92,9 @@ export const SearchPage: React.FC = () => {
     <div className="pt-24 min-h-screen pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
       
       {/* Header */}
-      <div className="bg-white border-r-8 border-blue-800 p-8 shadow-sm space-y-3">
-        <div className="inline-flex items-center gap-2 bg-slate-100 text-blue-800 border border-slate-300 text-xs font-bold px-3 py-1">
-          <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+      <div className="bg-white border-r-8 border-orange-500 p-8 shadow-sm space-y-3">
+        <div className="inline-flex items-center gap-2 bg-black text-orange-400 border border-orange-500/30 text-xs font-bold px-3 py-1">
+          <Sparkles className="w-3.5 h-3.5 text-orange-500" />
           <span>سیستم جستجوی پیشرفته</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-black text-slate-900">
@@ -114,7 +114,7 @@ export const SearchPage: React.FC = () => {
             value={query}
             onChange={(e) => handleQueryChange(e.target.value)}
             placeholder="کلمه کلیدی مورد نظر را تایپ کنید (مثلاً: نانو سیالات، CFD، تست غیرمخرب)..."
-            className="w-full bg-white border-2 border-slate-300 text-slate-900 text-base sm:text-lg pr-14 pl-6 py-4 focus:outline-none focus:border-blue-800 transition-colors"
+            className="w-full bg-white border-2 border-slate-300 text-slate-900 text-base sm:text-lg pr-14 pl-6 py-4 focus:outline-none focus:border-orange-500 transition-colors"
           />
         </div>
 
@@ -128,8 +128,8 @@ export const SearchPage: React.FC = () => {
                 onClick={() => handleQueryChange(kw)}
                 className={`px-3 py-1 text-xs font-bold transition-all border ${
                   query === kw
-                    ? 'bg-slate-900 text-white border-slate-900'
-                    : 'bg-slate-100 text-slate-700 border-slate-300 hover:border-slate-900'
+                    ? 'bg-black text-orange-400 border-black'
+                    : 'bg-slate-100 text-slate-700 border-slate-300 hover:border-black'
                 }`}
               >
                 #{kw}
@@ -161,7 +161,7 @@ export const SearchPage: React.FC = () => {
           
           <div className="flex items-center justify-between border-b border-slate-300 pb-4 text-sm text-slate-600 font-bold">
             <span>یافته‌های مرتبط با عبارت «<strong className="text-slate-900">{query}</strong>»:</span>
-            <span className="bg-amber-600 text-slate-900 text-xs font-black px-3 py-1">
+            <span className="bg-orange-500 text-black text-xs font-black px-3 py-1">
               مجموع {totalResults} پیشنهاد
             </span>
           </div>
@@ -169,8 +169,8 @@ export const SearchPage: React.FC = () => {
           {/* 1. MATCHING FACULTY MEMBERS */}
           {matchingFaculty.length > 0 && (
             <section className="space-y-6">
-              <h2 className="text-2xl font-black text-slate-900 border-r-4 border-amber-600 pr-3 flex items-center gap-2">
-                <Users className="w-5 h-5 text-blue-800" />
+              <h2 className="text-2xl font-black text-slate-900 border-r-4 border-orange-500 pr-3 flex items-center gap-2">
+                <Users className="w-5 h-5 text-orange-600" />
                 اساتید و اعضای هیئت علمی مرتبط ({matchingFaculty.length})
               </h2>
 
@@ -179,7 +179,7 @@ export const SearchPage: React.FC = () => {
                   <div
                     key={member.id}
                     onClick={() => navigate(`/faculty/${member.id}`)}
-                    className="bg-white border border-slate-200 p-6 cursor-pointer hover:border-slate-900 transition-all space-y-4 group shadow-sm"
+                    className="bg-white border border-slate-200 p-6 cursor-pointer hover:border-black transition-all space-y-4 group shadow-sm"
                   >
                     <div className="flex items-center gap-4">
                       <img
@@ -188,10 +188,10 @@ export const SearchPage: React.FC = () => {
                         className="w-16 h-16 object-cover border-2 border-slate-900"
                       />
                       <div>
-                        <h3 className="text-lg font-black text-slate-900 group-hover:text-blue-800 transition-colors">
+                        <h3 className="text-lg font-black text-slate-900 group-hover:text-orange-600 transition-colors">
                           {member.name}
                         </h3>
-                        <span className="text-xs text-amber-700 font-bold block">{member.title}</span>
+                        <span className="text-xs text-orange-600 font-bold block">{member.title}</span>
                         <span className="text-[11px] text-slate-500 font-bold block">{member.field}</span>
                       </div>
                     </div>
@@ -208,7 +208,7 @@ export const SearchPage: React.FC = () => {
                       ))}
                     </div>
 
-                    <div className="pt-3 border-t border-slate-200 flex justify-between items-center text-xs text-blue-800 font-black">
+                    <div className="pt-3 border-t border-slate-200 flex justify-between items-center text-xs text-orange-600 font-black">
                       <span>مشاهده صفحه اختصاصی</span>
                       <ChevronLeft className="w-4 h-4" />
                     </div>
@@ -221,8 +221,8 @@ export const SearchPage: React.FC = () => {
           {/* 2. MATCHING LABS */}
           {matchingLabs.length > 0 && (
             <section className="space-y-6">
-              <h2 className="text-2xl font-black text-slate-900 border-r-4 border-amber-600 pr-3 flex items-center gap-2">
-                <FlaskConical className="w-5 h-5 text-blue-800" />
+              <h2 className="text-2xl font-black text-slate-900 border-r-4 border-orange-500 pr-3 flex items-center gap-2">
+                <FlaskConical className="w-5 h-5 text-orange-600" />
                 آزمایشگاه‌ها و تجهیزات دارای پتانسیل ({matchingLabs.length})
               </h2>
 
@@ -231,17 +231,17 @@ export const SearchPage: React.FC = () => {
                   <div
                     key={lab.id}
                     onClick={() => navigate(`/labs/${lab.id}`)}
-                    className="bg-white border border-slate-200 p-6 cursor-pointer hover:border-slate-900 transition-all space-y-4 group flex flex-col justify-between shadow-sm"
+                    className="bg-white border border-slate-200 p-6 cursor-pointer hover:border-black transition-all space-y-4 group flex flex-col justify-between shadow-sm"
                   >
                     <div className="space-y-3">
                       <div className="flex justify-between items-start">
-                        <span className="bg-slate-900 text-white text-xs px-3 py-1 font-bold">
+                        <span className="bg-black text-white text-xs px-3 py-1 font-bold">
                           آزمایشگاه: {lab.field}
                         </span>
                         <span className="text-xs text-slate-600 font-bold">سرپرست: {lab.supervisorName}</span>
                       </div>
 
-                      <h3 className="text-xl font-black text-slate-900 group-hover:text-blue-800 transition-colors">
+                      <h3 className="text-xl font-black text-slate-900 group-hover:text-orange-600 transition-colors">
                         {lab.name}
                       </h3>
 
@@ -252,7 +252,7 @@ export const SearchPage: React.FC = () => {
                       {/* Matching Equipment */}
                       {lab.equipment.length > 0 && (
                         <div className="bg-slate-50 p-3 border border-slate-200 space-y-1">
-                          <span className="text-[11px] text-amber-700 font-bold flex items-center gap-1">
+                          <span className="text-[11px] text-orange-600 font-bold flex items-center gap-1">
                             <Wrench className="w-3 h-3" /> تجهیزات کلیدی مرتبط:
                           </span>
                           <span className="text-xs text-slate-900 font-bold block">
@@ -262,7 +262,7 @@ export const SearchPage: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="pt-3 border-t border-slate-200 flex justify-between items-center text-xs text-blue-800 font-black">
+                    <div className="pt-3 border-t border-slate-200 flex justify-between items-center text-xs text-orange-600 font-black">
                       <span>مشاهده تجهیزات و جزئیات</span>
                       <ChevronLeft className="w-4 h-4" />
                     </div>
@@ -275,8 +275,8 @@ export const SearchPage: React.FC = () => {
           {/* 3. MATCHING INDUSTRIAL PROJECTS */}
           {matchingProjects.length > 0 && (
             <section className="space-y-6">
-              <h2 className="text-2xl font-black text-slate-900 border-r-4 border-amber-600 pr-3 flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-blue-800" />
+              <h2 className="text-2xl font-black text-slate-900 border-r-4 border-orange-500 pr-3 flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-orange-600" />
                 پروژه‌های صنعتی قبلی مرتبط ({matchingProjects.length})
               </h2>
 
@@ -285,10 +285,10 @@ export const SearchPage: React.FC = () => {
                   <div
                     key={proj.id}
                     onClick={() => navigate('/projects')}
-                    className="bg-white border border-slate-200 p-6 cursor-pointer hover:border-slate-900 transition-all space-y-3 group shadow-sm"
+                    className="bg-white border border-slate-200 p-6 cursor-pointer hover:border-black transition-all space-y-3 group shadow-sm"
                   >
-                    <span className="text-xs text-amber-700 font-bold block">کارفرما: {proj.clientCompany}</span>
-                    <h3 className="text-base font-black text-slate-900 group-hover:text-blue-800 transition-colors leading-snug">
+                    <span className="text-xs text-orange-600 font-bold block">کارفرما: {proj.clientCompany}</span>
+                    <h3 className="text-base font-black text-slate-900 group-hover:text-orange-600 transition-colors leading-snug">
                       {proj.title}
                     </h3>
                     <p className="text-xs text-slate-600 line-clamp-2">
@@ -296,7 +296,7 @@ export const SearchPage: React.FC = () => {
                     </p>
                     <div className="pt-2 flex justify-between items-center text-xs text-slate-500 font-bold">
                       <span>دسته‌بندی: {proj.category}</span>
-                      <span className="text-blue-800 font-black">جزئیات پروژه ←</span>
+                      <span className="text-orange-600 font-black">جزئیات پروژه ←</span>
                     </div>
                   </div>
                 ))}

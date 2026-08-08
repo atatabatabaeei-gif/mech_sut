@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, FlaskConical, ChevronLeft, ArrowRight } from 'lucide-react';
-import { getLabs } from '../services/storage';
+import { getLabs, getCustomCategories } from '../services/storage';
+import { CategoryDropdownFilter, CategoryOption } from '../components/CategoryDropdownFilter';
 
 export const LabsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -9,7 +10,11 @@ export const LabsPage: React.FC = () => {
   const [selectedField, setSelectedField] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const fields = ['all', ...Array.from(new Set(labs.map((l) => l.field)))];
+  const rawFields = Array.from(new Set([...labs.map((l) => l.field), ...getCustomCategories().labs])).filter(Boolean);
+  const fieldOptions: CategoryOption[] = rawFields.map((field) => ({
+    id: field,
+    label: field,
+  }));
 
   const filteredLabs = labs.filter((lab) => {
     const matchesField = selectedField === 'all' || lab.field === selectedField;
@@ -25,8 +30,8 @@ export const LabsPage: React.FC = () => {
     <div className="pt-24 min-h-screen pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
       
       {/* Page Header */}
-      <div className="bg-white border-r-8 border-blue-800 p-8 shadow-sm space-y-3">
-        <span className="text-amber-600 font-bold text-xs tracking-widest uppercase block">
+      <div className="bg-white border-r-8 border-orange-500 p-8 shadow-sm space-y-3">
+        <span className="text-orange-600 font-bold text-xs tracking-widest uppercase block">
           زیرساخت‌های پژوهشی
         </span>
         <h1 className="text-3xl sm:text-5xl font-black text-slate-900">
@@ -38,23 +43,23 @@ export const LabsPage: React.FC = () => {
       </div>
 
       {/* Filter Bar & Search Input */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between border-b border-slate-300 pb-6">
+      <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between border-b border-slate-300 pb-6">
         
-        {/* Field Category Filter Tabs */}
-        <div className="flex flex-wrap gap-2 w-full md:w-auto">
-          {fields.map((f) => (
-            <button
-              key={f}
-              onClick={() => setSelectedField(f)}
-              className={`px-4 py-2 text-xs font-black transition-all border-2 ${
-                selectedField === f
-                  ? 'bg-slate-900 text-white border-slate-900'
-                  : 'bg-white text-slate-700 border-slate-300 hover:border-slate-900'
-              }`}
-            >
-              {f === 'all' ? 'همه آزمایشگاه‌ها' : f}
-            </button>
-          ))}
+        {/* Collapsible Category Dropdown Filter */}
+        <div className="flex items-center gap-3">
+          <CategoryDropdownFilter
+            options={fieldOptions}
+            selectedId={selectedField}
+            onSelect={setSelectedField}
+            placeholder="حوزه تخصصی آزمایشگاه"
+            allLabel="همه آزمایشگاه‌ها"
+            icon={<FlaskConical className="w-4 h-4" />}
+          />
+          {selectedField !== 'all' && (
+            <span className="hidden sm:inline-block text-xs font-bold text-orange-600 bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-md">
+              تعداد آزمایشگاه‌ها: {filteredLabs.length} واحد
+            </span>
+          )}
         </div>
 
         {/* Search Input */}
@@ -65,7 +70,7 @@ export const LabsPage: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="جستجوی نام یا تجهیزات..."
-            className="w-full bg-white border border-slate-300 text-slate-900 text-xs sm:text-sm pr-10 pl-4 py-2.5 focus:outline-none focus:border-blue-800 transition-colors"
+            className="w-full bg-white border border-slate-300 rounded-lg text-slate-900 text-xs sm:text-sm pr-10 pl-4 py-2.5 focus:outline-none focus:border-orange-500 transition-colors shadow-sm"
           />
         </div>
       </div>
@@ -77,7 +82,7 @@ export const LabsPage: React.FC = () => {
           <p className="text-slate-600 text-base">آزمایشگاهی با مشخصات مورد نظر شما یافت نشد.</p>
           <button
             onClick={() => { setSelectedField('all'); setSearchQuery(''); }}
-            className="text-blue-800 hover:underline text-sm font-bold"
+            className="text-orange-600 hover:underline text-sm font-bold"
           >
             پاک کردن فیلترها
           </button>
@@ -97,12 +102,12 @@ export const LabsPage: React.FC = () => {
                     alt={lab.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <span className="absolute top-2 right-2 bg-amber-600 text-slate-900 font-bold px-2 py-0.5 text-[10px]">
+                  <span className="absolute top-2 right-2 bg-orange-500 text-black font-bold px-2 py-0.5 text-[10px]">
                     {lab.field}
                   </span>
                 </div>
 
-                <h2 className="text-xl font-black text-slate-900 group-hover:text-blue-800 transition-colors mb-2">
+                <h2 className="text-xl font-black text-slate-900 group-hover:text-orange-600 transition-colors mb-2">
                   {lab.name}
                 </h2>
                 <p className="text-slate-500 text-xs line-clamp-3 leading-relaxed mb-4">
@@ -110,7 +115,7 @@ export const LabsPage: React.FC = () => {
                 </p>
               </div>
 
-              <button className="mt-auto text-xs font-black py-2.5 px-4 border-2 border-slate-900 group-hover:bg-slate-900 group-hover:text-white transition-all text-right flex items-center justify-between">
+              <button className="mt-auto text-xs font-black py-2.5 px-4 border-2 border-black group-hover:bg-black group-hover:text-white transition-all text-right flex items-center justify-between">
                 <span>صفحه اختصاصی آزمایشگاه</span>
                 <span>←</span>
               </button>

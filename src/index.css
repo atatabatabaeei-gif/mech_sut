@@ -3,15 +3,16 @@
 
 @layer base {
   :root {
-    --bg-main: #F1F5F9;
+    --bg-main: #F8FAFC;
     --bg-sec: #FFFFFF;
-    --bg-navy: #0F172A;
+    --bg-navy: #09090B;
     --bg-card: #FFFFFF;
-    --text-main: #0F172A;
-    --text-muted: #64748B;
-    --accent-blue: #1E40AF;
-    --accent-amber: #D97706;
-    --border: #E2E8F0;
+    --text-main: #09090B;
+    --text-muted: #71717A;
+    --accent-orange: #EA580C;
+    --accent-blue: #EA580C;
+    --accent-amber: #F97316;
+    --border: #E4E4E7;
   }
 
   body {

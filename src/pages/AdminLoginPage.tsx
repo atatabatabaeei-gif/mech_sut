@@ -161,7 +161,7 @@ export const AdminLoginPage: React.FC = () => {
         )}
 
         {lockoutTimer !== null && lockoutTimer > 0 && (
-          <div className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl text-xs text-amber-400 text-center font-bold">
+          <div className="bg-orange-500/10 border border-orange-500/30 p-4 rounded-xl text-xs text-orange-400 text-center font-bold">
             حساب کاربری به علت ۵ تلاش ناموفق مسدود شد. زمان باقیمانده: {lockoutTimer} ثانیه
           </div>
         )}
