@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Send,
@@ -12,7 +12,9 @@ import {
   FlaskConical,
   ShieldCheck,
   AlertCircle,
-  HelpCircle
+  HelpCircle,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { addRequest, getCollaborationConfig } from '../services/storage';
 import { CollaborationRequest } from '../types';
@@ -23,6 +25,17 @@ export const CollaborationPage: React.FC = () => {
   const navigate = useNavigate();
 
   const config = getCollaborationConfig();
+
+  const partnersScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollPartners = (direction: 'left' | 'right') => {
+    if (!partnersScrollRef.current) return;
+    const scrollAmount = 280;
+    partnersScrollRef.current.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth'
+    });
+  };
 
   const preLab = searchParams.get('targetLab') || '';
   const preFaculty = searchParams.get('targetFaculty') || '';
@@ -212,17 +225,60 @@ export const CollaborationPage: React.FC = () => {
       {/* ═══════════ 3. PARTNERS & LOGOS ═══════════ */}
       {config.partners && config.partners.length > 0 && (
         <section className="space-y-6">
-          <h2 className="text-2xl font-black text-slate-900 border-r-4 border-orange-500 pr-3">
-            {config.partnersTitle}
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-black text-slate-900 border-r-4 border-orange-500 pr-3">
+              {config.partnersTitle}
+            </h2>
+
+            {/* Navigation buttons for horizontal scrolling */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => scrollPartners('right')}
+                className="p-2 bg-white border border-slate-300 hover:border-orange-500 hover:bg-orange-50 text-slate-700 hover:text-orange-600 rounded-xl shadow-sm transition-all"
+                title="قبلی"
+                aria-label="Previous partners"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollPartners('left')}
+                className="p-2 bg-white border border-slate-300 hover:border-orange-500 hover:bg-orange-50 text-slate-700 hover:text-orange-600 rounded-xl shadow-sm transition-all"
+                title="بعدی"
+                aria-label="Next partners"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          <div
+            ref={partnersScrollRef}
+            className="flex items-center gap-4 overflow-x-auto pb-4 pt-1 px-1 scrollbar-thin scrollbar-thumb-orange-500/30 scrollbar-track-transparent snap-x snap-mandatory"
+          >
             {config.partners.map((partner, idx) => (
               <div
                 key={idx}
-                className="bg-white border border-slate-200 p-5 text-center space-y-2 hover:border-slate-400 shadow-sm transition-all"
+                className="min-w-[170px] sm:min-w-[190px] md:min-w-[210px] flex-shrink-0 snap-start bg-white border border-slate-200 hover:border-orange-500 p-5 rounded-2xl text-center flex flex-col items-center justify-center gap-3 shadow-sm hover:shadow-md transition-all h-36 group"
               >
-                <span className="text-3xl block">{partner.icon || '🤝'}</span>
-                <span className="text-xs text-slate-900 font-bold block">{partner.name}</span>
+                {partner.logoUrl ? (
+                  <div className="h-14 w-full flex items-center justify-center px-2">
+                    <img
+                      src={partner.logoUrl}
+                      alt={partner.name}
+                      className="max-h-12 max-w-full object-contain filter group-hover:scale-105 transition-transform"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <span className="text-3xl block group-hover:scale-110 transition-transform">
+                    {partner.icon || '🤝'}
+                  </span>
+                )}
+                <span className="text-xs sm:text-sm text-slate-900 font-bold block line-clamp-1">{partner.name}</span>
               </div>
             ))}
           </div>

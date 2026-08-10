@@ -106,7 +106,8 @@ export interface CollaborationModel {
 
 export interface CollaborationPartner {
   name: string;
-  icon: string;
+  icon?: string;
+  logoUrl?: string;
 }
 
 export interface CollaborationPageConfig {

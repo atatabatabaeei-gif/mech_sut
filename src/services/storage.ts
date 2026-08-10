@@ -108,12 +108,12 @@ export const DEFAULT_COLLABORATION_CONFIG: CollaborationPageConfig = {
   ],
   partnersTitle: 'سوابق و شرکای تجاری ما',
   partners: [
-    { name: 'گروه مپنا', icon: '⚡' },
-    { name: 'ایران خودرو', icon: '🚗' },
-    { name: 'شرکت ملی گاز', icon: '🔥' },
-    { name: 'شرکت ملی نفت', icon: '🛢️' },
-    { name: 'گروه سایپا', icon: '🏎️' },
-    { name: 'پالایشگاه اصفهان', icon: '🏭' }
+    { name: 'گروه مپنا', icon: '⚡', logoUrl: 'https://images.unsplash.com/photo-1516802273409-68526ee1bdd6?auto=format&fit=crop&w=200&q=80' },
+    { name: 'ایران خودرو', icon: '🚗', logoUrl: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=200&q=80' },
+    { name: 'شرکت ملی گاز', icon: '🔥', logoUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=200&q=80' },
+    { name: 'شرکت ملی نفت', icon: '🛢️', logoUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=200&q=80' },
+    { name: 'گروه سایپا', icon: '🏎️', logoUrl: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=200&q=80' },
+    { name: 'پالایشگاه اصفهان', icon: '🏭', logoUrl: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b2?auto=format&fit=crop&w=200&q=80' }
   ],
   directContactEmail: 'me-research@sharif.edu',
   directContactPhone: '۰۲۱-۶۶۱۶۵۵۰۰ / ۰۲۱-۶۶۰۲۲۷۰۰',

@@ -33,7 +33,11 @@ import {
   Tag,
   X,
   Edit3,
-  Check
+  Check,
+  Upload,
+  Image as ImageIcon,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import {
   getAdminState,
@@ -64,7 +68,7 @@ import {
   addCustomCategory,
   removeCustomCategory
 } from '../services/storage';
-import { Lab, FacultyMember, IndustrialProject, CollaborationRequest, FooterConfig, CollaborationPageConfig, HomePageConfig } from '../types';
+import { Lab, FacultyMember, IndustrialProject, CollaborationRequest, FooterConfig, CollaborationPageConfig, HomePageConfig, CollaborationPartner } from '../types';
 import { Toast } from '../components/Toast';
 import { PDFExportModal } from '../components/PDFExportModal';
 import { CategoryDropdownFilter, CategoryOption } from '../components/CategoryDropdownFilter';
@@ -143,9 +147,53 @@ export const AdminDashboardPage: React.FC = () => {
   );
 
   const [collabPartnersTitle, setCollabPartnersTitle] = useState(initialCollabConfig.partnersTitle);
-  const [collabPartnersStr, setCollabPartnersStr] = useState(
-    initialCollabConfig.partners.map((p) => `${p.icon || '🤝'} | ${p.name}`).join('\n')
+  const [collabPartnersList, setCollabPartnersList] = useState<CollaborationPartner[]>(
+    initialCollabConfig.partners || []
   );
+
+  const handleAddPartner = () => {
+    setCollabPartnersList((prev) => [
+      ...prev,
+      { name: 'شریک تجاری جدید', icon: '🏢', logoUrl: '' }
+    ]);
+  };
+
+  const handleUpdatePartner = (index: number, field: keyof CollaborationPartner, value: string) => {
+    setCollabPartnersList((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  const handleDeletePartner = (index: number) => {
+    setCollabPartnersList((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleMovePartner = (index: number, direction: 'up' | 'down') => {
+    setCollabPartnersList((prev) => {
+      const updated = [...prev];
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= updated.length) return prev;
+      const temp = updated[index];
+      updated[index] = updated[targetIndex];
+      updated[targetIndex] = temp;
+      return updated;
+    });
+  };
+
+  const handlePartnerLogoFileUpload = (index: number, file: File) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      if (result) {
+        handleUpdatePartner(index, 'logoUrl', result);
+        setToastMsg('لوگوی شرکت با موفقیت آپلود شد.');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   const [collabEmail, setCollabEmail] = useState(initialCollabConfig.directContactEmail);
   const [collabPhone, setCollabPhone] = useState(initialCollabConfig.directContactPhone);
@@ -371,14 +419,6 @@ export const AdminDashboardPage: React.FC = () => {
       return { title: line.trim(), description: line.trim() };
     });
 
-    const partners = collabPartnersStr.split('\n').map((line) => line.trim()).filter(Boolean).map((line) => {
-      const parts = line.split('|');
-      if (parts.length >= 2) {
-        return { icon: parts[0].trim(), name: parts[1].trim() };
-      }
-      return { icon: '🤝', name: line.trim() };
-    });
-
     const updatedConfig: CollaborationPageConfig = {
       headerCategory: collabHeaderCategory,
       headerTitle: collabHeaderTitle,
@@ -388,7 +428,7 @@ export const AdminDashboardPage: React.FC = () => {
       modelsTitle: collabModelsTitle,
       models,
       partnersTitle: collabPartnersTitle,
-      partners,
+      partners: collabPartnersList,
       directContactEmail: collabEmail,
       directContactPhone: collabPhone,
       directContactFax: collabFax
@@ -1964,35 +2004,172 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
 
               {/* Partners Section */}
-              <div className="bg-[#1B1B1E] p-6 rounded-2xl border border-[#28282D] space-y-4">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2 border-r-2 border-[#E8530D] pr-2">
-                  ۴. شرکا و همکاران صنعتی
-                </h3>
+              <div className="bg-[#1B1B1E] p-6 rounded-2xl border border-[#28282D] space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#28282D] pb-4">
+                  <div>
+                    <h3 className="text-base font-bold text-white flex items-center gap-2 border-r-2 border-[#E8530D] pr-2">
+                      ۴. شرکا و همکاران صنعتی ({collabPartnersList.length} مورد)
+                    </h3>
+                    <p className="text-xs text-[#A0A0A0] mt-1">
+                      مدیریت مجزای هر یک از شرکا، آپلود لوگو، تغییر ترتیب و ویرایش نام یا آیکون
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddPartner}
+                    className="bg-[#E8530D] hover:bg-[#F8631D] text-white px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>افزودن شریک جدید</span>
+                  </button>
+                </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="space-y-1.5">
-                    <label className="text-white font-bold block">عنوان بخش شرکا</label>
+                    <label className="text-white font-bold block text-xs">عنوان بخش شرکا</label>
                     <input
                       type="text"
                       required
                       value={collabPartnersTitle}
                       onChange={(e) => setCollabPartnersTitle(e.target.value)}
-                      className="w-full bg-[#141416] border border-[#28282D] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#E8530D]"
+                      className="w-full bg-[#141416] border border-[#28282D] rounded-xl px-4 py-2.5 text-white text-xs focus:outline-none focus:border-[#E8530D]"
                     />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-white font-bold block">
-                      لیست شرکت‌ها (هر خط یک مورد به فرمت: <span className="text-[#E8530D] font-mono">ایموجی یا آیکون | نام شرکت</span>)
-                    </label>
-                    <textarea
-                      rows={4}
-                      value={collabPartnersStr}
-                      onChange={(e) => setCollabPartnersStr(e.target.value)}
-                      className="w-full bg-[#141416] border border-[#28282D] rounded-xl p-4 text-white leading-relaxed font-mono text-[11px] focus:outline-none focus:border-[#E8530D]"
-                      placeholder="🏢 | گروه مپنا"
-                    />
+                  {/* Individual Partner Cards Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    {collabPartnersList.map((partner, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-[#141416] border border-[#28282D] p-4 rounded-xl space-y-3 relative group hover:border-[#E8530D]/50 transition-all"
+                      >
+                        {/* Partner Card Header */}
+                        <div className="flex items-center justify-between border-b border-[#28282D] pb-2">
+                          <span className="text-xs font-bold text-[#E8530D] bg-[#E8530D]/10 px-2 py-0.5 rounded border border-[#E8530D]/20">
+                            شریک #{idx + 1}
+                          </span>
+
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleMovePartner(idx, 'up')}
+                              disabled={idx === 0}
+                              className="p-1 text-[#A0A0A0] hover:text-white disabled:opacity-30 transition-colors"
+                              title="انتقال به بالا"
+                            >
+                              <ArrowUp className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleMovePartner(idx, 'down')}
+                              disabled={idx === collabPartnersList.length - 1}
+                              className="p-1 text-[#A0A0A0] hover:text-white disabled:opacity-30 transition-colors"
+                              title="انتقال به پایین"
+                            >
+                              <ArrowDown className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeletePartner(idx)}
+                              className="p-1 text-rose-400 hover:text-rose-300 transition-colors mr-1"
+                              title="حذف این شریک"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Partner Details Inputs */}
+                        <div className="space-y-3 text-xs">
+                          <div>
+                            <label className="text-[#A0A0A0] font-bold block mb-1">نام شرکت / شریک تجاری:</label>
+                            <input
+                              type="text"
+                              value={partner.name}
+                              onChange={(e) => handleUpdatePartner(idx, 'name', e.target.value)}
+                              placeholder="مثلاً: گروه مپنا..."
+                              className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#E8530D]"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-[#A0A0A0] font-bold block mb-1">ایموجی / آیکون جایگزین:</label>
+                            <input
+                              type="text"
+                              value={partner.icon || ''}
+                              onChange={(e) => handleUpdatePartner(idx, 'icon', e.target.value)}
+                              placeholder="⚡ یا 🏢"
+                              className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#E8530D]"
+                            />
+                          </div>
+
+                          {/* Logo Upload & Preview */}
+                          <div className="space-y-2">
+                            <label className="text-[#A0A0A0] font-bold block">تصویر لوگو:</label>
+
+                            <div className="flex items-center gap-3">
+                              {partner.logoUrl ? (
+                                <div className="relative w-14 h-14 bg-white rounded-lg p-1 border border-[#28282D] flex items-center justify-center shrink-0">
+                                  <img
+                                    src={partner.logoUrl}
+                                    alt={partner.name}
+                                    className="max-h-full max-w-full object-contain"
+                                    onError={(e) => (e.currentTarget.style.display = 'none')}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdatePartner(idx, 'logoUrl', '')}
+                                    className="absolute -top-1.5 -right-1.5 bg-rose-600 text-white p-0.5 rounded-full shadow hover:bg-rose-700"
+                                    title="حذف لوگو"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="w-14 h-14 bg-[#1B1B1E] border border-dashed border-[#28282D] rounded-lg flex items-center justify-center text-2xl text-[#A0A0A0] shrink-0">
+                                  {partner.icon || '🤝'}
+                                </div>
+                              )}
+
+                              <div className="flex-1 space-y-1.5">
+                                <label
+                                  htmlFor={`partner-logo-input-${idx}`}
+                                  className="cursor-pointer bg-[#28282D] hover:bg-[#323238] text-white px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all inline-flex items-center gap-1.5"
+                                >
+                                  <Upload className="w-3.5 h-3.5 text-[#E8530D]" />
+                                  <span>آپلود فایل لوگو</span>
+                                </label>
+                                <input
+                                  type="file"
+                                  id={`partner-logo-input-${idx}`}
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handlePartnerLogoFileUpload(idx, file);
+                                  }}
+                                />
+
+                                <input
+                                  type="text"
+                                  value={partner.logoUrl || ''}
+                                  onChange={(e) => handleUpdatePartner(idx, 'logoUrl', e.target.value)}
+                                  placeholder="یا لینک تصویر (URL)..."
+                                  className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-lg px-2.5 py-1 text-[11px] text-[#A0A0A0] focus:text-white focus:outline-none focus:border-[#E8530D]"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
+
+                  {collabPartnersList.length === 0 && (
+                    <div className="text-center py-6 border border-dashed border-[#28282D] rounded-xl text-[#A0A0A0] text-xs">
+                      هیچ شریک تجاری ثبت نشده است. با زدن دکمه «افزودن شریک جدید» یک مورد اضافه کنید.
+                    </div>
+                  )}
                 </div>
               </div>
 
