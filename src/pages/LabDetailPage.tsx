@@ -7,7 +7,6 @@ import {
   Wrench,
   Award,
   Briefcase,
-  Mail,
   Image as ImageIcon,
   Send
 } from 'lucide-react';
@@ -71,11 +70,6 @@ export const LabDetailPage: React.FC = () => {
             <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white leading-tight drop-shadow-md">
               {lab.name}
             </h1>
-
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-300 pt-1">
-              <Mail className="w-4 h-4 text-orange-400 shrink-0" />
-              <span>{lab.contactEmail}</span>
-            </div>
           </div>
         </div>
 

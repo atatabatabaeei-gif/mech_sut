@@ -7,7 +7,6 @@ import {
   BookOpen,
   Briefcase,
   FlaskConical,
-  ExternalLink,
   ChevronLeft,
   Send,
   Award
@@ -95,18 +94,6 @@ export const FacultyDetailPage: React.FC = () => {
               <Send className="w-4 h-4" />
               <span>درخواست مشاوره یا تعریف پروژه</span>
             </button>
-
-            {member.scholarUrl && (
-              <a
-                href={member.scholarUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="bg-white border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white px-6 py-2.5 text-xs font-black transition-all flex items-center justify-center gap-2"
-              >
-                <span>پروفایل Google Scholar</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            )}
           </div>
 
         </div>
