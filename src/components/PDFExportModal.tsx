@@ -239,11 +239,6 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                   </span>
                   <div className="flex items-center gap-3 text-xs font-bold text-slate-700">
                     <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-orange-500" />
-                      {lab.location}
-                    </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
                       <Mail className="w-3.5 h-3.5 text-orange-500" />
                       {lab.contactEmail}
                     </span>

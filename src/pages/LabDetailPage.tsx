@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate, NavLink } from 'react-router-dom';
 import {
   ArrowRight,
@@ -8,14 +8,10 @@ import {
   Award,
   Briefcase,
   Mail,
-  MapPin,
-  ChevronLeft,
   Image as ImageIcon,
-  Send,
-  Download
+  Send
 } from 'lucide-react';
 import { getLabs, getProjects } from '../services/storage';
-import { PDFExportModal } from '../components/PDFExportModal';
 
 export const LabDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,7 +19,6 @@ export const LabDetailPage: React.FC = () => {
   const labs = getLabs();
   const lab = labs.find((l) => l.id === id);
   const allProjects = getProjects();
-  const [showPdfModal, setShowPdfModal] = useState(false);
 
   if (!lab) {
     return (
@@ -58,30 +53,28 @@ export const LabDetailPage: React.FC = () => {
 
       {/* Lab Hero Header */}
       <div className="bg-white border-r-8 border-orange-500 shadow-sm overflow-hidden">
-        <div className="relative h-64 sm:h-80 w-full bg-slate-100">
+        <div className="relative h-72 sm:h-96 w-full bg-slate-900 flex flex-col justify-end">
           <img
             src={lab.imageUrl}
             alt={lab.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover absolute inset-0"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
           
-          <div className="absolute bottom-6 right-6 left-6 space-y-2">
-            <span className="bg-orange-500 text-black text-xs font-bold px-3 py-1 uppercase shadow">
-              آزمایشگاه پژوهشی — {lab.field}
-            </span>
-            <h1 className="text-3xl sm:text-5xl font-black text-white">
+          <div className="relative z-10 p-6 sm:p-10 flex flex-col justify-end items-start gap-3">
+            <div>
+              <span className="inline-block bg-orange-500 text-black text-xs sm:text-sm font-black px-3.5 py-1.5 uppercase shadow-md">
+                آزمایشگاه پژوهشی — {lab.field}
+              </span>
+            </div>
+
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white leading-tight drop-shadow-md">
               {lab.name}
             </h1>
-            <div className="flex flex-wrap items-center gap-6 text-xs sm:text-sm text-slate-300">
-              <span className="flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-orange-400" />
-                {lab.location}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Mail className="w-4 h-4 text-orange-400" />
-                {lab.contactEmail}
-              </span>
+
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-300 pt-1">
+              <Mail className="w-4 h-4 text-orange-400 shrink-0" />
+              <span>{lab.contactEmail}</span>
             </div>
           </div>
         </div>
@@ -100,15 +93,6 @@ export const LabDetailPage: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setShowPdfModal(true)}
-              className="bg-black hover:bg-slate-900 text-white border border-slate-700 px-4 py-2.5 text-xs font-black transition-all flex items-center justify-center gap-2 shadow-md"
-              title="دانلود شناسنامه تخصصی آزمایشگاه (PDF)"
-            >
-              <Download className="w-4 h-4 text-orange-500" />
-              <span>دانلود شناسنامه PDF</span>
-            </button>
-
             <button
               onClick={() => navigate(`/collaboration?targetLab=${encodeURIComponent(lab.name)}`)}
               className="bg-orange-500 hover:bg-orange-600 text-black px-6 py-2.5 text-xs font-black transition-all flex items-center justify-center gap-2 shadow-md"
@@ -243,35 +227,9 @@ export const LabDetailPage: React.FC = () => {
             )}
           </div>
 
-          {/* Direct Contact Box */}
-          <div className="bg-black border-t-4 border-orange-500 p-6 text-white shadow-md space-y-4">
-            <h3 className="font-black text-lg text-white">ارتباط مستقیم با آزمایشگاه</h3>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              جهت دریافت فرم قیمت‌دهی خدمات، مشاوره فنی یا هماهنگی بازدید حضوری:
-            </p>
-            <div className="space-y-2 text-xs text-orange-400 font-mono">
-              <p>Email: {lab.contactEmail}</p>
-              <p>تلفن: ۰۲۱-۶۶۱۶۵۵۰۰ (داخلی ۴۲۰)</p>
-            </div>
-            <button
-              onClick={() => navigate(`/collaboration?targetLab=${encodeURIComponent(lab.name)}`)}
-              className="w-full bg-orange-500 hover:bg-orange-600 text-black py-2.5 text-xs font-black transition-all"
-            >
-              ثبت درخواست همکاری
-            </button>
-          </div>
-
         </div>
 
       </div>
-
-      {showPdfModal && (
-        <PDFExportModal
-          type="lab"
-          data={lab}
-          onClose={() => setShowPdfModal(false)}
-        />
-      )}
 
     </div>
   );
