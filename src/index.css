@@ -148,6 +148,68 @@
     print-color-adjust: exact !important;
     box-shadow: none !important;
   }
+
+  /* 6. Robust Page Break, Clean Pagination & Anti-Fragmentation Rules */
+  /* Prevent cards, summary blocks, and entire sections from splitting awkwardly across pages */
+  .pdf-section,
+  .pdf-card,
+  .pdf-block,
+  .pdf-avoid-break,
+  .pdf-header-banner,
+  .pdf-footer-banner {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Headings must NEVER be separated from their following paragraphs/content at page bottom */
+  h1, h2, h3, h4, h5, h6,
+  .pdf-section-title,
+  .rich-editor-content h3,
+  .rich-editor-content h4,
+  .bio-rendered-content h3,
+  .bio-rendered-content h4 {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Keep list items and quotes whole, preventing individual bullets from being sliced */
+  li,
+  blockquote,
+  .rich-editor-content li,
+  .bio-rendered-content li,
+  .rich-editor-content blockquote,
+  .bio-rendered-content blockquote {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Paragraph line orphan and widow prevention */
+  p,
+  .rich-editor-content p,
+  .bio-rendered-content p {
+    orphans: 3 !important;
+    widows: 3 !important;
+  }
+
+  /* Manual Page Breaks */
+  .html-page-break,
+  .page-break,
+  [data-page-break="true"] {
+    break-before: page !important;
+    page-break-before: always !important;
+    display: block !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .page-break-tag {
+    display: none !important;
+  }
 }
 
 /* Rich Text & Biography Typography Styles */
@@ -155,6 +217,27 @@
 .prose-bio,
 .bio-rendered-content {
   line-height: 1.8;
+}
+
+/* Visual appearance of manual page breaks during editing/preview */
+.html-page-break,
+[data-page-break="true"] {
+  display: block;
+  margin: 1rem 0;
+  padding: 0.4rem 0.75rem;
+  text-align: center;
+  border-top: 2px dashed #ea580c;
+  border-bottom: 2px dashed #ea580c;
+  background-color: rgba(234, 88, 12, 0.08);
+  border-radius: 6px;
+  user-select: none;
+}
+
+.page-break-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #c2410c;
+  letter-spacing: -0.01em;
 }
 
 .rich-editor-content:empty:before {

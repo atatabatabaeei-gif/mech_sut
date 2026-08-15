@@ -17,7 +17,8 @@ import {
   Heading2,
   Heading3,
   Type,
-  Plus
+  Plus,
+  Scissors
 } from 'lucide-react';
 
 interface RichTextEditorProps {
@@ -466,6 +467,25 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             }`}
           >
             + جوایز و افتخارات (شماره‌دار)
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              insertTemplate(
+                'شکستگی صفحه',
+                `<div data-page-break="true" class="html-page-break"><span class="page-break-tag">✂️ ——— شروع صفحه جدید در چاپ (Page Break) ———</span></div><p><br /></p>`
+              )
+            }
+            className={`px-2 py-0.5 rounded border transition-colors flex items-center gap-1 font-bold ${
+              isDark
+                ? 'bg-orange-950/40 border-orange-700/60 text-orange-400 hover:bg-orange-900/50 hover:text-white'
+                : 'bg-orange-50 border-orange-300 text-orange-700 hover:bg-orange-100'
+            }`}
+            title="انتقال مطالب پس از این نقطه به صفحه بعد در خروجی PDF"
+          >
+            <Scissors className="w-3 h-3" />
+            + شکستگی صفحه (Page Break)
           </button>
         </div>
       )}

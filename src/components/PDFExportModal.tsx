@@ -295,7 +295,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
         <div id="pdf-printable-content" className="p-8 sm:p-12 space-y-8 bg-white text-slate-900 font-['Vazirmatn',sans-serif]">
           
           {/* Header Banner - Clean full-width header without left-side card */}
-          <div className="border-b-4 border-slate-900 pb-5">
+          <div className="pdf-header-banner pdf-avoid-break border-b-4 border-slate-900 pb-5">
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 bg-orange-500 shrink-0"></span>
@@ -331,7 +331,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
           {type === 'faculty' && (
             <div className="space-y-8">
               {/* Profile Card Summary */}
-              <div className="bg-slate-50 border-2 border-slate-900 p-6 flex flex-col md:flex-row gap-6 items-center md:items-start">
+              <div className="pdf-card pdf-avoid-break bg-slate-50 border-2 border-slate-900 p-6 flex flex-col md:flex-row gap-6 items-center md:items-start">
                 <div className="space-y-2 shrink-0 text-center">
                   <img
                     src={facAvatarUrl}
@@ -400,7 +400,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Biography */}
-              <div className="space-y-2">
+              <div className="pdf-section space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
                     <User className="w-4 h-4 text-orange-500" />
@@ -430,7 +430,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Skills & Specializations */}
-              <div className="space-y-2">
+              <div className="pdf-section pdf-avoid-break space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
                     <Award className="w-4 h-4 text-orange-500" />
@@ -479,7 +479,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Selected Publications */}
-              <div className="space-y-2">
+              <div className="pdf-section pdf-avoid-break space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
                     <BookOpen className="w-4 h-4 text-orange-500" />
@@ -498,7 +498,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
 
                 <div className="space-y-2">
                   {facPublications.map((pub, idx) => (
-                    <div key={idx} className="text-xs font-mono text-slate-800 bg-slate-50 border border-slate-200 p-3 flex items-start gap-2.5">
+                    <div key={idx} className="pdf-block text-xs font-mono text-slate-800 bg-slate-50 border border-slate-200 p-3 flex items-start gap-2.5">
                       <span className="font-bold text-orange-600 shrink-0 pt-0.5">{idx + 1}.</span>
                       <div
                         contentEditable={isEditMode}
@@ -532,7 +532,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
           {type === 'lab' && (
             <div className="space-y-8">
               {/* Lab Card Summary */}
-              <div className="bg-slate-50 border-2 border-slate-900 p-6 space-y-4">
+              <div className="pdf-card pdf-avoid-break bg-slate-50 border-2 border-slate-900 p-6 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-300 pb-3">
                   <div className="flex items-center gap-1 bg-slate-900 text-white text-xs font-bold px-3 py-1 border-r-2 border-orange-500">
                     <span>آزمایشگاه پژوهشی —</span>
@@ -612,7 +612,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Full Description / Overview */}
-              <div className="space-y-2">
+              <div className="pdf-section space-y-2">
                 <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
                   <FlaskConical className="w-4 h-4 text-orange-500" />
                   معرفی و حوزه فعالیت تخصصی آزمایشگاه
@@ -628,7 +628,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Equipment & Specifications */}
-              <div className="space-y-2">
+              <div className="pdf-section pdf-avoid-break space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
                     <Wrench className="w-4 h-4 text-orange-500" />
@@ -647,7 +647,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
 
                 <div className="space-y-2">
                   {labEquipment.map((eq, idx) => (
-                    <div key={idx} className="bg-slate-50 border border-slate-200 p-3 text-xs text-slate-800 space-y-1 relative">
+                    <div key={idx} className="pdf-block bg-slate-50 border border-slate-200 p-3 text-xs text-slate-800 space-y-1 relative">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 flex-1">
                           <span className="w-2 h-2 bg-orange-500 rounded-full shrink-0"></span>
@@ -694,7 +694,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Members */}
-              <div className="space-y-2">
+              <div className="pdf-section pdf-avoid-break space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
                     <User className="w-4 h-4 text-orange-500" />
@@ -743,7 +743,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Achievements */}
-              <div className="space-y-2">
+              <div className="pdf-section pdf-avoid-break space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
                     <Award className="w-4 h-4 text-orange-500" />
@@ -762,7 +762,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
 
                 <div className="space-y-2">
                   {labAchievements.map((ach, idx) => (
-                    <div key={idx} className="bg-slate-50 border border-slate-200 p-2.5 text-xs text-slate-800 font-bold flex items-center gap-2">
+                    <div key={idx} className="pdf-block bg-slate-50 border border-slate-200 p-2.5 text-xs text-slate-800 font-bold flex items-center gap-2">
                       <span className="w-2 h-2 bg-orange-500 rounded-full shrink-0"></span>
                       <span
                         contentEditable={isEditMode}
@@ -796,7 +796,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
           {type === 'project' && (
             <div className="space-y-8">
               {/* Project Card Summary */}
-              <div className="bg-slate-50 border-2 border-slate-900 p-6 space-y-4">
+              <div className="pdf-card pdf-avoid-break bg-slate-50 border-2 border-slate-900 p-6 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-300 pb-3">
                   <div className="flex items-center gap-1 bg-slate-900 text-white text-xs font-bold px-3 py-1 border-r-2 border-orange-500">
                     <span>دسته‌بندی:</span>
@@ -888,7 +888,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Full Description */}
-              <div className="space-y-2">
+              <div className="pdf-section space-y-2">
                 <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2">
                   تشریح کامل پروژه و اهداف مهندسی
                 </h3>
@@ -903,7 +903,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Faculty & Lab Execution */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="pdf-section pdf-avoid-break grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="border border-slate-300 p-4 bg-slate-50 space-y-1 text-right">
                   <span className="text-[11px] font-bold text-slate-500 block">استاد راهنما / سرپرست پروژه:</span>
                   <div
@@ -929,7 +929,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Outcomes */}
-              <div className="space-y-2">
+              <div className="pdf-section pdf-avoid-break space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2">
                     نتایج کلیدی و تحویلی‌های پروژه
@@ -947,7 +947,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
 
                 <div className="space-y-2">
                   {projOutcomes.map((out, idx) => (
-                    <div key={idx} className="bg-slate-50 border border-slate-200 p-2.5 text-xs text-slate-800 font-bold flex items-center gap-2">
+                    <div key={idx} className="pdf-block bg-slate-50 border border-slate-200 p-2.5 text-xs text-slate-800 font-bold flex items-center gap-2">
                       <span className="w-2 h-2 bg-orange-500 rounded-full shrink-0"></span>
                       <span
                         contentEditable={isEditMode}
@@ -978,7 +978,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
           )}
 
           {/* Official Footer */}
-          <div className="pt-6 border-t-2 border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+          <div className="pdf-footer-banner pdf-avoid-break pt-6 border-t-2 border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
             {/* Right Side: University Address & Digital Archive */}
             <div className="space-y-1 text-center sm:text-right w-full sm:w-auto">
               <div
