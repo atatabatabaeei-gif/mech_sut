@@ -1527,10 +1527,11 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </tr>
             </tbody>
 
-            {/* Official Repeating Footer - Placed directly in tfoot so the print engine repeats it at the bottom of every page */}
+            {/* Official Repeating Footer - Fixed at bottom of every printed page */}
             <tfoot>
               <tr>
                 <td className="p-0 border-0">
+                  <div className="pdf-footer-spacer hidden" />
                   <div className={`pdf-footer-banner border-t-2 border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600 bg-white ${
                     pageDensity === 'compact' ? 'pt-2 mt-2 pb-0.5' : 'pt-3 mt-3 pb-1'
                   }`}>
