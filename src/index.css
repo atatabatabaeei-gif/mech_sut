@@ -118,6 +118,25 @@
     font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif !important;
   }
 
+  #pdf-printable-content input,
+  #pdf-printable-content textarea,
+  #pdf-printable-content select {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    resize: none !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    color: inherit !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    line-height: inherit !important;
+  }
+
   /* 5. Force exact colors, badges, borders, and images in PDF print output */
   * {
     -webkit-print-color-adjust: exact !important;
