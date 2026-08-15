@@ -628,10 +628,13 @@ export const AdminDashboardPage: React.FC = () => {
   const [facAvatarUrl, setFacAvatarUrl] = useState('');
   const [facEmail, setFacEmail] = useState('');
   const [facSkillsStr, setFacSkillsStr] = useState('');
+  const [facPublicationsStr, setFacPublicationsStr] = useState('');
 
   const handleSaveFaculty = (e: React.FormEvent) => {
     e.preventDefault();
     const skillsArr = facSkillsStr.split(',').map((s) => s.trim()).filter(Boolean);
+    const pubsArr = facPublicationsStr.split('\n').map((p) => p.trim()).filter(Boolean);
+    const existingFac = editingFacId ? faculty.find((f) => f.id === editingFacId) : null;
 
     const newFac: FacultyMember = {
       id: editingFacId || 'f' + Date.now(),
@@ -642,12 +645,12 @@ export const AdminDashboardPage: React.FC = () => {
       bio: facBio || facShortDesc,
       avatarUrl: facAvatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
       email: facEmail || 'prof@sharif.edu',
-      phone: '۰۲۱-۶۶۱۶۵۵۰۰',
-      office: 'دانشکده مکانیک',
+      phone: existingFac?.phone || '۰۲۱-۶۶۱۶۵۵۰۰',
+      office: existingFac?.office || 'دانشکده مکانیک',
       skills: skillsArr.length ? skillsArr : [facField],
-      supervisedLabs: [],
-      projectsLed: [],
-      publications: ['مقاله پژوهشی در ژورنال بین‌المللی']
+      supervisedLabs: existingFac?.supervisedLabs || [],
+      projectsLed: existingFac?.projectsLed || [],
+      publications: pubsArr.length ? pubsArr : ['مقاله پژوهشی در ژورنال بین‌المللی']
     };
 
     let updated: FacultyMember[];
@@ -674,6 +677,7 @@ export const AdminDashboardPage: React.FC = () => {
     setFacAvatarUrl(f.avatarUrl);
     setFacEmail(f.email);
     setFacSkillsStr(f.skills.join(', '));
+    setFacPublicationsStr((f.publications || []).join('\n'));
   };
 
   const handleDeleteFaculty = (id: string) => {
@@ -694,6 +698,7 @@ export const AdminDashboardPage: React.FC = () => {
     setFacAvatarUrl('');
     setFacEmail('');
     setFacSkillsStr('');
+    setFacPublicationsStr('');
   };
 
   // ----------------- PROJECTS FORM & CRUD -----------------
@@ -1333,6 +1338,20 @@ export const AdminDashboardPage: React.FC = () => {
                 />
               </div>
 
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[#A0A0A0] block">گزیده مقالات و انتشارات علمی</label>
+                  <span className="text-[11px] text-[#E8530D]">هر خط یک مقاله</span>
+                </div>
+                <textarea
+                  rows={4}
+                  value={facPublicationsStr}
+                  onChange={(e) => setFacPublicationsStr(e.target.value)}
+                  placeholder={'Author et al., "Title of the research paper...", Journal Name, 2024.\nنام نویسنده، «عنوان مقاله یا کتاب»، همایش ملی مکانیک، ۱۴۰۲.'}
+                  className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl p-3 text-white font-mono text-xs leading-relaxed placeholder:font-sans placeholder:text-slate-600"
+                />
+              </div>
+
               <div className="flex items-center gap-2 pt-2">
                 <button
                   type="submit"
@@ -1387,7 +1406,14 @@ export const AdminDashboardPage: React.FC = () => {
                     <img src={f.avatarUrl} alt={f.name} className="w-12 h-12 rounded-full object-cover border border-[#E8530D]" />
                     <div>
                       <h3 className="text-base font-bold text-white">{f.name}</h3>
-                      <span className="text-xs text-[#E8530D]">{f.title} — {f.field}</span>
+                      <div className="flex flex-wrap items-center gap-2 mt-0.5">
+                        <span className="text-xs text-[#E8530D]">{f.title} — {f.field}</span>
+                        {f.publications && f.publications.length > 0 && (
+                          <span className="text-[10px] bg-[#28282D] text-slate-300 px-2 py-0.5 rounded-full border border-slate-700">
+                            {f.publications.length} مقاله ثبت‌شده
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
