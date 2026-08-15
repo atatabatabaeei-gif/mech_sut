@@ -160,6 +160,30 @@
     line-height: 1.65 !important;
   }
 
+  table.pdf-print-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+  }
+
+  table.pdf-print-table thead {
+    display: table-header-group !important;
+  }
+
+  table.pdf-print-table tfoot {
+    display: table-footer-group !important;
+  }
+
+  table.pdf-print-table tbody {
+    display: table-row-group !important;
+  }
+
+  table.pdf-print-table tr {
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+  }
+
   .pdf-section {
     break-inside: auto !important;
     page-break-inside: auto !important;
