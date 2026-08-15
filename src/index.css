@@ -150,11 +150,20 @@
   }
 
   /* 6. A4 Page Flow, Pagination & Anti-Fragmentation Rules */
-  /* Do NOT force break-inside: avoid on large text sections (like biography) so page 1 fills up naturally */
+  /* Remove boxed borders and heavy backgrounds on multi-line text during print to avoid broken box slices */
+  .bio-rendered-content,
+  .pdf-editorial-text {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    line-height: 1.65 !important;
+  }
+
   .pdf-section {
     break-inside: auto !important;
     page-break-inside: auto !important;
-    margin-bottom: 1.25rem !important;
+    margin-bottom: 0.85rem !important;
   }
 
   /* Only small atomic components avoid breaking across pages */
@@ -173,7 +182,7 @@
   }
 
   #pdf-printable-content > div {
-    gap: 1.25rem !important;
+    gap: 0.85rem !important;
   }
 
   /* Headings must NEVER be separated from their following paragraphs/content at page bottom */
@@ -187,13 +196,14 @@
     page-break-after: avoid !important;
   }
 
-  /* Keep individual list items, quotes, and badges whole */
+  /* Keep individual list items, checklist items, quotes, and badges whole */
   li,
   blockquote,
   .rich-editor-content li,
   .bio-rendered-content li,
   .rich-editor-content blockquote,
-  .bio-rendered-content blockquote {
+  .bio-rendered-content blockquote,
+  .bio-rendered-content .flex {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
@@ -205,6 +215,7 @@
     orphans: 2 !important;
     widows: 2 !important;
     break-inside: auto !important;
+    margin-bottom: 0.5rem !important;
   }
 
   /* Manual Page Breaks */
