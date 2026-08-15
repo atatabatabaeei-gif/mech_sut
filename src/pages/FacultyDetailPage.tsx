@@ -36,8 +36,10 @@ export const FacultyDetailPage: React.FC = () => {
     );
   }
 
-  const supervisedLabObjects = allLabs.filter((l) => member.supervisedLabs.includes(l.id));
-  const ledProjectObjects = allProjects.filter((p) => p.leadFacultyId === member.id);
+  const supervisedLabObjects = allLabs.filter((l) => member.supervisedLabs?.includes(l.id));
+  const ledProjectObjects = allProjects.filter(
+    (p) => p.leadFacultyId === member.id || (member.projectsLed && member.projectsLed.includes(p.id))
+  );
 
   return (
     <div className="pt-24 min-h-screen pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">

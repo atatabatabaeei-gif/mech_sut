@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import { Search, Briefcase, CheckCircle2, ChevronLeft, Building2, Send } from 'lucide-react';
-import { getProjects, getCustomCategories } from '../services/storage';
+import { getProjects, getCustomCategories, getFaculty, getLabs } from '../services/storage';
 import { CategoryDropdownFilter, CategoryOption } from '../components/CategoryDropdownFilter';
 
 export const ProjectsPage: React.FC = () => {
   const navigate = useNavigate();
   const projects = getProjects();
+  const faculty = getFaculty();
+  const labs = getLabs();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -128,22 +130,43 @@ export const ProjectsPage: React.FC = () => {
 
                   {/* Responsible Lab & Faculty link */}
                   <div className="flex flex-wrap items-center gap-4 text-xs pt-2 text-slate-600 font-bold">
-                    {project.labName && project.labId && (
-                      <NavLink
-                        to={`/labs/${project.labId}`}
-                        className="bg-slate-100 border border-slate-300 px-3 py-1.5 hover:border-black hover:text-black transition-colors"
-                      >
-                        آزمایشگاه مجری: <span className="text-orange-600 font-black">{project.labName}</span>
-                      </NavLink>
-                    )}
-                    {project.leadFacultyName && project.leadFacultyId && (
-                      <NavLink
-                        to={`/faculty/${project.leadFacultyId}`}
-                        className="bg-slate-100 border border-slate-300 px-3 py-1.5 hover:border-black hover:text-black transition-colors"
-                      >
-                        استاد راهنما: <span className="text-orange-600 font-black">{project.leadFacultyName}</span>
-                      </NavLink>
-                    )}
+                    {(project.labId || project.labName) && (() => {
+                      const lab = labs.find((l) => l.id === project.labId);
+                      const displayName = project.labName || lab?.name;
+                      const linkId = project.labId || lab?.id;
+                      if (!displayName) return null;
+                      return linkId ? (
+                        <NavLink
+                          to={`/labs/${linkId}`}
+                          className="bg-slate-100 border border-slate-300 px-3 py-1.5 hover:border-black hover:text-black transition-colors"
+                        >
+                          آزمایشگاه مجری: <span className="text-orange-600 font-black">{displayName}</span>
+                        </NavLink>
+                      ) : (
+                        <span className="bg-slate-100 border border-slate-300 px-3 py-1.5">
+                          آزمایشگاه مجری: <span className="text-orange-600 font-black">{displayName}</span>
+                        </span>
+                      );
+                    })()}
+
+                    {(project.leadFacultyId || project.leadFacultyName) && (() => {
+                      const fac = faculty.find((f) => f.id === project.leadFacultyId);
+                      const displayName = project.leadFacultyName || fac?.name;
+                      const linkId = project.leadFacultyId || fac?.id;
+                      if (!displayName) return null;
+                      return linkId ? (
+                        <NavLink
+                          to={`/faculty/${linkId}`}
+                          className="bg-slate-100 border border-slate-300 px-3 py-1.5 hover:border-black hover:text-black transition-colors"
+                        >
+                          استاد راهنما: <span className="text-orange-600 font-black">{displayName}</span>
+                        </NavLink>
+                      ) : (
+                        <span className="bg-slate-100 border border-slate-300 px-3 py-1.5">
+                          استاد راهنما: <span className="text-orange-600 font-black">{displayName}</span>
+                        </span>
+                      );
+                    })()}
                   </div>
 
                   {/* Key Outcomes */}

@@ -629,15 +629,18 @@ export const AdminDashboardPage: React.FC = () => {
   const [facEmail, setFacEmail] = useState('');
   const [facSkillsStr, setFacSkillsStr] = useState('');
   const [facPublicationsStr, setFacPublicationsStr] = useState('');
+  const [facProjectsLed, setFacProjectsLed] = useState<string[]>([]);
+  const [facSupervisedLabs, setFacSupervisedLabs] = useState<string[]>([]);
 
   const handleSaveFaculty = (e: React.FormEvent) => {
     e.preventDefault();
     const skillsArr = facSkillsStr.split(',').map((s) => s.trim()).filter(Boolean);
     const pubsArr = facPublicationsStr.split('\n').map((p) => p.trim()).filter(Boolean);
     const existingFac = editingFacId ? faculty.find((f) => f.id === editingFacId) : null;
+    const targetFacId = editingFacId || 'f' + Date.now();
 
     const newFac: FacultyMember = {
-      id: editingFacId || 'f' + Date.now(),
+      id: targetFacId,
       name: facName,
       title: facTitle,
       field: facField,
@@ -648,22 +651,35 @@ export const AdminDashboardPage: React.FC = () => {
       phone: existingFac?.phone || '۰۲۱-۶۶۱۶۵۵۰۰',
       office: existingFac?.office || 'دانشکده مکانیک',
       skills: skillsArr.length ? skillsArr : [facField],
-      supervisedLabs: existingFac?.supervisedLabs || [],
-      projectsLed: existingFac?.projectsLed || [],
+      supervisedLabs: facSupervisedLabs,
+      projectsLed: facProjectsLed,
       publications: pubsArr.length ? pubsArr : ['مقاله پژوهشی در ژورنال بین‌المللی']
     };
 
-    let updated: FacultyMember[];
+    let updatedFaculty: FacultyMember[];
     if (editingFacId) {
-      updated = faculty.map((f) => (f.id === editingFacId ? newFac : f));
-      setToastMsg('اطلاعات استاد به‌روزرسانی شد.');
+      updatedFaculty = faculty.map((f) => (f.id === editingFacId ? newFac : f));
+      setToastMsg('اطلاعات استاد و ارتباط پروژه‌ها به‌روزرسانی شد.');
     } else {
-      updated = [...faculty, newFac];
+      updatedFaculty = [...faculty, newFac];
       setToastMsg('عضو جدید هیئت علمی اضافه شد.');
     }
 
-    saveFaculty(updated);
-    setFacultyState(updated);
+    saveFaculty(updatedFaculty);
+    setFacultyState(updatedFaculty);
+
+    // Keep projects in sync
+    const updatedProjects = projects.map((p) => {
+      if (facProjectsLed.includes(p.id)) {
+        return { ...p, leadFacultyId: targetFacId, leadFacultyName: facName };
+      } else if (p.leadFacultyId === targetFacId) {
+        return { ...p, leadFacultyId: undefined, leadFacultyName: undefined };
+      }
+      return p;
+    });
+    saveProjects(updatedProjects);
+    setProjectsState(updatedProjects);
+
     resetFacForm();
   };
 
@@ -678,6 +694,8 @@ export const AdminDashboardPage: React.FC = () => {
     setFacEmail(f.email);
     setFacSkillsStr(f.skills.join(', '));
     setFacPublicationsStr((f.publications || []).join('\n'));
+    setFacProjectsLed(f.projectsLed || []);
+    setFacSupervisedLabs(f.supervisedLabs || []);
   };
 
   const handleDeleteFaculty = (id: string) => {
@@ -685,6 +703,16 @@ export const AdminDashboardPage: React.FC = () => {
     const updated = faculty.filter((f) => f.id !== id);
     saveFaculty(updated);
     setFacultyState(updated);
+
+    const updatedProjects = projects.map((p) => {
+      if (p.leadFacultyId === id) {
+        return { ...p, leadFacultyId: undefined, leadFacultyName: undefined };
+      }
+      return p;
+    });
+    saveProjects(updatedProjects);
+    setProjectsState(updatedProjects);
+
     setToastMsg('استاد حذف شد.');
   };
 
@@ -699,6 +727,8 @@ export const AdminDashboardPage: React.FC = () => {
     setFacEmail('');
     setFacSkillsStr('');
     setFacPublicationsStr('');
+    setFacProjectsLed([]);
+    setFacSupervisedLabs([]);
   };
 
   // ----------------- PROJECTS FORM & CRUD -----------------
@@ -710,11 +740,20 @@ export const AdminDashboardPage: React.FC = () => {
   const [projFullDesc, setProjFullDesc] = useState('');
   const [projImageUrl, setProjImageUrl] = useState('');
   const [projYear, setProjYear] = useState('۱۴۰۳');
+  const [projLeadFacultyId, setProjLeadFacultyId] = useState('');
+  const [projLabId, setProjLabId] = useState('');
+  const [projStatus, setProjStatus] = useState<'تکمیل‌شده' | 'در حال اجرا'>('تکمیل‌شده');
+  const [projOutcomesStr, setProjOutcomesStr] = useState('دستیابی به اهداف پروژه\nبومی‌سازی تکنولوژی');
 
   const handleSaveProject = (e: React.FormEvent) => {
     e.preventDefault();
+    const targetProjId = editingProjId || 'p' + Date.now();
+    const selectedFac = faculty.find((f) => f.id === projLeadFacultyId);
+    const selectedLab = labs.find((l) => l.id === projLabId);
+    const outcomesArr = projOutcomesStr.split('\n').map((o) => o.trim()).filter(Boolean);
+
     const newProj: IndustrialProject = {
-      id: editingProjId || 'p' + Date.now(),
+      id: targetProjId,
       title: projTitle,
       clientCompany: projCompany,
       category: projCategory || 'صنایع عمومی',
@@ -722,21 +761,41 @@ export const AdminDashboardPage: React.FC = () => {
       fullDesc: projFullDesc || projShortDesc,
       imageUrl: projImageUrl || 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=800',
       year: projYear,
-      status: 'تکمیل‌شده',
-      outcomes: ['دستیابی به اهداف پروژه', 'بومی‌سازی تکنولوژی']
+      status: projStatus,
+      leadFacultyId: projLeadFacultyId || undefined,
+      leadFacultyName: selectedFac ? selectedFac.name : undefined,
+      labId: projLabId || undefined,
+      labName: selectedLab ? selectedLab.name : undefined,
+      outcomes: outcomesArr.length ? outcomesArr : ['دستیابی به اهداف پروژه', 'بومی‌سازی تکنولوژی']
     };
 
-    let updated: IndustrialProject[];
+    let updatedProjects: IndustrialProject[];
     if (editingProjId) {
-      updated = projects.map((p) => (p.id === editingProjId ? newProj : p));
-      setToastMsg('پروژه صنعتی به‌روزرسانی شد.');
+      updatedProjects = projects.map((p) => (p.id === editingProjId ? newProj : p));
+      setToastMsg('پروژه صنعتی و انتساب استاد راهنما به‌روزرسانی شد.');
     } else {
-      updated = [...projects, newProj];
-      setToastMsg('پروژه جدید صنعتی افزوده شد.');
+      updatedProjects = [...projects, newProj];
+      setToastMsg('پروژه جدید صنعتی با موفقیت افزوده شد.');
     }
 
-    saveProjects(updated);
-    setProjectsState(updated);
+    saveProjects(updatedProjects);
+    setProjectsState(updatedProjects);
+
+    // Keep faculty projectsLed in sync
+    const updatedFaculty = faculty.map((f) => {
+      let fProjects = f.projectsLed ? [...f.projectsLed] : [];
+      if (projLeadFacultyId && f.id === projLeadFacultyId) {
+        if (!fProjects.includes(targetProjId)) {
+          fProjects.push(targetProjId);
+        }
+      } else {
+        fProjects = fProjects.filter((id) => id !== targetProjId);
+      }
+      return { ...f, projectsLed: fProjects };
+    });
+    saveFaculty(updatedFaculty);
+    setFacultyState(updatedFaculty);
+
     resetProjForm();
   };
 
@@ -749,6 +808,10 @@ export const AdminDashboardPage: React.FC = () => {
     setProjFullDesc(p.fullDesc);
     setProjImageUrl(p.imageUrl);
     setProjYear(p.year);
+    setProjLeadFacultyId(p.leadFacultyId || '');
+    setProjLabId(p.labId || '');
+    setProjStatus(p.status || 'تکمیل‌شده');
+    setProjOutcomesStr((p.outcomes || []).join('\n'));
   };
 
   const handleDeleteProject = (id: string) => {
@@ -756,6 +819,14 @@ export const AdminDashboardPage: React.FC = () => {
     const updated = projects.filter((p) => p.id !== id);
     saveProjects(updated);
     setProjectsState(updated);
+
+    const updatedFaculty = faculty.map((f) => ({
+      ...f,
+      projectsLed: (f.projectsLed || []).filter((projId) => projId !== id)
+    }));
+    saveFaculty(updatedFaculty);
+    setFacultyState(updatedFaculty);
+
     setToastMsg('پروژه حذف شد.');
   };
 
@@ -768,6 +839,10 @@ export const AdminDashboardPage: React.FC = () => {
     setProjFullDesc('');
     setProjImageUrl('');
     setProjYear('۱۴۰۳');
+    setProjLeadFacultyId('');
+    setProjLabId('');
+    setProjStatus('تکمیل‌شده');
+    setProjOutcomesStr('دستیابی به اهداف پروژه\nبومی‌سازی تکنولوژی');
   };
 
   // ----------------- TUTORIAL VIDEO SIMULATOR -----------------
@@ -1352,6 +1427,55 @@ export const AdminDashboardPage: React.FC = () => {
                 />
               </div>
 
+              {/* Linked Projects Selector */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[#A0A0A0] font-bold block flex items-center gap-1.5">
+                    <Briefcase className="w-3.5 h-3.5 text-[#E8530D]" />
+                    <span>پروژه‌های صنعتی هدایت‌شده</span>
+                  </label>
+                  <span className="text-[11px] text-[#E8530D] font-bold">
+                    {facProjectsLed.length} پروژه متصل
+                  </span>
+                </div>
+                <div className="bg-[#1B1B1E] border border-[#28282D] rounded-xl p-2 max-h-40 overflow-y-auto space-y-1.5">
+                  {projects.length === 0 ? (
+                    <p className="text-xs text-slate-500 text-center py-2">پروژه‌ای تعریف نشده است.</p>
+                  ) : (
+                    projects.map((proj) => {
+                      const isChecked = facProjectsLed.includes(proj.id);
+                      return (
+                        <label
+                          key={proj.id}
+                          className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors border text-xs ${
+                            isChecked
+                              ? 'bg-orange-500/10 border-orange-500/40 text-white'
+                              : 'bg-[#141416] border-transparent text-slate-400 hover:bg-[#202025]'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => {
+                              if (isChecked) {
+                                setFacProjectsLed(facProjectsLed.filter((id) => id !== proj.id));
+                              } else {
+                                setFacProjectsLed([...facProjectsLed, proj.id]);
+                              }
+                            }}
+                            className="accent-[#E8530D] rounded w-3.5 h-3.5"
+                          />
+                          <div className="truncate flex-1">
+                            <span className="font-bold block text-white">{proj.title}</span>
+                            <span className="text-[10px] text-[#A0A0A0]">({proj.clientCompany} - {proj.year})</span>
+                          </div>
+                        </label>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+
               <div className="flex items-center gap-2 pt-2">
                 <button
                   type="submit"
@@ -1410,7 +1534,12 @@ export const AdminDashboardPage: React.FC = () => {
                         <span className="text-xs text-[#E8530D]">{f.title} — {f.field}</span>
                         {f.publications && f.publications.length > 0 && (
                           <span className="text-[10px] bg-[#28282D] text-slate-300 px-2 py-0.5 rounded-full border border-slate-700">
-                            {f.publications.length} مقاله ثبت‌شده
+                            {f.publications.length} مقاله
+                          </span>
+                        )}
+                        {f.projectsLed && f.projectsLed.length > 0 && (
+                          <span className="text-[10px] bg-orange-500/10 text-orange-400 border border-orange-500/30 px-2 py-0.5 rounded-full font-bold">
+                            {f.projectsLed.length} پروژه هدایت‌شده
                           </span>
                         )}
                       </div>
@@ -1482,35 +1611,74 @@ export const AdminDashboardPage: React.FC = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-[#A0A0A0] block mb-1">حوزه صنعتی *</label>
-                  <div className="flex gap-1.5">
-                    <input
-                      type="text"
-                      required
-                      value={projCategory}
-                      onChange={(e) => setProjCategory(e.target.value)}
-                      placeholder="خودروسازی..."
-                      className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl px-3 py-2.5 text-white"
-                    />
-                    {adminProjectCategoryOptions.length > 0 && (
-                      <select
-                        onChange={(e) => {
-                          if (e.target.value) setProjCategory(e.target.value);
-                        }}
-                        value=""
-                        className="bg-[#1B1B1E] border border-[#28282D] text-[#A0A0A0] text-xs rounded-xl px-1.5 py-2.5 max-w-[100px] shrink-0 focus:outline-none hover:text-white"
-                        title="انتخاب از حوزه‌های صنعتی موجود"
-                      >
-                        <option value="" disabled>انتخاب...</option>
-                        {adminProjectCategoryOptions.map((opt) => (
-                          <option key={opt.id} value={opt.id}>{opt.label}</option>
-                        ))}
-                      </select>
-                    )}
-                  </div>
+              <div>
+                <label className="text-[#A0A0A0] block mb-1">حوزه صنعتی *</label>
+                <div className="flex gap-1.5">
+                  <input
+                    type="text"
+                    required
+                    value={projCategory}
+                    onChange={(e) => setProjCategory(e.target.value)}
+                    placeholder="خودروسازی..."
+                    className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl px-3 py-2.5 text-white"
+                  />
+                  {adminProjectCategoryOptions.length > 0 && (
+                    <select
+                      onChange={(e) => {
+                        if (e.target.value) setProjCategory(e.target.value);
+                      }}
+                      value=""
+                      className="bg-[#1B1B1E] border border-[#28282D] text-[#A0A0A0] text-xs rounded-xl px-1.5 py-2.5 max-w-[100px] shrink-0 focus:outline-none hover:text-white"
+                      title="انتخاب از حوزه‌های صنعتی موجود"
+                    >
+                      <option value="" disabled>انتخاب...</option>
+                      {adminProjectCategoryOptions.map((opt) => (
+                        <option key={opt.id} value={opt.id}>{opt.label}</option>
+                      ))}
+                    </select>
+                  )}
                 </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[#A0A0A0] block mb-1 font-bold flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5 text-[#E8530D]" />
+                    <span>استاد راهنما / مجری مسئول</span>
+                  </label>
+                  <select
+                    value={projLeadFacultyId}
+                    onChange={(e) => setProjLeadFacultyId(e.target.value)}
+                    className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-[#E8530D]"
+                  >
+                    <option value="">-- بدون انتساب / نامشخص --</option>
+                    {faculty.map((fac) => (
+                      <option key={fac.id} value={fac.id}>
+                        {fac.name} ({fac.field})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[#A0A0A0] block mb-1 font-bold flex items-center gap-1">
+                    <FlaskConical className="w-3.5 h-3.5 text-[#E8530D]" />
+                    <span>آزمایشگاه همکار / مجری</span>
+                  </label>
+                  <select
+                    value={projLabId}
+                    onChange={(e) => setProjLabId(e.target.value)}
+                    className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-[#E8530D]"
+                  >
+                    <option value="">-- بدون آزمایشگاه همکار --</option>
+                    {labs.map((l) => (
+                      <option key={l.id} value={l.id}>
+                        {l.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-[#A0A0A0] block mb-1">سال اجرا</label>
                   <input
@@ -1520,6 +1688,17 @@ export const AdminDashboardPage: React.FC = () => {
                     placeholder="۱۴۰۳"
                     className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl px-3 py-2.5 text-white"
                   />
+                </div>
+                <div>
+                  <label className="text-[#A0A0A0] block mb-1">وضعیت پروژه</label>
+                  <select
+                    value={projStatus}
+                    onChange={(e) => setProjStatus(e.target.value as 'تکمیل‌شده' | 'در حال اجرا')}
+                    className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl px-3 py-2.5 text-white"
+                  >
+                    <option value="تکمیل‌شده">تکمیل‌شده</option>
+                    <option value="در حال اجرا">در حال اجرا</option>
+                  </select>
                 </div>
               </div>
 
@@ -1532,6 +1711,31 @@ export const AdminDashboardPage: React.FC = () => {
                   onChange={(e) => setProjShortDesc(e.target.value)}
                   placeholder="خلاصه دستاورد..."
                   className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl p-3 text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-[#A0A0A0] block mb-1">شرح جامع و دستاوردهای فنی پروژه</label>
+                <textarea
+                  rows={3}
+                  value={projFullDesc}
+                  onChange={(e) => setProjFullDesc(e.target.value)}
+                  placeholder="شرح اهداف، روش حل و مراحل پیاده‌سازی..."
+                  className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl p-3 text-white"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[#A0A0A0] block">نتایج کلیدی و دستاوردها</label>
+                  <span className="text-[11px] text-[#E8530D]">هر خط یک دستاورد</span>
+                </div>
+                <textarea
+                  rows={2}
+                  value={projOutcomesStr}
+                  onChange={(e) => setProjOutcomesStr(e.target.value)}
+                  placeholder={'دستیابی به راندمان بالای ۹۰٪\nبومی‌سازی تکنولوژی'}
+                  className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl p-3 text-white text-xs leading-relaxed"
                 />
               </div>
 
@@ -1594,13 +1798,48 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
             </div>
             <div className="space-y-3">
-              {filteredAdminProjects.map((p) => (
-                <div key={p.id} className="bg-[#141416] border border-[#28282D] p-5 rounded-2xl flex items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-[#E8530D] font-bold">کارفرما: {p.clientCompany} ({p.year})</span>
-                    <h3 className="text-base font-bold text-white">{p.title}</h3>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
+              {filteredAdminProjects.map((p) => {
+                const leadFac = faculty.find((f) => f.id === p.leadFacultyId);
+                const assignedLab = labs.find((l) => l.id === p.labId);
+                return (
+                  <div key={p.id} className="bg-[#141416] border border-[#28282D] p-5 rounded-2xl flex items-center justify-between gap-4">
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] text-[#E8530D] font-bold">کارفرما: {p.clientCompany} ({p.year})</span>
+                        <span className="text-[10px] bg-[#28282D] text-slate-300 px-2 py-0.5 rounded-full border border-slate-700">
+                          {p.category}
+                        </span>
+                        {p.status && (
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                            p.status === 'تکمیل‌شده'
+                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                              : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                          }`}>
+                            {p.status}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-base font-bold text-white truncate">{p.title}</h3>
+                      <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                        {leadFac ? (
+                          <span className="text-[11px] text-orange-400 bg-orange-500/10 border border-orange-500/30 px-2 py-0.5 rounded-lg flex items-center gap-1 font-medium">
+                            <Users className="w-3 h-3" />
+                            استاد راهنما: {leadFac.name}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-slate-500 bg-[#1B1B1E] px-2 py-0.5 rounded-lg">
+                            بدون استاد راهنما
+                          </span>
+                        )}
+                        {assignedLab && (
+                          <span className="text-[11px] text-sky-400 bg-sky-500/10 border border-sky-500/30 px-2 py-0.5 rounded-lg flex items-center gap-1 font-medium">
+                            <FlaskConical className="w-3 h-3" />
+                            {assignedLab.name}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={() => setExportModal({ type: 'project', data: p })}
                       className="px-3 py-2 bg-[#1B1B1E] text-orange-500 hover:text-orange-400 hover:border-orange-500/50 rounded-xl border border-[#28282D] flex items-center gap-1.5 text-xs font-bold transition-colors"
@@ -1625,7 +1864,8 @@ export const AdminDashboardPage: React.FC = () => {
                     </button>
                   </div>
                 </div>
-              ))}
+              );
+            })}
             </div>
           </div>
         </div>
