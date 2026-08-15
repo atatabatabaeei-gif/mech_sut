@@ -12,6 +12,7 @@ import {
   Award
 } from 'lucide-react';
 import { getFaculty, getLabs, getProjects } from '../services/storage';
+import { normalizeToHtml } from '../components/RichTextEditor';
 
 export const FacultyDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -113,9 +114,10 @@ export const FacultyDetailPage: React.FC = () => {
               <User className="w-5 h-5 text-orange-500" />
               بیوگرافی و سوابق پژوهشی
             </h2>
-            <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
-              {member.bio}
-            </p>
+            <div
+              className="text-slate-700 text-sm leading-relaxed bio-rendered-content text-justify"
+              dangerouslySetInnerHTML={{ __html: normalizeToHtml(member.bio) }}
+            />
           </section>
 
           {/* Specializations & Skills */}

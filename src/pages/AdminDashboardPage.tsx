@@ -72,6 +72,7 @@ import { Lab, FacultyMember, IndustrialProject, CollaborationRequest, FooterConf
 import { Toast } from '../components/Toast';
 import { PDFExportModal } from '../components/PDFExportModal';
 import { CategoryDropdownFilter, CategoryOption } from '../components/CategoryDropdownFilter';
+import { RichTextEditor } from '../components/RichTextEditor';
 
 export const AdminDashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -1381,13 +1382,14 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[#A0A0A0] block mb-1">بیوگرافی کامل</label>
-                <textarea
-                  rows={3}
+                <label className="text-[#A0A0A0] block mb-1">بیوگرافی کامل و سوابق علمی (با ادیتور پیشرفته)</label>
+                <RichTextEditor
                   value={facBio}
-                  onChange={(e) => setFacBio(e.target.value)}
-                  placeholder="بیوگرافی مفصل..."
-                  className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl p-3 text-white"
+                  onChange={(html) => setFacBio(html)}
+                  placeholder="بیوگرافی مفصل، سوابق تحصیلی و افتخارات..."
+                  minHeight="160px"
+                  theme="dark"
+                  id="admin-fac-bio-editor"
                 />
               </div>
 

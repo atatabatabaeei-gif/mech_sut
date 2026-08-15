@@ -49,6 +49,24 @@
   font-weight: 800;
 }
 
+/* PDF Live Editable styling */
+#pdf-printable-content [contenteditable="true"] {
+  outline: 1px dashed rgba(249, 115, 22, 0.45);
+  border-radius: 2px;
+  cursor: text;
+  transition: all 0.15s ease;
+}
+
+#pdf-printable-content [contenteditable="true"]:hover {
+  outline: 1px dashed rgba(234, 88, 12, 0.9);
+  background-color: rgba(255, 237, 213, 0.35);
+}
+
+#pdf-printable-content [contenteditable="true"]:focus {
+  outline: 2px solid #ea580c;
+  background-color: rgba(255, 237, 213, 0.6);
+}
+
 /* Print Rules for Clean PDF Export */
 @media print {
   @page {
@@ -118,23 +136,10 @@
     font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif !important;
   }
 
-  #pdf-printable-content input,
-  #pdf-printable-content textarea,
-  #pdf-printable-content select {
-    border: none !important;
+  [contenteditable="true"] {
     outline: none !important;
     background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    box-shadow: none !important;
-    resize: none !important;
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    color: inherit !important;
-    font-family: inherit !important;
-    font-size: inherit !important;
-    font-weight: inherit !important;
-    line-height: inherit !important;
+    border: none !important;
   }
 
   /* 5. Force exact colors, badges, borders, and images in PDF print output */
@@ -143,6 +148,100 @@
     print-color-adjust: exact !important;
     box-shadow: none !important;
   }
+}
+
+/* Rich Text & Biography Typography Styles */
+.rich-editor-content,
+.prose-bio,
+.bio-rendered-content {
+  line-height: 1.8;
+}
+
+.rich-editor-content:empty:before {
+  content: attr(data-placeholder);
+  color: #71717a;
+  pointer-events: none;
+  display: block;
+}
+
+.rich-editor-content p,
+.prose-bio p,
+.bio-rendered-content p {
+  margin-bottom: 0.75rem;
+}
+
+.rich-editor-content h3,
+.prose-bio h3,
+.bio-rendered-content h3 {
+  font-size: 1.125rem;
+  font-weight: 800;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: #ea580c;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.rich-editor-content h4,
+.prose-bio h4,
+.bio-rendered-content h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.rich-editor-content ul,
+.prose-bio ul,
+.bio-rendered-content ul {
+  list-style-type: disc;
+  padding-right: 1.5rem;
+  margin-top: 0.4rem;
+  margin-bottom: 0.8rem;
+  space-y: 0.25rem;
+}
+
+.rich-editor-content ol,
+.prose-bio ol,
+.bio-rendered-content ol {
+  list-style-type: decimal;
+  padding-right: 1.5rem;
+  margin-top: 0.4rem;
+  margin-bottom: 0.8rem;
+  space-y: 0.25rem;
+}
+
+.rich-editor-content li,
+.prose-bio li,
+.bio-rendered-content li {
+  margin-bottom: 0.3rem;
+}
+
+.rich-editor-content blockquote,
+.prose-bio blockquote,
+.bio-rendered-content blockquote {
+  border-right: 3px solid #f97316;
+  padding-right: 0.75rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.rich-editor-content strong,
+.prose-bio strong,
+.bio-rendered-content strong {
+  font-weight: 800;
+}
+
+.rich-editor-content mark,
+.prose-bio mark,
+.bio-rendered-content mark {
+  background-color: #fed7aa;
+  color: #7c2d12;
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.2rem;
 }
 
 

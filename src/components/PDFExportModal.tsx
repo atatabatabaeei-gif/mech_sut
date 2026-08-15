@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import {
   Printer,
   X,
-  ShieldCheck,
   Lock,
   FileText,
   Building2,
@@ -20,11 +19,11 @@ import {
   RotateCcw,
   Plus,
   Trash2,
-  CheckCircle2,
-  Briefcase
+  Calendar
 } from 'lucide-react';
 import { FacultyMember, IndustrialProject, Lab } from '../types';
 import { getAdminState } from '../services/storage';
+import { RichTextEditor, normalizeToHtml } from './RichTextEditor';
 
 interface PDFExportModalProps {
   type: 'faculty' | 'project' | 'lab';
@@ -39,17 +38,10 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
   const adminState = getAdminState();
   const isAdmin = adminState.isLoggedIn;
 
-  const defaultSerialNo = type === 'faculty'
-    ? `SUT-ME-FAC-${data.id.toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`
-    : type === 'lab'
-    ? `SUT-ME-LAB-${data.id.toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`
-    : `SUT-ME-PRJ-${data.id.toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
-
   const defaultDate = new Date().toLocaleDateString('fa-IR');
 
   // General Metadata State
   const [isEditMode, setIsEditMode] = useState(true);
-  const [serialNo, setSerialNo] = useState(defaultSerialNo);
   const [issueDate, setIssueDate] = useState(defaultDate);
   const [headerDept, setHeaderDept] = useState('دانشگاه صنعتی شریف — دانشکده مهندسی مکانیک');
   const [headerTitle, setHeaderTitle] = useState(
@@ -106,7 +98,6 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
   // Reset to original data
   const handleResetToOriginal = () => {
     if (!window.confirm('آیا مایلید تمام تغییرات به اطلاعات اولیه برگردد؟')) return;
-    setSerialNo(defaultSerialNo);
     setIssueDate(defaultDate);
     setHeaderDept('دانشگاه صنعتی شریف — دانشکده مهندسی مکانیک');
     setHeaderSubtitle('سامانه جامع ارتباط با صنعت و پژوهش‌های تخصصی — شریف');
@@ -209,11 +200,6 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
     );
   }
 
-  // Editable input class helper
-  const editFieldClass = isEditMode
-    ? 'border border-dashed border-orange-400/80 hover:border-orange-500 focus:border-orange-600 focus:bg-orange-50/40 rounded px-1.5 py-0.5 outline-none transition-all w-full bg-transparent'
-    : 'border-0 bg-transparent px-0 py-0 outline-none w-full';
-
   return createPortal(
     <div className="pdf-export-modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-slate-900/85 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto">
       <div className="pdf-export-modal-card bg-white border-2 border-slate-900 w-full max-w-4xl max-h-[92vh] overflow-y-auto shadow-2xl flex flex-col my-auto relative">
@@ -230,7 +216,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                 {isEditMode ? (
                   <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
                     <Edit3 className="w-3 h-3" />
-                    حالت ویرایش زنده فعال
+                    حالت ویرایش متن فعال
                   </span>
                 ) : (
                   <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
@@ -293,76 +279,51 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
               <span>
-                <strong>امکان ویرایش زنده:</strong> روی هر یک از متون، تاریخ، کلاسه، عناوین و لیست‌ها کلیک کنید تا متن مورد نظر قبل از چاپ ویرایش شود.
+                <strong>امکان ویرایش مستقیم:</strong> کافیست روی هر عنوان، پاراگراف، برچسب یا متن کلیک کرده و متن دلخواه خود را مستقیماً تایپ یا تصحیح کنید.
               </span>
             </div>
             <button
               onClick={() => setIsEditMode(false)}
               className="text-[11px] text-orange-700 hover:text-black underline shrink-0 mr-2"
             >
-              بستن کادرهای ویرایش
+              پیش‌نمایش خروجی نهایی
             </button>
           </div>
         )}
 
         {/* PRINTABLE DATASHEET CONTENT CONTAINER */}
-        <div id="pdf-printable-content" className="p-6 sm:p-10 space-y-8 bg-white text-slate-900 font-['Vazirmatn',sans-serif]">
+        <div id="pdf-printable-content" className="p-8 sm:p-12 space-y-8 bg-white text-slate-900 font-['Vazirmatn',sans-serif]">
           
-          {/* Header Banner */}
-          <div className="border-b-4 border-slate-900 pb-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="space-y-1.5 flex-1 min-w-0 w-full sm:w-auto">
+          {/* Header Banner - Clean full-width header without left-side card */}
+          <div className="border-b-4 border-slate-900 pb-5">
+            <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 bg-orange-500 shrink-0"></span>
-                <input
-                  type="text"
-                  value={headerDept}
-                  onChange={(e) => setHeaderDept(e.target.value)}
-                  className={`text-xs font-bold text-slate-600 uppercase tracking-wider ${editFieldClass}`}
-                  placeholder="عنوان دانشگاه و دانشکده"
-                />
+                <span
+                  contentEditable={isEditMode}
+                  suppressContentEditableWarning
+                  onBlur={(e) => setHeaderDept(e.currentTarget.textContent || '')}
+                  className="text-xs font-bold text-slate-600 uppercase tracking-wider"
+                >
+                  {headerDept}
+                </span>
               </div>
-              <input
-                type="text"
-                value={headerTitle}
-                onChange={(e) => setHeaderTitle(e.target.value)}
-                className={`text-2xl sm:text-3xl font-black text-slate-900 ${editFieldClass}`}
-                placeholder="عنوان شناسنامه"
-              />
-              <input
-                type="text"
-                value={headerSubtitle}
-                onChange={(e) => setHeaderSubtitle(e.target.value)}
-                className={`text-xs text-slate-500 font-semibold ${editFieldClass}`}
-                placeholder="زیرعنوان"
-              />
-            </div>
-
-            {/* Serial & Date box */}
-            <div className="text-left font-mono text-xs text-slate-600 border border-slate-300 p-3 bg-slate-50 space-y-1 shrink-0 w-full sm:w-auto min-w-[200px]">
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-bold shrink-0">شماره کلاسه:</span>
-                <input
-                  type="text"
-                  value={serialNo}
-                  onChange={(e) => setSerialNo(e.target.value)}
-                  className={`font-mono text-xs text-left ${editFieldClass}`}
-                  dir="ltr"
-                />
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-bold shrink-0">تاریخ صدور:</span>
-                <input
-                  type="text"
-                  value={issueDate}
-                  onChange={(e) => setIssueDate(e.target.value)}
-                  className={`font-mono text-xs text-left ${editFieldClass}`}
-                  dir="ltr"
-                />
-              </div>
-              <div className="text-[10px] text-orange-600 font-bold flex items-center justify-end gap-1 pt-1">
-                <ShieldCheck className="w-3 h-3 text-orange-500" />
-                <span>دارای تاییدیه دانشکده</span>
-              </div>
+              <h1
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                onBlur={(e) => setHeaderTitle(e.currentTarget.textContent || '')}
+                className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight"
+              >
+                {headerTitle}
+              </h1>
+              <p
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                onBlur={(e) => setHeaderSubtitle(e.currentTarget.textContent || '')}
+                className="text-xs text-slate-500 font-semibold"
+              >
+                {headerSubtitle}
+              </p>
             </div>
           </div>
 
@@ -385,48 +346,51 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                       type="text"
                       value={facAvatarUrl}
                       onChange={(e) => setFacAvatarUrl(e.target.value)}
-                      placeholder="لینک آدرس تصویر (URL)"
-                      className="text-[10px] font-mono text-slate-500 border border-slate-300 rounded px-1 py-0.5 w-32 no-print"
+                      placeholder="لینک تصویر (URL)"
+                      className="text-[10px] font-mono text-slate-500 border border-slate-300 rounded px-1.5 py-0.5 w-32 no-print"
+                      title="آدرس اینترنتی تصویر برای تغییر عکس"
                     />
                   )}
                 </div>
 
                 <div className="space-y-3 flex-1 w-full text-right">
                   <div className="flex flex-wrap items-center gap-2">
-                    <div className="inline-flex items-center gap-1 bg-slate-900 text-white text-xs font-bold px-2.5 py-1">
-                      <input
-                        type="text"
-                        value={facTitle}
-                        onChange={(e) => setFacTitle(e.target.value)}
-                        className={`bg-transparent text-white font-bold text-xs text-center ${editFieldClass}`}
-                        placeholder="مرتبه علمی (استاد تمام...)"
-                      />
+                    <span className="bg-slate-900 text-white text-xs font-bold px-2.5 py-1 inline-flex items-center gap-1">
+                      <span
+                        contentEditable={isEditMode}
+                        suppressContentEditableWarning
+                        onBlur={(e) => setFacTitle(e.currentTarget.textContent || '')}
+                      >
+                        {facTitle}
+                      </span>
                       <span>—</span>
-                      <input
-                        type="text"
-                        value={facField}
-                        onChange={(e) => setFacField(e.target.value)}
-                        className={`bg-transparent text-white font-bold text-xs text-center ${editFieldClass}`}
-                        placeholder="گرایش تخصصی"
-                      />
-                    </div>
+                      <span
+                        contentEditable={isEditMode}
+                        suppressContentEditableWarning
+                        onBlur={(e) => setFacField(e.currentTarget.textContent || '')}
+                      >
+                        {facField}
+                      </span>
+                    </span>
                   </div>
 
-                  <input
-                    type="text"
-                    value={facName}
-                    onChange={(e) => setFacName(e.target.value)}
-                    className={`text-2xl sm:text-3xl font-black text-slate-900 ${editFieldClass}`}
-                    placeholder="نام و نام خانوادگی استاد"
-                  />
+                  <h2
+                    contentEditable={isEditMode}
+                    suppressContentEditableWarning
+                    onBlur={(e) => setFacName(e.currentTarget.textContent || '')}
+                    className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight"
+                  >
+                    {facName}
+                  </h2>
 
-                  <textarea
-                    rows={2}
-                    value={facShortDesc}
-                    onChange={(e) => setFacShortDesc(e.target.value)}
-                    className={`text-xs sm:text-sm text-slate-700 leading-relaxed ${editFieldClass}`}
-                    placeholder="توضیح کوتاه و معرفی..."
-                  />
+                  <p
+                    contentEditable={isEditMode}
+                    suppressContentEditableWarning
+                    onBlur={(e) => setFacShortDesc(e.currentTarget.textContent || '')}
+                    className="text-xs sm:text-sm text-slate-700 leading-relaxed"
+                  >
+                    {facShortDesc}
+                  </p>
                   
                   <div className="flex items-center gap-1.5 text-xs text-slate-800 font-bold pt-2 border-t border-slate-300">
                     <Building2 className="w-3.5 h-3.5 text-orange-500" />
@@ -437,17 +401,32 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
 
               {/* Biography */}
               <div className="space-y-2">
-                <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
-                  <User className="w-4 h-4 text-orange-500" />
-                  بیوگرافی و سوابق علمی
-                </h3>
-                <textarea
-                  rows={4}
-                  value={facBio}
-                  onChange={(e) => setFacBio(e.target.value)}
-                  className={`text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50 border border-slate-200 p-4 ${editFieldClass}`}
-                  placeholder="متن کامل بیوگرافی و سوابق علمی و اجرایی..."
-                />
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
+                    <User className="w-4 h-4 text-orange-500" />
+                    بیوگرافی و سوابق علمی
+                  </h3>
+                  {isEditMode && (
+                    <span className="text-[11px] text-orange-600 font-bold bg-orange-50 px-2 py-0.5 border border-orange-200 rounded no-print">
+                      ادیتور متن پیشرفته (تغییر سایز، بولد، لیست و پاراگراف)
+                    </span>
+                  )}
+                </div>
+                {isEditMode ? (
+                  <RichTextEditor
+                    value={facBio}
+                    onChange={(html) => setFacBio(html)}
+                    theme="light"
+                    placeholder="بیوگرافی و سوابق علمی..."
+                    minHeight="140px"
+                    id="pdf-fac-bio-editor"
+                  />
+                ) : (
+                  <div
+                    className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50 border border-slate-200 p-4 bio-rendered-content text-justify"
+                    dangerouslySetInnerHTML={{ __html: normalizeToHtml(facBio) }}
+                  />
+                )}
               </div>
 
               {/* Skills & Specializations */}
@@ -459,7 +438,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                   </h3>
                   {isEditMode && (
                     <button
-                      onClick={() => setFacSkills([...facSkills, 'مهارت تخصصی جدید'])}
+                      onClick={() => setFacSkills([...facSkills, 'مهارت یا تخصص جدید'])}
                       className="text-xs bg-orange-500/10 text-orange-600 border border-orange-500/40 hover:bg-orange-500 hover:text-white px-2.5 py-1 rounded font-bold flex items-center gap-1 transition-all no-print"
                     >
                       <Plus className="w-3.5 h-3.5" />
@@ -470,18 +449,21 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
 
                 <div className="flex flex-wrap gap-2">
                   {facSkills.map((skill, idx) => (
-                    <div key={idx} className="bg-slate-100 border border-slate-300 text-slate-900 text-xs font-bold px-2.5 py-1 flex items-center gap-1.5">
-                      <input
-                        type="text"
-                        value={skill}
-                        onChange={(e) => {
+                    <span
+                      key={idx}
+                      className="bg-slate-100 border border-slate-300 text-slate-900 text-xs font-bold px-3 py-1.5 inline-flex items-center gap-1.5"
+                    >
+                      <span
+                        contentEditable={isEditMode}
+                        suppressContentEditableWarning
+                        onBlur={(e) => {
                           const updated = [...facSkills];
-                          updated[idx] = e.target.value;
+                          updated[idx] = e.currentTarget.textContent || '';
                           setFacSkills(updated);
                         }}
-                        className={`bg-transparent text-slate-900 font-bold text-xs ${editFieldClass}`}
-                        placeholder="مهارت..."
-                      />
+                      >
+                        {skill}
+                      </span>
                       {isEditMode && (
                         <button
                           onClick={() => setFacSkills(facSkills.filter((_, i) => i !== idx))}
@@ -491,7 +473,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                           <X className="w-3 h-3" />
                         </button>
                       )}
-                    </div>
+                    </span>
                   ))}
                 </div>
               </div>
@@ -516,19 +498,20 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
 
                 <div className="space-y-2">
                   {facPublications.map((pub, idx) => (
-                    <div key={idx} className="text-xs font-mono text-slate-800 bg-slate-50 border border-slate-200 p-2.5 flex items-start gap-2">
-                      <span className="font-bold text-orange-600 pt-0.5">{idx + 1}.</span>
-                      <textarea
-                        rows={2}
-                        value={pub}
-                        onChange={(e) => {
+                    <div key={idx} className="text-xs font-mono text-slate-800 bg-slate-50 border border-slate-200 p-3 flex items-start gap-2.5">
+                      <span className="font-bold text-orange-600 shrink-0 pt-0.5">{idx + 1}.</span>
+                      <div
+                        contentEditable={isEditMode}
+                        suppressContentEditableWarning
+                        onBlur={(e) => {
                           const updated = [...facPublications];
-                          updated[idx] = e.target.value;
+                          updated[idx] = e.currentTarget.textContent || '';
                           setFacPublications(updated);
                         }}
-                        className={`flex-1 bg-transparent text-slate-800 font-mono text-xs ${editFieldClass}`}
-                        placeholder="متن مقاله..."
-                      />
+                        className="flex-1 leading-relaxed"
+                      >
+                        {pub}
+                      </div>
                       {isEditMode && (
                         <button
                           onClick={() => setFacPublications(facPublications.filter((_, i) => i !== idx))}
@@ -551,26 +534,26 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               {/* Lab Card Summary */}
               <div className="bg-slate-50 border-2 border-slate-900 p-6 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-300 pb-3">
-                  <div className="flex items-center gap-2 bg-slate-900 text-white text-xs font-bold px-3 py-1 border-r-2 border-orange-500">
+                  <div className="flex items-center gap-1 bg-slate-900 text-white text-xs font-bold px-3 py-1 border-r-2 border-orange-500">
                     <span>آزمایشگاه پژوهشی —</span>
-                    <input
-                      type="text"
-                      value={labField}
-                      onChange={(e) => setLabField(e.target.value)}
-                      className={`bg-transparent text-white font-bold text-xs ${editFieldClass}`}
-                      placeholder="حوزه تخصصی آزمایشگاه"
-                    />
+                    <span
+                      contentEditable={isEditMode}
+                      suppressContentEditableWarning
+                      onBlur={(e) => setLabField(e.currentTarget.textContent || '')}
+                    >
+                      {labField}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
                     <Mail className="w-3.5 h-3.5 text-orange-500" />
-                    <input
-                      type="text"
-                      value={labEmail}
-                      onChange={(e) => setLabEmail(e.target.value)}
-                      className={`text-slate-700 font-bold text-xs ${editFieldClass}`}
-                      placeholder="ایمیل آزمایشگاه"
+                    <span
+                      contentEditable={isEditMode}
+                      suppressContentEditableWarning
+                      onBlur={(e) => setLabEmail(e.currentTarget.textContent || '')}
                       dir="ltr"
-                    />
+                    >
+                      {labEmail}
+                    </span>
                   </div>
                 </div>
 
@@ -590,37 +573,40 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                         value={labImageUrl}
                         onChange={(e) => setLabImageUrl(e.target.value)}
                         placeholder="آدرس تصویر (URL)"
-                        className="text-[10px] font-mono text-slate-500 border border-slate-300 rounded px-1 py-0.5 w-full no-print"
+                        className="text-[10px] font-mono text-slate-500 border border-slate-300 rounded px-1.5 py-0.5 w-full no-print"
                       />
                     )}
                   </div>
 
-                  <div className="space-y-2 flex-1 w-full">
+                  <div className="space-y-2 flex-1 w-full text-right">
                     <div className="flex items-center gap-2 text-xs font-bold text-orange-600">
                       <User className="w-4 h-4 shrink-0" />
                       <span>سرپرست علمی آزمایشگاه:</span>
-                      <input
-                        type="text"
-                        value={labSupervisor}
-                        onChange={(e) => setLabSupervisor(e.target.value)}
-                        className={`text-orange-600 font-bold text-xs ${editFieldClass}`}
-                        placeholder="نام سرپرست علمی"
-                      />
+                      <span
+                        contentEditable={isEditMode}
+                        suppressContentEditableWarning
+                        onBlur={(e) => setLabSupervisor(e.currentTarget.textContent || '')}
+                        className="text-slate-900 font-bold"
+                      >
+                        {labSupervisor}
+                      </span>
                     </div>
-                    <input
-                      type="text"
-                      value={labName}
-                      onChange={(e) => setLabName(e.target.value)}
-                      className={`text-2xl font-black text-slate-900 ${editFieldClass}`}
-                      placeholder="نام کامل آزمایشگاه"
-                    />
-                    <textarea
-                      rows={2}
-                      value={labShortDesc}
-                      onChange={(e) => setLabShortDesc(e.target.value)}
-                      className={`text-xs sm:text-sm text-slate-700 leading-relaxed ${editFieldClass}`}
-                      placeholder="شرح کوتاه..."
-                    />
+                    <h2
+                      contentEditable={isEditMode}
+                      suppressContentEditableWarning
+                      onBlur={(e) => setLabName(e.currentTarget.textContent || '')}
+                      className="text-2xl font-black text-slate-900 leading-tight"
+                    >
+                      {labName}
+                    </h2>
+                    <p
+                      contentEditable={isEditMode}
+                      suppressContentEditableWarning
+                      onBlur={(e) => setLabShortDesc(e.currentTarget.textContent || '')}
+                      className="text-xs sm:text-sm text-slate-700 leading-relaxed"
+                    >
+                      {labShortDesc}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -631,13 +617,14 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                   <FlaskConical className="w-4 h-4 text-orange-500" />
                   معرفی و حوزه فعالیت تخصصی آزمایشگاه
                 </h3>
-                <textarea
-                  rows={4}
-                  value={labFullDesc}
-                  onChange={(e) => setLabFullDesc(e.target.value)}
-                  className={`text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50 border border-slate-200 p-4 ${editFieldClass}`}
-                  placeholder="شرح کامل ماموریت‌ها و خدمات تخصصی آزمایشگاه..."
-                />
+                <div
+                  contentEditable={isEditMode}
+                  suppressContentEditableWarning
+                  onBlur={(e) => setLabFullDesc(e.currentTarget.textContent || '')}
+                  className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50 border border-slate-200 p-4 whitespace-pre-line text-justify"
+                >
+                  {labFullDesc}
+                </div>
               </div>
 
               {/* Equipment & Specifications */}
@@ -664,17 +651,18 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 flex-1">
                           <span className="w-2 h-2 bg-orange-500 rounded-full shrink-0"></span>
-                          <input
-                            type="text"
-                            value={eq.name}
-                            onChange={(e) => {
+                          <span
+                            contentEditable={isEditMode}
+                            suppressContentEditableWarning
+                            onBlur={(e) => {
                               const updated = [...labEquipment];
-                              updated[idx].name = e.target.value;
+                              updated[idx].name = e.currentTarget.textContent || '';
                               setLabEquipment(updated);
                             }}
-                            className={`font-bold text-slate-900 text-xs ${editFieldClass}`}
-                            placeholder="نام دستگاه / تجهیزات"
-                          />
+                            className="font-bold text-slate-900 text-xs"
+                          >
+                            {eq.name}
+                          </span>
                         </div>
                         {isEditMode && (
                           <button
@@ -686,19 +674,19 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                           </button>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 pr-4">
-                        <span className="text-slate-500 shrink-0 font-bold">مشخصات فنی:</span>
-                        <input
-                          type="text"
-                          value={eq.specs}
-                          onChange={(e) => {
+                      <div className="flex items-center gap-2 pr-4 text-slate-600">
+                        <span className="font-bold text-slate-500 shrink-0">مشخصات فنی:</span>
+                        <span
+                          contentEditable={isEditMode}
+                          suppressContentEditableWarning
+                          onBlur={(e) => {
                             const updated = [...labEquipment];
-                            updated[idx].specs = e.target.value;
+                            updated[idx].specs = e.currentTarget.textContent || '';
                             setLabEquipment(updated);
                           }}
-                          className={`text-slate-600 text-xs ${editFieldClass}`}
-                          placeholder="مشخصات و قابلیت‌های فنی..."
-                        />
+                        >
+                          {eq.specs}
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -725,18 +713,21 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
 
                 <div className="flex flex-wrap gap-2">
                   {labMembers.map((mem, idx) => (
-                    <div key={idx} className="bg-slate-100 border border-slate-300 text-slate-900 text-xs font-bold px-2.5 py-1 flex items-center gap-1.5">
-                      <input
-                        type="text"
-                        value={mem}
-                        onChange={(e) => {
+                    <span
+                      key={idx}
+                      className="bg-slate-100 border border-slate-300 text-slate-900 text-xs font-bold px-3 py-1.5 inline-flex items-center gap-1.5"
+                    >
+                      <span
+                        contentEditable={isEditMode}
+                        suppressContentEditableWarning
+                        onBlur={(e) => {
                           const updated = [...labMembers];
-                          updated[idx] = e.target.value;
+                          updated[idx] = e.currentTarget.textContent || '';
                           setLabMembers(updated);
                         }}
-                        className={`bg-transparent text-slate-900 font-bold text-xs ${editFieldClass}`}
-                        placeholder="نام پژوهشگر"
-                      />
+                      >
+                        {mem}
+                      </span>
                       {isEditMode && (
                         <button
                           onClick={() => setLabMembers(labMembers.filter((_, i) => i !== idx))}
@@ -746,7 +737,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                           <X className="w-3 h-3" />
                         </button>
                       )}
-                    </div>
+                    </span>
                   ))}
                 </div>
               </div>
@@ -773,17 +764,18 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                   {labAchievements.map((ach, idx) => (
                     <div key={idx} className="bg-slate-50 border border-slate-200 p-2.5 text-xs text-slate-800 font-bold flex items-center gap-2">
                       <span className="w-2 h-2 bg-orange-500 rounded-full shrink-0"></span>
-                      <input
-                        type="text"
-                        value={ach}
-                        onChange={(e) => {
+                      <span
+                        contentEditable={isEditMode}
+                        suppressContentEditableWarning
+                        onBlur={(e) => {
                           const updated = [...labAchievements];
-                          updated[idx] = e.target.value;
+                          updated[idx] = e.currentTarget.textContent || '';
                           setLabAchievements(updated);
                         }}
-                        className={`flex-1 bg-transparent text-slate-800 font-bold text-xs ${editFieldClass}`}
-                        placeholder="متن افتخار یا دستاورد..."
-                      />
+                        className="flex-1"
+                      >
+                        {ach}
+                      </span>
                       {isEditMode && (
                         <button
                           onClick={() => setLabAchievements(labAchievements.filter((_, i) => i !== idx))}
@@ -806,37 +798,37 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               {/* Project Card Summary */}
               <div className="bg-slate-50 border-2 border-slate-900 p-6 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-300 pb-3">
-                  <div className="flex items-center gap-2 bg-slate-900 text-white text-xs font-bold px-3 py-1 border-r-2 border-orange-500">
+                  <div className="flex items-center gap-1 bg-slate-900 text-white text-xs font-bold px-3 py-1 border-r-2 border-orange-500">
                     <span>دسته‌بندی:</span>
-                    <input
-                      type="text"
-                      value={projCategory}
-                      onChange={(e) => setProjCategory(e.target.value)}
-                      className={`bg-transparent text-white font-bold text-xs ${editFieldClass}`}
-                      placeholder="حوزه صنعتی"
-                    />
+                    <span
+                      contentEditable={isEditMode}
+                      suppressContentEditableWarning
+                      onBlur={(e) => setProjCategory(e.currentTarget.textContent || '')}
+                    >
+                      {projCategory}
+                    </span>
                   </div>
                   <div className="flex items-center gap-3 text-xs font-bold text-slate-700">
                     <div className="flex items-center gap-1">
                       <span>سال اجرا:</span>
-                      <input
-                        type="text"
-                        value={projYear}
-                        onChange={(e) => setProjYear(e.target.value)}
-                        className={`text-slate-700 font-bold text-xs w-16 text-center ${editFieldClass}`}
-                        placeholder="سال"
-                      />
+                      <span
+                        contentEditable={isEditMode}
+                        suppressContentEditableWarning
+                        onBlur={(e) => setProjYear(e.currentTarget.textContent || '')}
+                      >
+                        {projYear}
+                      </span>
                     </div>
                     <span>•</span>
                     <div className="flex items-center gap-1 text-orange-600 font-bold">
                       <span>وضعیت:</span>
-                      <input
-                        type="text"
-                        value={projStatus}
-                        onChange={(e) => setProjStatus(e.target.value)}
-                        className={`text-orange-600 font-bold text-xs w-24 text-center ${editFieldClass}`}
-                        placeholder="وضعیت"
-                      />
+                      <span
+                        contentEditable={isEditMode}
+                        suppressContentEditableWarning
+                        onBlur={(e) => setProjStatus(e.currentTarget.textContent || '')}
+                      >
+                        {projStatus}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -857,37 +849,40 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                         value={projImageUrl}
                         onChange={(e) => setProjImageUrl(e.target.value)}
                         placeholder="آدرس تصویر (URL)"
-                        className="text-[10px] font-mono text-slate-500 border border-slate-300 rounded px-1 py-0.5 w-full no-print"
+                        className="text-[10px] font-mono text-slate-500 border border-slate-300 rounded px-1.5 py-0.5 w-full no-print"
                       />
                     )}
                   </div>
 
-                  <div className="space-y-2 flex-1 w-full">
+                  <div className="space-y-2 flex-1 w-full text-right">
                     <div className="flex items-center gap-2 text-xs font-bold text-orange-600">
                       <Building2 className="w-4 h-4 shrink-0" />
                       <span>طرف قرارداد / کارفرما:</span>
-                      <input
-                        type="text"
-                        value={projCompany}
-                        onChange={(e) => setProjCompany(e.target.value)}
-                        className={`text-orange-600 font-bold text-xs ${editFieldClass}`}
-                        placeholder="نام شرکت کارفرما"
-                      />
+                      <span
+                        contentEditable={isEditMode}
+                        suppressContentEditableWarning
+                        onBlur={(e) => setProjCompany(e.currentTarget.textContent || '')}
+                        className="text-slate-900 font-bold"
+                      >
+                        {projCompany}
+                      </span>
                     </div>
-                    <input
-                      type="text"
-                      value={projTitle}
-                      onChange={(e) => setProjTitle(e.target.value)}
-                      className={`text-2xl font-black text-slate-900 ${editFieldClass}`}
-                      placeholder="عنوان کامل پروژه"
-                    />
-                    <textarea
-                      rows={2}
-                      value={projShortDesc}
-                      onChange={(e) => setProjShortDesc(e.target.value)}
-                      className={`text-xs sm:text-sm text-slate-700 leading-relaxed ${editFieldClass}`}
-                      placeholder="شرح مختصر پروژه..."
-                    />
+                    <h2
+                      contentEditable={isEditMode}
+                      suppressContentEditableWarning
+                      onBlur={(e) => setProjTitle(e.currentTarget.textContent || '')}
+                      className="text-2xl font-black text-slate-900 leading-tight"
+                    >
+                      {projTitle}
+                    </h2>
+                    <p
+                      contentEditable={isEditMode}
+                      suppressContentEditableWarning
+                      onBlur={(e) => setProjShortDesc(e.currentTarget.textContent || '')}
+                      className="text-xs sm:text-sm text-slate-700 leading-relaxed"
+                    >
+                      {projShortDesc}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -897,36 +892,39 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                 <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2">
                   تشریح کامل پروژه و اهداف مهندسی
                 </h3>
-                <textarea
-                  rows={4}
-                  value={projFullDesc}
-                  onChange={(e) => setProjFullDesc(e.target.value)}
-                  className={`text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50 border border-slate-200 p-4 ${editFieldClass}`}
-                  placeholder="تشریح کامل متدولوژی، مراحل انجام و اهداف پروژه..."
-                />
+                <div
+                  contentEditable={isEditMode}
+                  suppressContentEditableWarning
+                  onBlur={(e) => setProjFullDesc(e.currentTarget.textContent || '')}
+                  className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50 border border-slate-200 p-4 whitespace-pre-line text-justify"
+                >
+                  {projFullDesc}
+                </div>
               </div>
 
               {/* Faculty & Lab Execution */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="border border-slate-300 p-4 bg-slate-50 space-y-1">
+                <div className="border border-slate-300 p-4 bg-slate-50 space-y-1 text-right">
                   <span className="text-[11px] font-bold text-slate-500 block">استاد راهنما / سرپرست پروژه:</span>
-                  <input
-                    type="text"
-                    value={projLeadFac}
-                    onChange={(e) => setProjLeadFac(e.target.value)}
-                    className={`text-sm font-black text-slate-900 ${editFieldClass}`}
-                    placeholder="نام استاد راهنما"
-                  />
+                  <div
+                    contentEditable={isEditMode}
+                    suppressContentEditableWarning
+                    onBlur={(e) => setProjLeadFac(e.currentTarget.textContent || '')}
+                    className="text-sm font-black text-slate-900"
+                  >
+                    {projLeadFac}
+                  </div>
                 </div>
-                <div className="border border-slate-300 p-4 bg-slate-50 space-y-1">
+                <div className="border border-slate-300 p-4 bg-slate-50 space-y-1 text-right">
                   <span className="text-[11px] font-bold text-slate-500 block">آزمایشگاه تخصصی مجری:</span>
-                  <input
-                    type="text"
-                    value={projLabName}
-                    onChange={(e) => setProjLabName(e.target.value)}
-                    className={`text-sm font-black text-slate-900 ${editFieldClass}`}
-                    placeholder="نام آزمایشگاه مجری"
-                  />
+                  <div
+                    contentEditable={isEditMode}
+                    suppressContentEditableWarning
+                    onBlur={(e) => setProjLabName(e.currentTarget.textContent || '')}
+                    className="text-sm font-black text-slate-900"
+                  >
+                    {projLabName}
+                  </div>
                 </div>
               </div>
 
@@ -951,17 +949,18 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                   {projOutcomes.map((out, idx) => (
                     <div key={idx} className="bg-slate-50 border border-slate-200 p-2.5 text-xs text-slate-800 font-bold flex items-center gap-2">
                       <span className="w-2 h-2 bg-orange-500 rounded-full shrink-0"></span>
-                      <input
-                        type="text"
-                        value={out}
-                        onChange={(e) => {
+                      <span
+                        contentEditable={isEditMode}
+                        suppressContentEditableWarning
+                        onBlur={(e) => {
                           const updated = [...projOutcomes];
-                          updated[idx] = e.target.value;
+                          updated[idx] = e.currentTarget.textContent || '';
                           setProjOutcomes(updated);
                         }}
-                        className={`flex-1 bg-transparent text-slate-800 font-bold text-xs ${editFieldClass}`}
-                        placeholder="شرح دستاورد..."
-                      />
+                        className="flex-1"
+                      >
+                        {out}
+                      </span>
                       {isEditMode && (
                         <button
                           onClick={() => setProjOutcomes(projOutcomes.filter((_, i) => i !== idx))}
@@ -980,24 +979,39 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
 
           {/* Official Footer */}
           <div className="pt-6 border-t-2 border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+            {/* Right Side: University Address & Digital Archive */}
             <div className="space-y-1 text-center sm:text-right w-full sm:w-auto">
-              <input
-                type="text"
-                value={footerAddress}
-                onChange={(e) => setFooterAddress(e.target.value)}
-                className={`font-bold text-slate-900 text-xs ${editFieldClass}`}
-                placeholder="آدرس دانشگاه..."
-              />
-              <input
-                type="text"
-                value={footerArchive}
-                onChange={(e) => setFooterArchive(e.target.value)}
-                className={`text-[11px] text-slate-500 ${editFieldClass}`}
-                placeholder="یادداشت بایگانی..."
-              />
+              <div
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                onBlur={(e) => setFooterAddress(e.currentTarget.textContent || '')}
+                className="font-bold text-slate-900 text-xs"
+              >
+                {footerAddress}
+              </div>
+              <div
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                onBlur={(e) => setFooterArchive(e.currentTarget.textContent || '')}
+                className="text-[11px] text-slate-500"
+              >
+                {footerArchive}
+              </div>
             </div>
-            <div className="text-[10px] text-slate-400 font-mono shrink-0">
-              Generated by Sharif Industrial Relations Portal
+
+            {/* Left Side: Issue Date */}
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100 border border-slate-300 px-3 py-1.5 shrink-0">
+              <Calendar className="w-3.5 h-3.5 text-orange-500" />
+              <span>تاریخ صدور:</span>
+              <span
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                onBlur={(e) => setIssueDate(e.currentTarget.textContent || '')}
+                className="font-mono text-slate-900 mr-1"
+                dir="ltr"
+              >
+                {issueDate}
+              </span>
             </div>
           </div>
 
