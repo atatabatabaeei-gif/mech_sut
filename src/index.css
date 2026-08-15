@@ -191,26 +191,11 @@
     background-color: #ffffff !important;
   }
 
-  /* Fixed repeating footer pinned to the absolute bottom of EVERY page (including the last page) */
   .pdf-footer-banner {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
     width: 100% !important;
     background-color: #ffffff !important;
-    z-index: 9999 !important;
-    border-top: 2px solid #0f172a !important;
-    padding-top: 6px !important;
-    padding-bottom: 2px !important;
-    margin: 0 !important;
-  }
-
-  /* Spacer inside tfoot to prevent tbody content from overlapping the fixed bottom footer */
-  .pdf-footer-spacer {
-    display: block !important;
-    height: 52px !important;
-    visibility: hidden !important;
   }
 
   /* Compact spacing for A4 print output so content fits cleanly */
