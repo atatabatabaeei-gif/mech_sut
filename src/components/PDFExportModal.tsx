@@ -1527,52 +1527,55 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </tr>
             </tbody>
 
-            {/* Official Repeating Footer - Placed directly in tfoot so the print engine repeats it at the bottom of every page */}
+            {/* Table Footer Spacer - Reserves bottom clearance on every page so text doesn't overlap fixed footer */}
             <tfoot>
               <tr>
                 <td className="p-0 border-0">
-                  <div className={`pdf-footer-banner border-t-2 border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600 bg-white ${
-                    pageDensity === 'compact' ? 'pt-2 mt-2 pb-0.5' : 'pt-3 mt-3 pb-1'
-                  }`}>
-                    {/* Right Side: University Address & Digital Archive */}
-                    <div className="space-y-0.5 text-center sm:text-right w-full sm:w-auto">
-                      <div
-                        contentEditable={isEditMode}
-                        suppressContentEditableWarning
-                        onBlur={(e) => setFooterAddress(e.currentTarget.textContent || '')}
-                        className="font-bold text-slate-900 text-xs"
-                      >
-                        {footerAddress}
-                      </div>
-                      <div
-                        contentEditable={isEditMode}
-                        suppressContentEditableWarning
-                        onBlur={(e) => setFooterArchive(e.currentTarget.textContent || '')}
-                        className="text-[11px] text-slate-500"
-                      >
-                        {footerArchive}
-                      </div>
-                    </div>
-
-                    {/* Left Side: Issue Date */}
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100 border border-slate-300 px-3 py-1 shrink-0">
-                      <Calendar className="w-3.5 h-3.5 text-orange-500" />
-                      <span>تاریخ صدور:</span>
-                      <span
-                        contentEditable={isEditMode}
-                        suppressContentEditableWarning
-                        onBlur={(e) => setIssueDate(e.currentTarget.textContent || '')}
-                        className="font-mono text-slate-900 mr-1"
-                        dir="ltr"
-                      >
-                        {issueDate}
-                      </span>
-                    </div>
-                  </div>
+                  <div className="pdf-footer-spacer" />
                 </td>
               </tr>
             </tfoot>
           </table>
+
+          {/* Official Repeating Footer - Pinned to the bottom of EVERY printed PDF page via position: fixed */}
+          <div className={`pdf-footer-banner border-t-2 border-slate-900 flex flex-row items-center justify-between gap-3 text-xs text-slate-600 bg-white ${
+            pageDensity === 'compact' ? 'pt-2.5 mt-4 pb-0.5' : 'pt-3 mt-6 pb-1'
+          }`}>
+            {/* Right Side: University Address & Digital Archive */}
+            <div className="space-y-0.5 text-right w-auto">
+              <div
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                onBlur={(e) => setFooterAddress(e.currentTarget.textContent || '')}
+                className="font-bold text-slate-900 text-xs"
+              >
+                {footerAddress}
+              </div>
+              <div
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                onBlur={(e) => setFooterArchive(e.currentTarget.textContent || '')}
+                className="text-[11px] text-slate-500"
+              >
+                {footerArchive}
+              </div>
+            </div>
+
+            {/* Left Side: Issue Date */}
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100 border border-slate-300 px-3 py-1 shrink-0">
+              <Calendar className="w-3.5 h-3.5 text-orange-500" />
+              <span>تاریخ صدور:</span>
+              <span
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                onBlur={(e) => setIssueDate(e.currentTarget.textContent || '')}
+                className="font-mono text-slate-900 mr-1"
+                dir="ltr"
+              >
+                {issueDate}
+              </span>
+            </div>
+          </div>
         </div>
 
       </div>
