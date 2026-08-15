@@ -488,7 +488,38 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
             <thead>
               <tr>
                 <td className="p-0 border-0">
-                  <div className="pdf-header-print-spacer"></div>
+                  {/* Official Header Banner - Repeats at top of EVERY printed page */}
+                  <div className={`pdf-header-banner pdf-avoid-break border-b-2 sm:border-b-4 border-slate-900 bg-white ${pageDensity === 'compact' ? 'pb-2.5 mb-3' : 'pb-4 mb-5'}`}>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 bg-orange-500 shrink-0"></span>
+                        <span
+                          contentEditable={isEditMode}
+                          suppressContentEditableWarning
+                          onBlur={(e) => setHeaderDept(e.currentTarget.textContent || '')}
+                          className="text-xs font-bold text-slate-600 uppercase tracking-wider"
+                        >
+                          {headerDept}
+                        </span>
+                      </div>
+                      <h1
+                        contentEditable={isEditMode}
+                        suppressContentEditableWarning
+                        onBlur={(e) => setHeaderTitle(e.currentTarget.textContent || '')}
+                        className={`${pageDensity === 'compact' ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'} font-black text-slate-900 leading-tight`}
+                      >
+                        {headerTitle}
+                      </h1>
+                      <p
+                        contentEditable={isEditMode}
+                        suppressContentEditableWarning
+                        onBlur={(e) => setHeaderSubtitle(e.currentTarget.textContent || '')}
+                        className="text-[11px] sm:text-xs text-slate-500 font-semibold"
+                      >
+                        {headerSubtitle}
+                      </p>
+                    </div>
+                  </div>
                 </td>
               </tr>
             </thead>
@@ -497,39 +528,6 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               <tr>
                 <td className="p-0 border-0 align-top">
                   <div className={`space-y-6 ${pageDensity === 'compact' ? 'space-y-4' : 'space-y-7'}`}>
-                    
-                    {/* Header Banner - Clean full-width header */}
-                    <div className={`pdf-header-banner pdf-avoid-break border-b-2 sm:border-b-4 border-slate-900 ${pageDensity === 'compact' ? 'pb-3' : 'pb-5'}`}>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 bg-orange-500 shrink-0"></span>
-                          <span
-                            contentEditable={isEditMode}
-                            suppressContentEditableWarning
-                            onBlur={(e) => setHeaderDept(e.currentTarget.textContent || '')}
-                            className="text-xs font-bold text-slate-600 uppercase tracking-wider"
-                          >
-                            {headerDept}
-                          </span>
-                        </div>
-                        <h1
-                          contentEditable={isEditMode}
-                          suppressContentEditableWarning
-                          onBlur={(e) => setHeaderTitle(e.currentTarget.textContent || '')}
-                          className={`${pageDensity === 'compact' ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'} font-black text-slate-900 leading-tight`}
-                        >
-                          {headerTitle}
-                        </h1>
-                        <p
-                          contentEditable={isEditMode}
-                          suppressContentEditableWarning
-                          onBlur={(e) => setHeaderSubtitle(e.currentTarget.textContent || '')}
-                          className="text-[11px] sm:text-xs text-slate-500 font-semibold"
-                        >
-                          {headerSubtitle}
-                        </p>
-                      </div>
-                    </div>
 
                     {/* ==================== FACULTY CONTENT ==================== */}
                     {type === 'faculty' && (
@@ -1529,52 +1527,55 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </tr>
             </tbody>
 
-            {/* Official Repeating Footer - Displays on EVERY printed page */}
+            {/* Tfoot Spacer - reserves blank margin so tbody never overlaps the fixed bottom footer */}
             <tfoot>
               <tr>
                 <td className="p-0 border-0">
-                  <div className={`pdf-footer-banner pdf-avoid-break border-t-2 border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600 bg-white ${
-                    pageDensity === 'compact' ? 'pt-2.5 mt-3' : 'pt-4 mt-5'
-                  }`}>
-                    {/* Right Side: University Address & Digital Archive */}
-                    <div className="space-y-0.5 text-center sm:text-right w-full sm:w-auto">
-                      <div
-                        contentEditable={isEditMode}
-                        suppressContentEditableWarning
-                        onBlur={(e) => setFooterAddress(e.currentTarget.textContent || '')}
-                        className="font-bold text-slate-900 text-xs"
-                      >
-                        {footerAddress}
-                      </div>
-                      <div
-                        contentEditable={isEditMode}
-                        suppressContentEditableWarning
-                        onBlur={(e) => setFooterArchive(e.currentTarget.textContent || '')}
-                        className="text-[11px] text-slate-500"
-                      >
-                        {footerArchive}
-                      </div>
-                    </div>
-
-                    {/* Left Side: Issue Date */}
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100 border border-slate-300 px-3 py-1 shrink-0">
-                      <Calendar className="w-3.5 h-3.5 text-orange-500" />
-                      <span>تاریخ صدور:</span>
-                      <span
-                        contentEditable={isEditMode}
-                        suppressContentEditableWarning
-                        onBlur={(e) => setIssueDate(e.currentTarget.textContent || '')}
-                        className="font-mono text-slate-900 mr-1"
-                        dir="ltr"
-                      >
-                        {issueDate}
-                      </span>
-                    </div>
-                  </div>
+                  <div className="pdf-footer-spacer"></div>
                 </td>
               </tr>
             </tfoot>
           </table>
+
+          {/* Official Repeating Footer - Fixed at bottom of EVERY printed page */}
+          <div className={`pdf-footer-banner pdf-avoid-break border-t-2 border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600 bg-white ${
+            pageDensity === 'compact' ? 'pt-2.5 mt-3' : 'pt-4 mt-5'
+          }`}>
+            {/* Right Side: University Address & Digital Archive */}
+            <div className="space-y-0.5 text-center sm:text-right w-full sm:w-auto">
+              <div
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                onBlur={(e) => setFooterAddress(e.currentTarget.textContent || '')}
+                className="font-bold text-slate-900 text-xs"
+              >
+                {footerAddress}
+              </div>
+              <div
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                onBlur={(e) => setFooterArchive(e.currentTarget.textContent || '')}
+                className="text-[11px] text-slate-500"
+              >
+                {footerArchive}
+              </div>
+            </div>
+
+            {/* Left Side: Issue Date */}
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100 border border-slate-300 px-3 py-1 shrink-0">
+              <Calendar className="w-3.5 h-3.5 text-orange-500" />
+              <span>تاریخ صدور:</span>
+              <span
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                onBlur={(e) => setIssueDate(e.currentTarget.textContent || '')}
+                className="font-mono text-slate-900 mr-1"
+                dir="ltr"
+              >
+                {issueDate}
+              </span>
+            </div>
+          </div>
         </div>
 
       </div>
