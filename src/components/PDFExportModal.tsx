@@ -430,7 +430,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Skills & Specializations */}
-              <div className="pdf-section pdf-avoid-break space-y-2">
+              <div className="pdf-section space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
                     <Award className="w-4 h-4 text-orange-500" />
@@ -479,7 +479,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Selected Publications */}
-              <div className="pdf-section pdf-avoid-break space-y-2">
+              <div className="pdf-section space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
                     <BookOpen className="w-4 h-4 text-orange-500" />
@@ -628,7 +628,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Equipment & Specifications */}
-              <div className="pdf-section pdf-avoid-break space-y-2">
+              <div className="pdf-section space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
                     <Wrench className="w-4 h-4 text-orange-500" />
@@ -694,7 +694,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Members */}
-              <div className="pdf-section pdf-avoid-break space-y-2">
+              <div className="pdf-section space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
                     <User className="w-4 h-4 text-orange-500" />
@@ -743,7 +743,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Achievements */}
-              <div className="pdf-section pdf-avoid-break space-y-2">
+              <div className="pdf-section space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
                     <Award className="w-4 h-4 text-orange-500" />
@@ -903,7 +903,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Faculty & Lab Execution */}
-              <div className="pdf-section pdf-avoid-break grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="pdf-section grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="border border-slate-300 p-4 bg-slate-50 space-y-1 text-right">
                   <span className="text-[11px] font-bold text-slate-500 block">استاد راهنما / سرپرست پروژه:</span>
                   <div
@@ -929,7 +929,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               </div>
 
               {/* Outcomes */}
-              <div className="pdf-section pdf-avoid-break space-y-2">
+              <div className="pdf-section space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2">
                     نتایج کلیدی و تحویلی‌های پروژه

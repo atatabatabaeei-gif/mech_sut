@@ -149,9 +149,15 @@
     box-shadow: none !important;
   }
 
-  /* 6. Robust Page Break, Clean Pagination & Anti-Fragmentation Rules */
-  /* Prevent cards, summary blocks, and entire sections from splitting awkwardly across pages */
-  .pdf-section,
+  /* 6. A4 Page Flow, Pagination & Anti-Fragmentation Rules */
+  /* Do NOT force break-inside: avoid on large text sections (like biography) so page 1 fills up naturally */
+  .pdf-section {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+    margin-bottom: 1.25rem !important;
+  }
+
+  /* Only small atomic components avoid breaking across pages */
   .pdf-card,
   .pdf-block,
   .pdf-avoid-break,
@@ -159,6 +165,15 @@
   .pdf-footer-banner {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
+  }
+
+  /* Compact spacing for A4 print output so content fits cleanly */
+  #pdf-printable-content {
+    padding: 0 !important;
+  }
+
+  #pdf-printable-content > div {
+    gap: 1.25rem !important;
   }
 
   /* Headings must NEVER be separated from their following paragraphs/content at page bottom */
@@ -170,11 +185,9 @@
   .bio-rendered-content h4 {
     break-after: avoid !important;
     page-break-after: avoid !important;
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
   }
 
-  /* Keep list items and quotes whole, preventing individual bullets from being sliced */
+  /* Keep individual list items, quotes, and badges whole */
   li,
   blockquote,
   .rich-editor-content li,
@@ -185,12 +198,13 @@
     page-break-inside: avoid !important;
   }
 
-  /* Paragraph line orphan and widow prevention */
+  /* Paragraph line orphan and widow prevention for natural flow */
   p,
   .rich-editor-content p,
   .bio-rendered-content p {
-    orphans: 3 !important;
-    widows: 3 !important;
+    orphans: 2 !important;
+    widows: 2 !important;
+    break-inside: auto !important;
   }
 
   /* Manual Page Breaks */
