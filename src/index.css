@@ -49,10 +49,6 @@
   font-weight: 800;
 }
 
-.pdf-footer-spacer {
-  display: none;
-}
-
 /* PDF Live Editable styling */
 #pdf-printable-content [contenteditable="true"] {
   outline: 1px dashed rgba(249, 115, 22, 0.45);
@@ -195,25 +191,11 @@
     background-color: #ffffff !important;
   }
 
-  /* Fixed repeating footer strictly anchored at the absolute bottom of EVERY printed page */
   .pdf-footer-banner {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
     width: 100% !important;
     background-color: #ffffff !important;
-    border-top: 2px solid #0f172a !important;
-    padding-top: 5px !important;
-    padding-bottom: 2px !important;
-    margin: 0 !important;
-    z-index: 9999 !important;
-  }
-
-  .pdf-footer-spacer {
-    height: 48px !important;
-    display: block !important;
-    visibility: hidden !important;
   }
 
   /* Compact spacing for A4 print output so content fits cleanly */
