@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate, NavLink } from 'react-router-dom';
 import {
   ArrowRight,
@@ -8,16 +8,13 @@ import {
   Award,
   Briefcase,
   Image as ImageIcon,
-  Send,
-  Printer
+  Send
 } from 'lucide-react';
 import { getLabs, getProjects } from '../services/storage';
-import { PDFExportModal } from '../components/PDFExportModal';
 
 export const LabDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [showPdfModal, setShowPdfModal] = useState(false);
   const labs = getLabs();
   const lab = labs.find((l) => l.id === id);
   const allProjects = getProjects();
@@ -90,14 +87,6 @@ export const LabDetailPage: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setShowPdfModal(true)}
-              className="bg-white hover:bg-slate-100 text-slate-900 border-2 border-slate-900 px-5 py-2.5 text-xs font-black transition-all flex items-center justify-center gap-2 shadow-sm"
-              title="مشاهده و چاپ شناسنامه فنی و تجهیزات تخصصی با امکان ویرایش زنده و خروجی PDF"
-            >
-              <Printer className="w-4 h-4 text-orange-500" />
-              <span>شناسنامه فنی / خروجی PDF</span>
-            </button>
             <button
               onClick={() => navigate(`/collaboration?targetLab=${encodeURIComponent(lab.name)}`)}
               className="bg-orange-500 hover:bg-orange-600 text-black px-6 py-2.5 text-xs font-black transition-all flex items-center justify-center gap-2 shadow-md"
@@ -235,15 +224,6 @@ export const LabDetailPage: React.FC = () => {
         </div>
 
       </div>
-
-      {/* PDF Export Modal */}
-      {showPdfModal && (
-        <PDFExportModal
-          type="lab"
-          data={lab}
-          onClose={() => setShowPdfModal(false)}
-        />
-      )}
 
     </div>
   );

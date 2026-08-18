@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate, NavLink } from 'react-router-dom';
 import {
   ArrowRight,
@@ -9,18 +9,14 @@ import {
   FlaskConical,
   ChevronLeft,
   Send,
-  Award,
-  FileText,
-  Printer
+  Award
 } from 'lucide-react';
 import { getFaculty, getLabs, getProjects } from '../services/storage';
 import { normalizeToHtml } from '../components/RichTextEditor';
-import { PDFExportModal } from '../components/PDFExportModal';
 
 export const FacultyDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [showPdfModal, setShowPdfModal] = useState(false);
   const facultyList = getFaculty();
   const member = facultyList.find((f) => f.id === id);
   const allLabs = getLabs();
@@ -100,14 +96,6 @@ export const FacultyDetailPage: React.FC = () => {
             >
               <Send className="w-4 h-4" />
               <span>درخواست مشاوره یا تعریف پروژه</span>
-            </button>
-            <button
-              onClick={() => setShowPdfModal(true)}
-              className="bg-white hover:bg-slate-100 text-slate-900 border-2 border-slate-900 px-6 py-2.5 text-xs font-black transition-all flex items-center justify-center gap-2 shadow-sm"
-              title="مشاهده و چاپ شناسنامه رسمی و رزومه علمی با امکان ویرایش زنده و خروجی PDF"
-            >
-              <Printer className="w-4 h-4 text-orange-500" />
-              <span>شناسنامه رسمی / خروجی PDF</span>
             </button>
           </div>
 
@@ -225,15 +213,6 @@ export const FacultyDetailPage: React.FC = () => {
         </div>
 
       </div>
-
-      {/* PDF Export Modal */}
-      {showPdfModal && (
-        <PDFExportModal
-          type="faculty"
-          data={member}
-          onClose={() => setShowPdfModal(false)}
-        />
-      )}
 
     </div>
   );
