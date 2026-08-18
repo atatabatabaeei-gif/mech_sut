@@ -86,49 +86,37 @@
     display: none !important;
   }
 
-  /* 3. Reset document canvas to start cleanly at top-left of Page 1 */
-  html, body {
+  /* 3. Reset document canvas and remove any transforms/filters/overflows that trap fixed positioning */
+  html,
+  body,
+  .pdf-export-modal-overlay,
+  .pdf-export-modal-card,
+  #pdf-printable-content {
+    position: static !important;
     background-color: #ffffff !important;
+    background: #ffffff !important;
     color: #000000 !important;
     padding: 0 !important;
     margin: 0 !important;
     height: auto !important;
+    max-height: none !important;
     min-height: 0 !important;
     overflow: visible !important;
-  }
-
-  /* 4. Display portaled modal container in static document flow */
-  .pdf-export-modal-overlay {
-    position: static !important;
-    background: #ffffff !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    overflow: visible !important;
-    display: block !important;
-    width: 100% !important;
-    height: auto !important;
-  }
-
-  .pdf-export-modal-card {
-    position: static !important;
-    background: #ffffff !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    transform: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    contain: none !important;
+    perspective: none !important;
     border: none !important;
     box-shadow: none !important;
-    max-height: none !important;
-    overflow: visible !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    width: 100% !important;
     display: block !important;
+    width: 100% !important;
   }
 
   #pdf-printable-content {
-    position: static !important;
-    width: 100% !important;
-    margin: 0 !important;
-    background-color: #ffffff !important;
-    color: #0f172a !important;
-    display: block !important;
     font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif !important;
   }
 
