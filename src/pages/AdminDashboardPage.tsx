@@ -73,6 +73,7 @@ import { Toast } from '../components/Toast';
 import { PDFExportModal } from '../components/PDFExportModal';
 import { CategoryDropdownFilter, CategoryOption } from '../components/CategoryDropdownFilter';
 import { RichTextEditor } from '../components/RichTextEditor';
+import { ImageUploader, GalleryUploader } from '../components/ImageUploader';
 
 export const AdminDashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -541,6 +542,7 @@ export const AdminDashboardPage: React.FC = () => {
   const [labShortDesc, setLabShortDesc] = useState('');
   const [labFullDesc, setLabFullDesc] = useState('');
   const [labImageUrl, setLabImageUrl] = useState('');
+  const [labGallery, setLabGallery] = useState<string[]>([]);
   const [labSupervisorName, setLabSupervisorName] = useState('');
   const [labLocation, setLabLocation] = useState('');
   const [labContactEmail, setLabContactEmail] = useState('');
@@ -565,7 +567,7 @@ export const AdminDashboardPage: React.FC = () => {
       members: ['مهندس پژوهشگر', 'دانشجوی دکتری'],
       equipment: equipmentArr.length ? equipmentArr : [{ name: 'تجهیز تخصصی', specs: 'دستگاه استاندارد' }],
       projects: [],
-      gallery: [labImageUrl],
+      gallery: labGallery.length ? labGallery : [labImageUrl || 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800'],
       achievements: ['توسعه زیرساخت پژوهشی'],
       location: labLocation || 'دانشکده مکانیک',
       contactEmail: labContactEmail || 'lab@sharif.edu'
@@ -592,6 +594,7 @@ export const AdminDashboardPage: React.FC = () => {
     setLabShortDesc(l.shortDesc);
     setLabFullDesc(l.fullDesc);
     setLabImageUrl(l.imageUrl);
+    setLabGallery(l.gallery && l.gallery.length > 0 ? l.gallery : [l.imageUrl]);
     setLabSupervisorName(l.supervisorName);
     setLabLocation(l.location);
     setLabContactEmail(l.contactEmail);
@@ -613,6 +616,7 @@ export const AdminDashboardPage: React.FC = () => {
     setLabShortDesc('');
     setLabFullDesc('');
     setLabImageUrl('');
+    setLabGallery([]);
     setLabSupervisorName('');
     setLabLocation('');
     setLabContactEmail('');
@@ -1174,13 +1178,25 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[#A0A0A0] block mb-1">آدرس عکس تصویر پوشش (URL)</label>
-                <input
-                  type="text"
+                <ImageUploader
                   value={labImageUrl}
-                  onChange={(e) => setLabImageUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl px-3 py-2.5 text-white text-left dir-ltr"
+                  onChange={(val) => setLabImageUrl(val)}
+                  label="تصویر اصلی / کاور آزمایشگاه"
+                  placeholder="آپلود تصویر آزمایشگاه یا درج لینک..."
+                  theme="dark"
+                  aspectRatio="wide"
+                  helpText="این تصویر در کارت‌های لیست آزمایشگاه‌ها و سربرگ شناسنامه نمایش داده می‌شود."
+                  id="admin-lab-image-uploader"
+                />
+              </div>
+
+              <div>
+                <GalleryUploader
+                  images={labGallery}
+                  onChange={(imgs) => setLabGallery(imgs)}
+                  label="گالری تصاویر محیط و تست‌های آزمایشگاه"
+                  theme="dark"
+                  id="admin-lab-gallery-uploader"
                 />
               </div>
 
@@ -1396,13 +1412,15 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[#A0A0A0] block mb-1">تصویر پرتره (URL)</label>
-                <input
-                  type="text"
+                <ImageUploader
                   value={facAvatarUrl}
-                  onChange={(e) => setFacAvatarUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl px-3 py-2.5 text-white text-left dir-ltr"
+                  onChange={(val) => setFacAvatarUrl(val)}
+                  label="تصویر پرتره رسمی استاد"
+                  placeholder="آپلود تصویر استاد یا درج لینک..."
+                  theme="dark"
+                  aspectRatio="square"
+                  helpText="تصویر در کارت‌های هیئت علمی، صفحه رزومه و سربرگ PDF نمایش داده می‌شود."
+                  id="admin-fac-avatar-uploader"
                 />
               </div>
 
@@ -1744,13 +1762,15 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[#A0A0A0] block mb-1">تصویر پروژه (URL)</label>
-                <input
-                  type="text"
+                <ImageUploader
                   value={projImageUrl}
-                  onChange={(e) => setProjImageUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl px-3 py-2.5 text-white text-left dir-ltr"
+                  onChange={(val) => setProjImageUrl(val)}
+                  label="تصویر شاخص پروژه صنعتی"
+                  placeholder="آپلود تصویر یا درج لینک..."
+                  theme="dark"
+                  aspectRatio="wide"
+                  helpText="تصویر در لیست پروژه‌ها و شناسنامه اجرایی نمایش داده می‌شود."
+                  id="admin-proj-image-uploader"
                 />
               </div>
 

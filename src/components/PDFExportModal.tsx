@@ -22,7 +22,9 @@ import {
   Trash2,
   Calendar,
   Layers,
-  CheckCircle2
+  CheckCircle2,
+  Upload,
+  Camera
 } from 'lucide-react';
 import { FacultyMember, IndustrialProject, Lab } from '../types';
 import { getAdminState } from '../services/storage';
@@ -536,7 +538,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                         <div className={`pdf-card pdf-avoid-break bg-slate-50 border-2 border-slate-900 flex flex-row gap-4 items-start ${
                           pageDensity === 'compact' ? 'p-3.5 sm:p-4' : 'p-5 sm:p-6 gap-6'
                         }`}>
-                          <div className="space-y-1.5 shrink-0 text-center">
+                          <div className="space-y-1.5 shrink-0 text-center relative group">
                             <img
                               src={facAvatarUrl}
                               alt={facName}
@@ -548,14 +550,35 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                               }}
                             />
                             {isEditMode && (
-                              <input
-                                type="text"
-                                value={facAvatarUrl}
-                                onChange={(e) => setFacAvatarUrl(e.target.value)}
-                                placeholder="لینک تصویر (URL)"
-                                className="text-[10px] font-mono text-slate-500 border border-slate-300 rounded px-1 py-0.5 w-24 no-print"
-                                title="آدرس اینترنتی تصویر برای تغییر عکس"
-                              />
+                              <div className="space-y-1 no-print">
+                                <label className="cursor-pointer bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center justify-center gap-1 transition-all shadow-sm">
+                                  <Upload className="w-2.5 h-2.5" />
+                                  <span>آپلود از سیستم</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) {
+                                        const reader = new FileReader();
+                                        reader.onload = (ev) => {
+                                          if (ev.target?.result) setFacAvatarUrl(ev.target.result as string);
+                                        };
+                                        reader.readAsDataURL(file);
+                                      }
+                                    }}
+                                  />
+                                </label>
+                                <input
+                                  type="text"
+                                  value={facAvatarUrl.startsWith('data:') ? 'عکس محلی آپلود شد' : facAvatarUrl}
+                                  onChange={(e) => setFacAvatarUrl(e.target.value)}
+                                  placeholder="لینک تصویر (URL)"
+                                  className="text-[10px] font-mono text-slate-500 border border-slate-300 rounded px-1 py-0.5 w-24 block mx-auto text-center"
+                                  title="آدرس اینترنتی تصویر برای تغییر عکس"
+                                />
+                              </div>
                             )}
                           </div>
 
@@ -883,13 +906,34 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                 }}
                               />
                               {isEditMode && (
-                                <input
-                                  type="text"
-                                  value={labImageUrl}
-                                  onChange={(e) => setLabImageUrl(e.target.value)}
-                                  placeholder="آدرس تصویر (URL)"
-                                  className="text-[10px] font-mono text-slate-500 border border-slate-300 rounded px-1.5 py-0.5 w-full no-print"
-                                />
+                                <div className="space-y-1 no-print">
+                                  <label className="cursor-pointer bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center justify-center gap-1 transition-all shadow-sm">
+                                    <Upload className="w-2.5 h-2.5" />
+                                    <span>آپلود تصویر از سیستم</span>
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          const reader = new FileReader();
+                                          reader.onload = (ev) => {
+                                            if (ev.target?.result) setLabImageUrl(ev.target.result as string);
+                                          };
+                                          reader.readAsDataURL(file);
+                                        }
+                                      }}
+                                    />
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={labImageUrl.startsWith('data:') ? 'عکس محلی آزمایشگاه' : labImageUrl}
+                                    onChange={(e) => setLabImageUrl(e.target.value)}
+                                    placeholder="آدرس تصویر (URL)"
+                                    className="text-[10px] font-mono text-slate-500 border border-slate-300 rounded px-1.5 py-0.5 w-full block text-center"
+                                  />
+                                </div>
                               )}
                             </div>
 
@@ -1309,13 +1353,34 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                 }}
                               />
                               {isEditMode && (
-                                <input
-                                  type="text"
-                                  value={projImageUrl}
-                                  onChange={(e) => setProjImageUrl(e.target.value)}
-                                  placeholder="آدرس تصویر (URL)"
-                                  className="text-[10px] font-mono text-slate-500 border border-slate-300 rounded px-1.5 py-0.5 w-full no-print"
-                                />
+                                <div className="space-y-1 no-print">
+                                  <label className="cursor-pointer bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center justify-center gap-1 transition-all shadow-sm">
+                                    <Upload className="w-2.5 h-2.5" />
+                                    <span>آپلود تصویر از سیستم</span>
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          const reader = new FileReader();
+                                          reader.onload = (ev) => {
+                                            if (ev.target?.result) setProjImageUrl(ev.target.result as string);
+                                          };
+                                          reader.readAsDataURL(file);
+                                        }
+                                      }}
+                                    />
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={projImageUrl.startsWith('data:') ? 'عکس محلی پروژه' : projImageUrl}
+                                    onChange={(e) => setProjImageUrl(e.target.value)}
+                                    placeholder="آدرس تصویر (URL)"
+                                    className="text-[10px] font-mono text-slate-500 border border-slate-300 rounded px-1.5 py-0.5 w-full block text-center"
+                                  />
+                                </div>
                               )}
                             </div>
 
