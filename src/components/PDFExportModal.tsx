@@ -24,7 +24,8 @@ import {
   Layers,
   CheckCircle2,
   Upload,
-  Camera
+  Camera,
+  Image as ImageIcon
 } from 'lucide-react';
 import { FacultyMember, IndustrialProject, Lab } from '../types';
 import { getAdminState } from '../services/storage';
@@ -91,12 +92,22 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
   );
   const [labMembers, setLabMembers] = useState<string[]>(initialLab?.members ? [...initialLab.members] : []);
   const [labAchievements, setLabAchievements] = useState<string[]>(initialLab?.achievements ? [...initialLab.achievements] : []);
+  const [labGallery, setLabGallery] = useState<string[]>(
+    initialLab?.gallery && initialLab.gallery.length > 0
+      ? [...initialLab.gallery]
+      : initialLab?.imageUrl
+      ? [initialLab.imageUrl]
+      : []
+  );
 
   // Lab Section Visibility States
   const [showLabDesc, setShowLabDesc] = useState(!!initialLab?.fullDesc?.trim());
   const [showLabEquipment, setShowLabEquipment] = useState((initialLab?.equipment?.length || 0) > 0);
   const [showLabMembers, setShowLabMembers] = useState((initialLab?.members?.length || 0) > 0);
   const [showLabAchievements, setShowLabAchievements] = useState((initialLab?.achievements?.length || 0) > 0);
+  const [showLabGallery, setShowLabGallery] = useState(
+    (initialLab?.gallery && initialLab.gallery.length > 0) || !!initialLab?.imageUrl
+  );
 
   // Project State
   const initialProject = type === 'project' ? (data as IndustrialProject) : null;
@@ -151,10 +162,18 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
       setLabEquipment(initialLab.equipment ? initialLab.equipment.map((e) => ({ ...e })) : []);
       setLabMembers(initialLab.members ? [...initialLab.members] : []);
       setLabAchievements(initialLab.achievements ? [...initialLab.achievements] : []);
+      setLabGallery(
+        initialLab.gallery && initialLab.gallery.length > 0
+          ? [...initialLab.gallery]
+          : initialLab.imageUrl
+          ? [initialLab.imageUrl]
+          : []
+      );
       setShowLabDesc(!!initialLab.fullDesc?.trim());
       setShowLabEquipment((initialLab.equipment?.length || 0) > 0);
       setShowLabMembers((initialLab.members?.length || 0) > 0);
       setShowLabAchievements((initialLab.achievements?.length || 0) > 0);
+      setShowLabGallery((initialLab.gallery && initialLab.gallery.length > 0) || !!initialLab.imageUrl);
     } else if (type === 'project' && initialProject) {
       setHeaderTitle('شناسنامه فنی و اجرایی پروژه صنعتی');
       setProjTitle(initialProject.title || '');
@@ -433,6 +452,18 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                 >
                   {showLabAchievements ? <Eye className="w-3 h-3 text-emerald-400" /> : <EyeOff className="w-3 h-3 text-red-400" />}
                   <span>افتخارات ({labAchievements.length})</span>
+                </button>
+
+                <button
+                  onClick={() => setShowLabGallery(!showLabGallery)}
+                  className={`px-2.5 py-1 rounded text-[11px] font-bold flex items-center gap-1 transition-all border ${
+                    showLabGallery
+                      ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 hover:bg-emerald-500/30'
+                      : 'bg-slate-800 border-slate-700 text-slate-400 line-through hover:text-white'
+                  }`}
+                >
+                  {showLabGallery ? <Eye className="w-3 h-3 text-emerald-400" /> : <EyeOff className="w-3 h-3 text-red-400" />}
+                  <span>گالری تصاویر ({labGallery.length})</span>
                 </button>
               </>
             )}
@@ -1290,6 +1321,111 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                             </span>
                             <button
                               onClick={() => setShowLabAchievements(true)}
+                              className="text-xs font-bold text-orange-600 hover:text-orange-700 underline"
+                            >
+                              فعال‌سازی و نمایش
+                            </button>
+                          </div>
+                        ) : null}
+
+                        {/* 5. Visual Gallery & Facility Images */}
+                        {showLabGallery ? (
+                          <div className="pdf-avoid-break space-y-2">
+                            <div className="flex items-center justify-between border-b border-slate-300 pb-1">
+                              <h3 className="text-sm sm:text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
+                                <ImageIcon className="w-4 h-4 text-orange-500" />
+                                گالری تصاویر، فضا و مستندات فنی آزمایشگاه
+                              </h3>
+                              {isEditMode && (
+                                <div className="flex items-center gap-2 no-print">
+                                  <button
+                                    onClick={() => setShowLabGallery(false)}
+                                    className="text-[11px] text-slate-500 hover:text-red-500 bg-slate-100 hover:bg-red-50 border border-slate-300 px-2 py-0.5 rounded flex items-center gap-1 font-bold transition-all"
+                                    title="مخفی کردن این بخش از خروجی چاپی"
+                                  >
+                                    <EyeOff className="w-3 h-3" />
+                                    <span>مخفی‌سازی بخش</span>
+                                  </button>
+                                  <label className="cursor-pointer text-xs bg-orange-500/10 text-orange-600 border border-orange-500/40 hover:bg-orange-500 hover:text-white px-2.5 py-1 rounded font-bold flex items-center gap-1 transition-all">
+                                    <Upload className="w-3.5 h-3.5" />
+                                    <span>+ افزودن عکس از سیستم</span>
+                                    <input
+                                      type="file"
+                                      multiple
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const fileList = e.target.files;
+                                        if (!fileList || fileList.length === 0) return;
+                                        for (let i = 0; i < fileList.length; i++) {
+                                          const file = fileList[i];
+                                          if (file) {
+                                            const reader = new FileReader();
+                                            reader.onload = (ev) => {
+                                              if (ev.target?.result) {
+                                                setLabGallery((prev) => [...prev, ev.target!.result as string]);
+                                              }
+                                            };
+                                            reader.readAsDataURL(file);
+                                          }
+                                        }
+                                      }}
+                                    />
+                                  </label>
+                                </div>
+                              )}
+                            </div>
+
+                            {labGallery.length > 0 ? (
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-1">
+                                {labGallery.map((imgUrl, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="pdf-card pdf-avoid-break bg-slate-50 border border-slate-300 rounded p-1.5 space-y-1 relative group"
+                                  >
+                                    <div className="overflow-hidden rounded border border-slate-200 aspect-video bg-white">
+                                      <img
+                                        src={imgUrl}
+                                        alt={`مستند آزمایشگاهی ${idx + 1}`}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=400';
+                                        }}
+                                      />
+                                    </div>
+                                    <div className="flex items-center justify-between text-[10px] text-slate-500 px-0.5">
+                                      <span className="font-bold text-slate-700">تصویر {idx + 1}</span>
+                                      {isEditMode && (
+                                        <button
+                                          onClick={() => {
+                                            const updated = labGallery.filter((_, i) => i !== idx);
+                                            setLabGallery(updated);
+                                            if (updated.length === 0) setShowLabGallery(false);
+                                          }}
+                                          className="text-red-500 hover:text-red-700 p-0.5 no-print"
+                                          title="حذف از چاپ"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : isEditMode ? (
+                              <div className="border border-dashed border-slate-300 p-3 text-center rounded text-xs text-slate-400 no-print">
+                                تصویری در گالری ثبت نشده است. برای افزودن از دکمه بالا استفاده فرمایید.
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : !showLabGallery && isEditMode ? (
+                          <div className="border border-dashed border-slate-300 bg-slate-50 p-3 text-center text-xs text-slate-500 rounded flex items-center justify-between no-print">
+                            <span className="flex items-center gap-1.5">
+                              <EyeOff className="w-4 h-4 text-slate-400" />
+                              بخش «گالری تصاویر آزمایشگاه» در خروجی چاپ مخفی است.
+                            </span>
+                            <button
+                              onClick={() => setShowLabGallery(true)}
                               className="text-xs font-bold text-orange-600 hover:text-orange-700 underline"
                             >
                               فعال‌سازی و نمایش
