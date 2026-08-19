@@ -935,24 +935,37 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                 معرفی و حوزه فعالیت تخصصی آزمایشگاه
                               </h3>
                               {isEditMode && (
-                                <button
-                                  onClick={() => setShowLabDesc(false)}
-                                  className="text-[11px] text-slate-500 hover:text-red-500 bg-slate-100 hover:bg-red-50 border border-slate-300 px-2 py-0.5 rounded flex items-center gap-1 font-bold transition-all no-print"
-                                  title="مخفی کردن این بخش از خروجی چاپی"
-                                >
-                                  <EyeOff className="w-3 h-3" />
-                                  <span>مخفی‌سازی بخش</span>
-                                </button>
+                                <div className="flex items-center gap-2 no-print">
+                                  <button
+                                    onClick={() => setShowLabDesc(false)}
+                                    className="text-[11px] text-slate-500 hover:text-red-500 bg-slate-100 hover:bg-red-50 border border-slate-300 px-2 py-0.5 rounded flex items-center gap-1 font-bold transition-all"
+                                    title="مخفی کردن این بخش از خروجی چاپی"
+                                  >
+                                    <EyeOff className="w-3 h-3" />
+                                    <span>مخفی‌سازی بخش</span>
+                                  </button>
+                                  <span className="text-[11px] text-orange-600 font-bold bg-orange-50 px-2 py-0.5 border border-orange-200 rounded hidden sm:inline-block">
+                                    ادیتور متن پیشرفته
+                                  </span>
+                                </div>
                               )}
                             </div>
-                            <div
-                              contentEditable={isEditMode}
-                              suppressContentEditableWarning
-                              onBlur={(e) => setLabFullDesc(e.currentTarget.textContent || '')}
-                              className="text-xs sm:text-[13px] text-slate-700 leading-relaxed bg-slate-50/70 border border-slate-200/80 p-3 whitespace-pre-line text-justify pdf-editorial-text"
-                            >
-                              {labFullDesc}
-                            </div>
+                            {isEditMode ? (
+                              <RichTextEditor
+                                value={labFullDesc}
+                                onChange={(html) => setLabFullDesc(html)}
+                                theme="light"
+                                placeholder="شرح کامل معرفی، قابلیت‌ها و خدمات آزمایشگاه..."
+                                minHeight="140px"
+                                id="pdf-lab-desc-editor"
+                                templatesType="lab"
+                              />
+                            ) : (
+                              <div
+                                className="text-xs sm:text-[13px] text-slate-700 leading-relaxed bg-slate-50/70 border border-slate-200/80 p-3.5 bio-rendered-content text-justify"
+                                dangerouslySetInnerHTML={{ __html: normalizeToHtml(labFullDesc) }}
+                              />
+                            )}
                           </div>
                         ) : isEditMode ? (
                           <div className="border border-dashed border-slate-300 bg-slate-50 p-3 text-center text-xs text-slate-500 rounded flex items-center justify-between no-print">

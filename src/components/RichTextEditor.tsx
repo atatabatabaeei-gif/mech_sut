@@ -29,6 +29,7 @@ interface RichTextEditorProps {
   theme?: 'dark' | 'light';
   id?: string;
   showQuickTemplates?: boolean;
+  templatesType?: 'faculty' | 'lab' | 'general';
 }
 
 // Convert plain text into paragraphs/html if needed
@@ -57,6 +58,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   theme = 'dark',
   id = 'rich-text-editor',
   showQuickTemplates = true,
+  templatesType = 'faculty',
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const [activeFormats, setActiveFormats] = useState<{
@@ -407,7 +409,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         </div>
       </div>
 
-      {/* Quick Bio Section Templates */}
+      {/* Quick Section Templates */}
       {showQuickTemplates && (
         <div
           className={`px-3 py-1.5 text-[11px] flex flex-wrap items-center gap-2 border-b select-none no-print ${
@@ -416,58 +418,116 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         >
           <span className="font-bold flex items-center gap-1 text-orange-500">
             <Plus className="w-3 h-3" />
-            افزودن بخش‌های آماده به بیوگرافی:
+            {templatesType === 'lab' ? 'افزودن بخش‌های آماده به معرفی آزمایشگاه:' : 'افزودن بخش‌های آماده به متن:'}
           </span>
-          <button
-            type="button"
-            onClick={() =>
-              insertTemplate(
-                'تحصیلات',
-                `<h3>سوابق تحصیلی و دانشگاهی:</h3><ul><li><strong>دکتری:</strong> مهندسی مکانیک، دانشگاه صنعتی شریف (سال فارغ‌التحصیلی)</li><li><strong>کارشناسی ارشد:</strong> مهندسی مکانیک، گرایش تبدیل انرژی (سال فارغ‌التحصیلی)</li></ul>`
-              )
-            }
-            className={`px-2 py-0.5 rounded border transition-colors ${
-              isDark
-                ? 'bg-[#222226] border-[#333338] hover:border-orange-500 hover:text-white'
-                : 'bg-white border-slate-300 hover:border-orange-500 text-slate-800'
-            }`}
-          >
-            + تحصیلات
-          </button>
 
-          <button
-            type="button"
-            onClick={() =>
-              insertTemplate(
-                'زمینه‌های پژوهشی',
-                `<h3>زمینه‌های پژوهشی و تخصصی:</h3><ul><li>طراحی و شبیه‌سازی سیستم‌های حرارتی و برودتی</li><li>دینامیک سیالات محاسباتی و توربولانس</li><li>بهینه‌سازی مصرف انرژی در صنایع نفت و پتروشیمی</li></ul>`
-              )
-            }
-            className={`px-2 py-0.5 rounded border transition-colors ${
-              isDark
-                ? 'bg-[#222226] border-[#333338] hover:border-orange-500 hover:text-white'
-                : 'bg-white border-slate-300 hover:border-orange-500 text-slate-800'
-            }`}
-          >
-            + زمینه‌های پژوهشی (لیست)
-          </button>
+          {templatesType === 'lab' ? (
+            <>
+              <button
+                type="button"
+                onClick={() =>
+                  insertTemplate(
+                    'اهداف و محورها',
+                    `<h3>اهداف و محورهای فعالیت آزمایشگاه:</h3><ul><li>انجام آزمون‌های تخصصی، استاندارد و عیب‌یابی صنعتی</li><li>توسعه فناوری‌های پیشرفته، طراحی و نمونه‌سازی تجربی</li><li>انجام پروژه‌های مشترک ارتباط با صنعت و مشاوره‌های فنی مهندسی</li></ul>`
+                  )
+                }
+                className={`px-2 py-0.5 rounded border transition-colors ${
+                  isDark
+                    ? 'bg-[#222226] border-[#333338] hover:border-orange-500 hover:text-white'
+                    : 'bg-white border-slate-300 hover:border-orange-500 text-slate-800'
+                }`}
+              >
+                + اهداف و محورها (لیست)
+              </button>
 
-          <button
-            type="button"
-            onClick={() =>
-              insertTemplate(
-                'افتخارات',
-                `<h3>افتخارات و جوایز علمی:</h3><ol><li>استاد نمونه آموزشی و پژوهشی دانشکده مهندسی مکانیک</li><li>پژوهشگر برتر ارتباط با صنعت در سطح دانشگاه صنعتی شریف</li></ol>`
-              )
-            }
-            className={`px-2 py-0.5 rounded border transition-colors ${
-              isDark
-                ? 'bg-[#222226] border-[#333338] hover:border-orange-500 hover:text-white'
-                : 'bg-white border-slate-300 hover:border-orange-500 text-slate-800'
-            }`}
-          >
-            + جوایز و افتخارات (شماره‌دار)
-          </button>
+              <button
+                type="button"
+                onClick={() =>
+                  insertTemplate(
+                    'خدمات صنعتی',
+                    `<h3>خدمات قابل ارائه به صنایع و شرکت‌ها:</h3><ol><li>طراحی، ساخت و تست ستاپ‌های آزمایشگاهی سفارشی</li><li>اندازه‌گیری و کالیبراسیون سنسورها و عملگرها با دقت بالا</li><li>شبیه‌سازی و صحه‌گذاری تجربی نتایج عددی</li></ol>`
+                  )
+                }
+                className={`px-2 py-0.5 rounded border transition-colors ${
+                  isDark
+                    ? 'bg-[#222226] border-[#333338] hover:border-orange-500 hover:text-white'
+                    : 'bg-white border-slate-300 hover:border-orange-500 text-slate-800'
+                }`}
+              >
+                + خدمات صنعتی و آزمون‌ها
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  insertTemplate(
+                    'استانداردها',
+                    `<h3>استانداردها و تاییدیه‌های فنی:</h3><p>آزمایشگاه دارای تاییدیه معتبر، تجهیزات کالیبره شده و آماده پذیرش نمونه‌ها بر اساس استانداردهای ملی و بین‌المللی است.</p>`
+                  )
+                }
+                className={`px-2 py-0.5 rounded border transition-colors ${
+                  isDark
+                    ? 'bg-[#222226] border-[#333338] hover:border-orange-500 hover:text-white'
+                    : 'bg-white border-slate-300 hover:border-orange-500 text-slate-800'
+                }`}
+              >
+                + استانداردها و تاییدیه‌ها
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() =>
+                  insertTemplate(
+                    'تحصیلات',
+                    `<h3>سوابق تحصیلی و دانشگاهی:</h3><ul><li><strong>دکتری:</strong> مهندسی مکانیک، دانشگاه صنعتی شریف (سال فارغ‌التحصیلی)</li><li><strong>کارشناسی ارشد:</strong> مهندسی مکانیک، گرایش تبدیل انرژی (سال فارغ‌التحصیلی)</li></ul>`
+                  )
+                }
+                className={`px-2 py-0.5 rounded border transition-colors ${
+                  isDark
+                    ? 'bg-[#222226] border-[#333338] hover:border-orange-500 hover:text-white'
+                    : 'bg-white border-slate-300 hover:border-orange-500 text-slate-800'
+                }`}
+              >
+                + تحصیلات
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  insertTemplate(
+                    'زمینه‌های پژوهشی',
+                    `<h3>زمینه‌های پژوهشی و تخصصی:</h3><ul><li>طراحی و شبیه‌سازی سیستم‌های حرارتی و برودتی</li><li>دینامیک سیالات محاسباتی و توربولانس</li><li>بهینه‌سازی مصرف انرژی در صنایع نفت و پتروشیمی</li></ul>`
+                  )
+                }
+                className={`px-2 py-0.5 rounded border transition-colors ${
+                  isDark
+                    ? 'bg-[#222226] border-[#333338] hover:border-orange-500 hover:text-white'
+                    : 'bg-white border-slate-300 hover:border-orange-500 text-slate-800'
+                }`}
+              >
+                + زمینه‌های پژوهشی (لیست)
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  insertTemplate(
+                    'افتخارات',
+                    `<h3>افتخارات و جوایز علمی:</h3><ol><li>استاد نمونه آموزشی و پژوهشی دانشکده مهندسی مکانیک</li><li>پژوهشگر برتر ارتباط با صنعت در سطح دانشگاه صنعتی شریف</li></ol>`
+                  )
+                }
+                className={`px-2 py-0.5 rounded border transition-colors ${
+                  isDark
+                    ? 'bg-[#222226] border-[#333338] hover:border-orange-500 hover:text-white'
+                    : 'bg-white border-slate-300 hover:border-orange-500 text-slate-800'
+                }`}
+              >
+                + جوایز و افتخارات (شماره‌دار)
+              </button>
+            </>
+          )}
 
           <button
             type="button"

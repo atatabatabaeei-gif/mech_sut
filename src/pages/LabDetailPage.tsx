@@ -12,6 +12,7 @@ import {
   Printer
 } from 'lucide-react';
 import { getLabs, getProjects } from '../services/storage';
+import { normalizeToHtml } from '../components/RichTextEditor';
 import { PDFExportModal } from '../components/PDFExportModal';
 
 export const LabDetailPage: React.FC = () => {
@@ -121,9 +122,10 @@ export const LabDetailPage: React.FC = () => {
               <FlaskConical className="w-5 h-5 text-orange-500" />
               معرفی و حوزه فعالیت تخصصی
             </h2>
-            <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
-              {lab.fullDesc}
-            </p>
+            <div
+              className="text-slate-700 text-sm leading-relaxed bio-rendered-content text-justify"
+              dangerouslySetInnerHTML={{ __html: normalizeToHtml(lab.fullDesc) }}
+            />
           </section>
 
           {/* Equipment & Specifications */}

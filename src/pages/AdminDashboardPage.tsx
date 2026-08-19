@@ -1161,13 +1161,15 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-[#A0A0A0] block mb-1">توضیحات کامل (نمایش در صفحه اختصاصی)</label>
-                <textarea
-                  rows={3}
+                <label className="text-[#A0A0A0] block mb-1">توضیحات کامل، خدمات و محورهای فعالیت (با ادیتور پیشرفته)</label>
+                <RichTextEditor
                   value={labFullDesc}
-                  onChange={(e) => setLabFullDesc(e.target.value)}
-                  placeholder="شرح کامل عملکرد و پروژه‌ها..."
-                  className="w-full bg-[#1B1B1E] border border-[#28282D] rounded-xl p-3 text-white"
+                  onChange={(html) => setLabFullDesc(html)}
+                  placeholder="شرح کامل عملکرد، اهداف، خدمات و پروژه‌های آزمایشگاه..."
+                  minHeight="160px"
+                  theme="dark"
+                  id="admin-lab-full-desc-editor"
+                  templatesType="lab"
                 />
               </div>
 
