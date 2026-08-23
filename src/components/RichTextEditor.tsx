@@ -25,7 +25,8 @@ import {
   RotateCcw,
   Sparkles,
   ChevronDown,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Square
 } from 'lucide-react';
 
 interface RichTextEditorProps {
@@ -37,6 +38,8 @@ interface RichTextEditorProps {
   id?: string;
   showQuickTemplates?: boolean;
   templatesType?: 'faculty' | 'lab' | 'general';
+  boxBgColor?: string;
+  onBoxBgColorChange?: (color: string) => void;
 }
 
 // Convert plain text into paragraphs/html if needed
@@ -92,6 +95,19 @@ const HIGHLIGHT_COLORS = [
   { label: 'نارنجی تیره (متن روشن)', color: '#c2410c', border: '#9a3412' },
 ];
 
+// Preset box background colors
+const BOX_BG_COLORS = [
+  { label: 'هم‌رنگ صفحه (شفاف)', color: 'transparent', border: '#94a3b8' },
+  { label: 'سفید رسمی', color: '#ffffff', border: '#cbd5e1' },
+  { label: 'کرم دانشگاهی', color: '#fdfbf7', border: '#e7e5e4' },
+  { label: 'هلویی ملایم شریف', color: '#fff7ed', border: '#fed7aa' },
+  { label: 'آبی بسیار ملایم', color: '#f0f9ff', border: '#bae6fd' },
+  { label: 'سبز روشن پژوهشی', color: '#f0fdf4', border: '#bbf7d0' },
+  { label: 'خاکستری مینیمال', color: '#f8fafc', border: '#cbd5e1' },
+  { label: 'سرمه‌ای تیره رسمی', color: '#1e293b', border: '#334155' },
+  { label: 'مشکی تیره', color: '#0f172a', border: '#1e293b' },
+];
+
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   value,
   onChange,
@@ -101,6 +117,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   id = 'rich-text-editor',
   showQuickTemplates = true,
   templatesType = 'faculty',
+  boxBgColor,
+  onBoxBgColorChange,
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const savedRangeRef = useRef<Range | null>(null);
@@ -108,12 +126,14 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   const [showTextColorMenu, setShowTextColorMenu] = useState(false);
   const [showHighlightMenu, setShowHighlightMenu] = useState(false);
+  const [showBoxBgMenu, setShowBoxBgMenu] = useState(false);
   const [showCalloutMenu, setShowCalloutMenu] = useState(false);
 
   const [currentTextColor, setCurrentTextColor] = useState<string>('#ea580c');
   const [currentHighlightColor, setCurrentHighlightColor] = useState<string>('#fed7aa');
   const [customTextHex, setCustomTextHex] = useState<string>('#ea580c');
   const [customHighlightHex, setCustomHighlightHex] = useState<string>('#ffedd5');
+  const [customBoxBgHex, setCustomBoxBgHex] = useState<string>(boxBgColor && boxBgColor !== 'transparent' ? boxBgColor : '#ffffff');
 
   const [activeFormats, setActiveFormats] = useState<{
     bold: boolean;
@@ -156,6 +176,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setShowTextColorMenu(false);
         setShowHighlightMenu(false);
+        setShowBoxBgMenu(false);
         setShowCalloutMenu(false);
       }
     };
@@ -259,6 +280,15 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     setShowHighlightMenu(false);
   };
 
+  // Change entire box background
+  const handleSelectBoxBg = (color: string) => {
+    if (onBoxBgColorChange) {
+      onBoxBgColorChange(color);
+    }
+    setCustomBoxBgHex(color === 'transparent' ? '#ffffff' : color);
+    setShowBoxBgMenu(false);
+  };
+
   const insertTemplate = (title: string, templateHtml: string) => {
     restoreSelection();
     if (!editorRef.current) return;
@@ -271,6 +301,14 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     <div
       id={id}
       ref={containerRef}
+      style={{
+        backgroundColor:
+          boxBgColor === 'transparent'
+            ? 'transparent'
+            : boxBgColor
+            ? boxBgColor
+            : undefined,
+      }}
       className={`rounded-xl border transition-all overflow-visible relative ${
         isDark
           ? 'bg-[#141416] border-[#28282D] focus-within:border-[#E8530D]'
@@ -664,6 +702,132 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               </div>
             )}
           </div>
+
+          {/* 3. Box / Description Background Color Tool */}
+          <div className="relative">
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setShowBoxBgMenu(!showBoxBgMenu);
+                setShowTextColorMenu(false);
+                setShowHighlightMenu(false);
+                setShowCalloutMenu(false);
+              }}
+              className={`px-2 py-1 rounded text-xs font-bold flex items-center gap-1.5 transition-all border ${
+                showBoxBgMenu
+                  ? 'bg-purple-600 text-white border-purple-600'
+                  : isDark
+                  ? 'bg-[#222226] border-[#38383D] text-purple-300 hover:bg-[#2c2c32]'
+                  : 'bg-white border-slate-300 text-purple-700 hover:bg-slate-100'
+              }`}
+              title="تغییر رنگ پس‌زمینه کل کادر معرفی و توضیحات"
+            >
+              <div
+                className="w-3.5 h-3.5 rounded border border-purple-400 flex items-center justify-center text-[9px] font-black"
+                style={{
+                  backgroundColor: boxBgColor === 'transparent' ? '#ffffff' : (boxBgColor || '#ffffff'),
+                }}
+              >
+                {boxBgColor === 'transparent' && '∅'}
+              </div>
+              <span className="hidden sm:inline">رنگ کادر توضیحات</span>
+              <ChevronDown className="w-3 h-3 text-purple-400" />
+            </button>
+
+            {/* Box Background Menu */}
+            {showBoxBgMenu && (
+              <div
+                className={`absolute top-full right-0 mt-1.5 p-3 rounded-xl border shadow-2xl z-50 w-72 text-right animate-in fade-in zoom-in-95 duration-100 ${
+                  isDark ? 'bg-[#1C1C22] border-[#383842] text-white' : 'bg-white border-slate-300 text-slate-900'
+                }`}
+              >
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-[#33333d]">
+                  <span className="font-black text-xs flex items-center gap-1.5 text-purple-400">
+                    <Square className="w-4 h-4" />
+                    رنگ پس‌زمینه کادر توضیحات
+                  </span>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleSelectBoxBg('transparent');
+                    }}
+                    className="text-[10px] text-purple-400 hover:underline flex items-center gap-1 font-bold"
+                    title="هم‌رنگ صفحه / بدون پس‌زمینه مجزا"
+                  >
+                    <RotateCcw className="w-2.5 h-2.5" />
+                    هم‌رنگ صفحه
+                  </button>
+                </div>
+
+                {/* Box BG Swatches Grid */}
+                <div className="grid grid-cols-3 gap-1.5 mb-3">
+                  {BOX_BG_COLORS.map((item) => {
+                    const isSelected =
+                      (boxBgColor === 'transparent' && item.color === 'transparent') ||
+                      (boxBgColor && boxBgColor.toLowerCase() === item.color.toLowerCase());
+                    return (
+                      <button
+                        key={item.color}
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          handleSelectBoxBg(item.color);
+                        }}
+                        className={`p-1.5 rounded-lg border flex items-center gap-1.5 text-[10px] font-bold transition-transform hover:scale-102 ${
+                          isSelected ? 'ring-2 ring-purple-500 border-purple-400' : 'border-slate-300 dark:border-[#44444e]'
+                        } ${isDark ? 'bg-[#222228] text-slate-200' : 'bg-slate-50 text-slate-800'}`}
+                      >
+                        <span
+                          className="w-4 h-4 rounded border shrink-0 flex items-center justify-center text-[8px]"
+                          style={{ backgroundColor: item.color === 'transparent' ? '#ffffff' : item.color, borderColor: item.border }}
+                        >
+                          {item.color === 'transparent' && '∅'}
+                        </span>
+                        <span className="truncate">{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Custom Hex Box BG Picker */}
+                <div className={`pt-2.5 border-t flex items-center justify-between gap-2 text-xs ${
+                  isDark ? 'border-[#33333d]' : 'border-slate-200'
+                }`}>
+                  <label className="text-[11px] font-bold opacity-80 flex items-center gap-1">
+                    <SlidersHorizontal className="w-3 h-3 text-purple-400" />
+                    رنگ کادر دلخواه:
+                  </label>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="color"
+                      value={customBoxBgHex}
+                      onChange={(e) => {
+                        setCustomBoxBgHex(e.target.value);
+                        handleSelectBoxBg(e.target.value);
+                      }}
+                      className="w-7 h-7 rounded border cursor-pointer bg-transparent p-0"
+                      title="انتخاب رنگ پس‌زمینه کادر دلخواه"
+                    />
+                    <input
+                      type="text"
+                      value={customBoxBgHex}
+                      onChange={(e) => {
+                        setCustomBoxBgHex(e.target.value);
+                        if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                          handleSelectBoxBg(e.target.value);
+                        }
+                      }}
+                      className={`w-16 px-1.5 py-1 text-[10px] font-mono border rounded uppercase text-center ${
+                        isDark ? 'bg-[#141416] border-[#383842] text-white' : 'bg-slate-50 border-slate-300 text-slate-800'
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Lists & Quotes */}
@@ -1030,10 +1194,20 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         onInput={handleInput}
         onKeyUp={updateActiveFormats}
         onMouseUp={updateActiveFormats}
-        style={{ minHeight }}
+        style={{
+          minHeight,
+          backgroundColor:
+            boxBgColor === 'transparent'
+              ? 'transparent'
+              : boxBgColor
+              ? boxBgColor
+              : isDark
+              ? '#141416'
+              : '#ffffff',
+        }}
         data-placeholder={placeholder}
         className={`p-4 outline-none leading-relaxed text-xs sm:text-sm font-['Vazirmatn',sans-serif] text-right dir-rtl rich-editor-content ${
-          isDark ? 'text-slate-100 bg-[#141416]' : 'text-slate-900 bg-white'
+          isDark ? 'text-slate-100' : 'text-slate-900'
         }`}
       />
     </div>

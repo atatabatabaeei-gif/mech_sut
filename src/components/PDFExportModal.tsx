@@ -48,6 +48,7 @@ export interface ColorTheme {
   accentColor: string;
   cardBgColor: string;
   borderColor: string;
+  descBgColor: string;
 }
 
 export const COLOR_THEMES: ColorTheme[] = [
@@ -61,6 +62,7 @@ export const COLOR_THEMES: ColorTheme[] = [
     accentColor: '#ea580c',
     cardBgColor: '#f8fafc',
     borderColor: '#0f172a',
+    descBgColor: '#f8fafc',
   },
   {
     id: 'parchment-ivory',
@@ -72,6 +74,7 @@ export const COLOR_THEMES: ColorTheme[] = [
     accentColor: '#c2410c',
     cardBgColor: '#f5efe6',
     borderColor: '#44403c',
+    descBgColor: '#f5efe6',
   },
   {
     id: 'navy-corporate',
@@ -83,6 +86,7 @@ export const COLOR_THEMES: ColorTheme[] = [
     accentColor: '#2563eb',
     cardBgColor: '#eff6ff',
     borderColor: '#1e3a8a',
+    descBgColor: '#eff6ff',
   },
   {
     id: 'emerald-lab',
@@ -94,6 +98,7 @@ export const COLOR_THEMES: ColorTheme[] = [
     accentColor: '#059669',
     cardBgColor: '#ecfdf5',
     borderColor: '#065f46',
+    descBgColor: '#ecfdf5',
   },
   {
     id: 'slate-minimal',
@@ -105,6 +110,7 @@ export const COLOR_THEMES: ColorTheme[] = [
     accentColor: '#475569',
     cardBgColor: '#ffffff',
     borderColor: '#334155',
+    descBgColor: '#ffffff',
   },
   {
     id: 'dark-executive',
@@ -116,6 +122,7 @@ export const COLOR_THEMES: ColorTheme[] = [
     accentColor: '#fb923c',
     cardBgColor: '#1e293b',
     borderColor: '#475569',
+    descBgColor: '#1e293b',
   },
 ];
 
@@ -158,6 +165,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
   const [pdfAccentColor, setPdfAccentColor] = useState<string>('#ea580c');
   const [pdfCardBgColor, setPdfCardBgColor] = useState<string>('#f8fafc');
   const [pdfBorderColor, setPdfBorderColor] = useState<string>('#0f172a');
+  const [pdfDescBgColor, setPdfDescBgColor] = useState<string>('#f8fafc');
   const [showColorPanel, setShowColorPanel] = useState<boolean>(false);
 
   // Apply a Preset Color Theme
@@ -169,10 +177,11 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
     setPdfAccentColor(theme.accentColor);
     setPdfCardBgColor(theme.cardBgColor);
     setPdfBorderColor(theme.borderColor);
+    setPdfDescBgColor(theme.descBgColor || '#f8fafc');
   };
 
   // Custom Color Change handler
-  const handleCustomColorChange = (key: 'bg' | 'text' | 'heading' | 'accent' | 'card' | 'border', color: string) => {
+  const handleCustomColorChange = (key: 'bg' | 'text' | 'heading' | 'accent' | 'card' | 'border' | 'desc', color: string) => {
     setSelectedThemeId('custom');
     if (key === 'bg') setPdfBgColor(color);
     if (key === 'text') setPdfTextColor(color);
@@ -180,6 +189,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
     if (key === 'accent') setPdfAccentColor(color);
     if (key === 'card') setPdfCardBgColor(color);
     if (key === 'border') setPdfBorderColor(color);
+    if (key === 'desc') setPdfDescBgColor(color);
   };
 
   // Faculty State
@@ -561,7 +571,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               <span className="text-[11px] text-slate-400 font-bold block mb-2">
                 ۲. تنظیم دقیق و تفکیک‌شده رنگ‌ها:
               </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5">
                 {/* 1. Background Color */}
                 <div className="bg-slate-800/90 border border-slate-700 p-2 rounded flex flex-col gap-1.5">
                   <span className="text-[11px] font-bold text-slate-300">رنگ پس‌زمینه صفحه:</span>
@@ -682,9 +692,9 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                   </div>
                 </div>
 
-                {/* 5. Card / Box Background */}
+                {/* 5. Card / General Box Background */}
                 <div className="bg-slate-800/90 border border-slate-700 p-2 rounded flex flex-col gap-1.5">
-                  <span className="text-[11px] font-bold text-slate-300">رنگ کادرها و باکس‌ها:</span>
+                  <span className="text-[11px] font-bold text-slate-300">رنگ سایر کادرها:</span>
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
@@ -704,6 +714,45 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                       <button
                         key={c}
                         onClick={() => handleCustomColorChange('card', c)}
+                        className="w-4 h-4 rounded-full border border-slate-600 transition-transform hover:scale-110"
+                        style={{ backgroundColor: c }}
+                        title={c}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* 6. Description / Bio Box Background */}
+                <div className="bg-slate-800/90 border border-slate-700 p-2 rounded flex flex-col gap-1.5">
+                  <span className="text-[11px] font-bold text-amber-300">رنگ کادر توضیحات و معرفی:</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={pdfDescBgColor === 'transparent' ? '#ffffff' : pdfDescBgColor}
+                      onChange={(e) => handleCustomColorChange('desc', e.target.value)}
+                      className="w-7 h-7 rounded border border-slate-600 cursor-pointer bg-transparent"
+                    />
+                    <input
+                      type="text"
+                      value={pdfDescBgColor}
+                      onChange={(e) => handleCustomColorChange('desc', e.target.value)}
+                      className="text-[10px] font-mono bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-slate-200 w-16 text-center uppercase"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1 pt-0.5">
+                    <button
+                      onClick={() => handleCustomColorChange('desc', 'transparent')}
+                      className={`w-4 h-4 rounded border text-[9px] flex items-center justify-center font-bold transition-transform hover:scale-110 ${
+                        pdfDescBgColor === 'transparent' ? 'border-amber-400 bg-amber-950 text-amber-300' : 'border-slate-600 bg-slate-700 text-slate-300'
+                      }`}
+                      title="شفاف / بدون رنگ زمینه"
+                    >
+                      ∅
+                    </button>
+                    {['#ffffff', '#f8fafc', '#f5efe6', '#eff6ff', '#ecfdf5', '#fff7ed', '#1e293b'].map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => handleCustomColorChange('desc', c)}
                         className="w-4 h-4 rounded-full border border-slate-600 transition-transform hover:scale-110"
                         style={{ backgroundColor: c }}
                         title={c}
@@ -910,6 +959,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
             '--pdf-accent': pdfAccentColor,
             '--pdf-card-bg': pdfCardBgColor,
             '--pdf-border': pdfBorderColor,
+            '--pdf-desc-bg': pdfDescBgColor,
             backgroundColor: pdfBgColor,
             color: pdfTextColor,
           } as React.CSSProperties}
@@ -1091,14 +1141,19 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                 placeholder="بیوگرافی و سوابق علمی..."
                                 minHeight="140px"
                                 id="pdf-fac-bio-editor"
+                                boxBgColor={pdfDescBgColor}
+                                onBoxBgColorChange={(c) => {
+                                  setPdfDescBgColor(c);
+                                  setSelectedThemeId('custom');
+                                }}
                               />
                             ) : (
                               <div
                                 className="text-xs sm:text-[13px] leading-relaxed p-3.5 bio-rendered-content text-justify rounded"
                                 style={{
-                                  backgroundColor: pdfCardBgColor,
-                                  borderColor: pdfBorderColor,
-                                  borderWidth: '1px',
+                                  backgroundColor: pdfDescBgColor === 'transparent' ? 'transparent' : pdfDescBgColor,
+                                  borderColor: pdfDescBgColor === 'transparent' ? 'transparent' : pdfBorderColor,
+                                  borderWidth: pdfDescBgColor === 'transparent' ? '0px' : '1px',
                                   borderStyle: 'solid',
                                   color: pdfTextColor,
                                 }}
@@ -1596,14 +1651,19 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                 minHeight="140px"
                                 id="pdf-lab-desc-editor"
                                 templatesType="lab"
+                                boxBgColor={pdfDescBgColor}
+                                onBoxBgColorChange={(c) => {
+                                  setPdfDescBgColor(c);
+                                  setSelectedThemeId('custom');
+                                }}
                               />
                             ) : (
                               <div
                                 className="text-xs sm:text-[13px] leading-relaxed p-3.5 bio-rendered-content text-justify rounded"
                                 style={{
-                                  backgroundColor: pdfCardBgColor,
-                                  borderColor: pdfBorderColor,
-                                  borderWidth: '1px',
+                                  backgroundColor: pdfDescBgColor === 'transparent' ? 'transparent' : pdfDescBgColor,
+                                  borderColor: pdfDescBgColor === 'transparent' ? 'transparent' : pdfBorderColor,
+                                  borderWidth: pdfDescBgColor === 'transparent' ? '0px' : '1px',
                                   borderStyle: 'solid',
                                   color: pdfTextColor,
                                 }}
@@ -2211,9 +2271,9 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                               onBlur={(e) => setProjFullDesc(e.currentTarget.textContent || '')}
                               className="text-xs sm:text-[13px] leading-relaxed p-3 whitespace-pre-line text-justify pdf-editorial-text rounded"
                               style={{
-                                backgroundColor: pdfCardBgColor,
-                                borderColor: pdfBorderColor,
-                                borderWidth: '1px',
+                                backgroundColor: pdfDescBgColor === 'transparent' ? 'transparent' : pdfDescBgColor,
+                                borderColor: pdfDescBgColor === 'transparent' ? 'transparent' : pdfBorderColor,
+                                borderWidth: pdfDescBgColor === 'transparent' ? '0px' : '1px',
                                 borderStyle: 'solid',
                                 color: pdfTextColor,
                               }}
