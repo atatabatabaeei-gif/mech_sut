@@ -518,10 +518,10 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
           }`}
         >
           <table className="pdf-print-table w-full border-collapse">
-            <thead>
+            <tbody>
               <tr>
-                <td className="p-0 border-0">
-                  {/* Official Header Banner - Repeats at top of EVERY printed page */}
+                <td className="p-0 border-0 align-top">
+                  {/* Official Header Banner - Rendered ONLY on Page 1 */}
                   <div className={`pdf-header-banner pdf-avoid-break border-b-2 sm:border-b-4 border-slate-900 bg-white ${pageDensity === 'compact' ? 'pb-2.5 mb-3' : 'pb-4 mb-5'}`}>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -553,13 +553,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                       </p>
                     </div>
                   </div>
-                </td>
-              </tr>
-            </thead>
 
-            <tbody>
-              <tr>
-                <td className="p-0 border-0 align-top">
                   <div className={`space-y-6 ${pageDensity === 'compact' ? 'space-y-4' : 'space-y-7'}`}>
 
                     {/* ==================== FACULTY CONTENT ==================== */}

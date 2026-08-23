@@ -168,7 +168,7 @@
   }
 
   table.pdf-print-table thead {
-    display: table-header-group !important;
+    display: none !important;
   }
 
   table.pdf-print-table tfoot {
