@@ -88,8 +88,8 @@
 
   /* 3. Reset document canvas to start cleanly at top-left of Page 1 */
   html, body {
-    background-color: #ffffff !important;
-    color: #000000 !important;
+    background-color: var(--pdf-bg, #ffffff) !important;
+    color: var(--pdf-text, #0f172a) !important;
     padding: 0 !important;
     margin: 0 !important;
     height: auto !important;
@@ -100,7 +100,7 @@
   /* 4. Display portaled modal container in static document flow */
   .pdf-export-modal-overlay {
     position: static !important;
-    background: #ffffff !important;
+    background: var(--pdf-bg, #ffffff) !important;
     padding: 0 !important;
     margin: 0 !important;
     overflow: visible !important;
@@ -111,7 +111,7 @@
 
   .pdf-export-modal-card {
     position: static !important;
-    background: #ffffff !important;
+    background: var(--pdf-bg, #ffffff) !important;
     border: none !important;
     box-shadow: none !important;
     max-height: none !important;
@@ -126,8 +126,8 @@
     position: static !important;
     width: 100% !important;
     margin: 0 !important;
-    background-color: #ffffff !important;
-    color: #0f172a !important;
+    background-color: var(--pdf-bg, #ffffff) !important;
+    color: var(--pdf-text, #0f172a) !important;
     display: block !important;
     font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif !important;
   }
@@ -150,7 +150,6 @@
   }
 
   /* 6. A4 Page Flow, Pagination & Anti-Fragmentation Rules */
-  /* Remove boxed borders and heavy backgrounds on multi-line text during print to avoid broken box slices */
   .bio-rendered-content,
   .pdf-editorial-text {
     background: transparent !important;
@@ -158,6 +157,7 @@
     border: none !important;
     padding: 0 !important;
     line-height: 1.65 !important;
+    color: var(--pdf-text, #1e293b) !important;
   }
 
   table.pdf-print-table {
@@ -188,7 +188,36 @@
     break-inside: avoid !important;
     page-break-inside: avoid !important;
     width: 100% !important;
-    background-color: #ffffff !important;
+    background-color: var(--pdf-bg, #ffffff) !important;
+    border-color: var(--pdf-border, #0f172a) !important;
+  }
+
+  .pdf-card {
+    background-color: var(--pdf-card-bg, #f8fafc) !important;
+    border-color: var(--pdf-border, #0f172a) !important;
+    color: var(--pdf-text, #0f172a) !important;
+  }
+
+  .pdf-block {
+    background-color: var(--pdf-card-bg, #f8fafc) !important;
+    border-color: var(--pdf-border, #cbd5e1) !important;
+    color: var(--pdf-text, #1e293b) !important;
+  }
+
+  .pdf-heading {
+    color: var(--pdf-heading, #0f172a) !important;
+  }
+
+  .pdf-accent-border {
+    border-color: var(--pdf-accent, #ea580c) !important;
+  }
+
+  .pdf-accent-bg {
+    background-color: var(--pdf-accent, #ea580c) !important;
+  }
+
+  .pdf-accent-text {
+    color: var(--pdf-accent, #ea580c) !important;
   }
 
   /* Fixed footer strictly anchored at the absolute bottom of EVERY printed PDF page */
@@ -198,8 +227,9 @@
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
-    background-color: #ffffff !important;
-    border-top: 2px solid #0f172a !important;
+    background-color: var(--pdf-bg, #ffffff) !important;
+    border-top: 2px solid var(--pdf-border, #0f172a) !important;
+    color: var(--pdf-text, #64748b) !important;
     padding-top: 6px !important;
     padding-bottom: 4px !important;
     margin: 0 !important;

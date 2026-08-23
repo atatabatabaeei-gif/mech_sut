@@ -25,11 +25,99 @@ import {
   CheckCircle2,
   Upload,
   Camera,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Palette,
+  Paintbrush,
+  Check,
+  Pipette,
+  SlidersHorizontal,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { FacultyMember, IndustrialProject, Lab } from '../types';
 import { getAdminState } from '../services/storage';
 import { RichTextEditor, normalizeToHtml } from './RichTextEditor';
+
+export interface ColorTheme {
+  id: string;
+  name: string;
+  desc: string;
+  bgColor: string;
+  textColor: string;
+  headingColor: string;
+  accentColor: string;
+  cardBgColor: string;
+  borderColor: string;
+}
+
+export const COLOR_THEMES: ColorTheme[] = [
+  {
+    id: 'classic-white',
+    name: 'سفید رسمی',
+    desc: 'کلاسیک دانشگاهی',
+    bgColor: '#ffffff',
+    textColor: '#1e293b',
+    headingColor: '#0f172a',
+    accentColor: '#ea580c',
+    cardBgColor: '#f8fafc',
+    borderColor: '#0f172a',
+  },
+  {
+    id: 'parchment-ivory',
+    name: 'کرم دانشگاهی',
+    desc: 'کاغذ نفیس دانشگاهی',
+    bgColor: '#fdfbf7',
+    textColor: '#292524',
+    headingColor: '#1c1917',
+    accentColor: '#c2410c',
+    cardBgColor: '#f5efe6',
+    borderColor: '#44403c',
+  },
+  {
+    id: 'navy-corporate',
+    name: 'آبی مهندسی',
+    desc: 'سازمانی و صنعتی',
+    bgColor: '#f8fafc',
+    textColor: '#0f172a',
+    headingColor: '#1e3a8a',
+    accentColor: '#2563eb',
+    cardBgColor: '#eff6ff',
+    borderColor: '#1e3a8a',
+  },
+  {
+    id: 'emerald-lab',
+    name: 'سبز زمردی',
+    desc: 'پژوهشی و سلامت',
+    bgColor: '#f7fdf9',
+    textColor: '#064e3b',
+    headingColor: '#064e3b',
+    accentColor: '#059669',
+    cardBgColor: '#ecfdf5',
+    borderColor: '#065f46',
+  },
+  {
+    id: 'slate-minimal',
+    name: 'خاکستری مدرن',
+    desc: 'مینیمال و مونوکروم',
+    bgColor: '#f1f5f9',
+    textColor: '#0f172a',
+    headingColor: '#0f172a',
+    accentColor: '#475569',
+    cardBgColor: '#ffffff',
+    borderColor: '#334155',
+  },
+  {
+    id: 'dark-executive',
+    name: 'تیره اختصاصی',
+    desc: 'Dark Mode رسمی',
+    bgColor: '#0f172a',
+    textColor: '#f8fafc',
+    headingColor: '#ffffff',
+    accentColor: '#fb923c',
+    cardBgColor: '#1e293b',
+    borderColor: '#475569',
+  },
+];
 
 interface PDFExportModalProps {
   type: 'faculty' | 'project' | 'lab';
@@ -62,6 +150,38 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
   const [footerAddress, setFooterAddress] = useState('دانشگاه صنعتی شریف — خیابان آزادی، تهران، ایران');
   const [footerArchive, setFooterArchive] = useState('بایگانی دیجیتال دانشکده مهندسی مکانیک');
 
+  // Color & Theme Customization State
+  const [selectedThemeId, setSelectedThemeId] = useState<string>('classic-white');
+  const [pdfBgColor, setPdfBgColor] = useState<string>('#ffffff');
+  const [pdfTextColor, setPdfTextColor] = useState<string>('#1e293b');
+  const [pdfHeadingColor, setPdfHeadingColor] = useState<string>('#0f172a');
+  const [pdfAccentColor, setPdfAccentColor] = useState<string>('#ea580c');
+  const [pdfCardBgColor, setPdfCardBgColor] = useState<string>('#f8fafc');
+  const [pdfBorderColor, setPdfBorderColor] = useState<string>('#0f172a');
+  const [showColorPanel, setShowColorPanel] = useState<boolean>(false);
+
+  // Apply a Preset Color Theme
+  const handleApplyTheme = (theme: ColorTheme) => {
+    setSelectedThemeId(theme.id);
+    setPdfBgColor(theme.bgColor);
+    setPdfTextColor(theme.textColor);
+    setPdfHeadingColor(theme.headingColor);
+    setPdfAccentColor(theme.accentColor);
+    setPdfCardBgColor(theme.cardBgColor);
+    setPdfBorderColor(theme.borderColor);
+  };
+
+  // Custom Color Change handler
+  const handleCustomColorChange = (key: 'bg' | 'text' | 'heading' | 'accent' | 'card' | 'border', color: string) => {
+    setSelectedThemeId('custom');
+    if (key === 'bg') setPdfBgColor(color);
+    if (key === 'text') setPdfTextColor(color);
+    if (key === 'heading') setPdfHeadingColor(color);
+    if (key === 'accent') setPdfAccentColor(color);
+    if (key === 'card') setPdfCardBgColor(color);
+    if (key === 'border') setPdfBorderColor(color);
+  };
+
   // Faculty State
   const initialMember = type === 'faculty' ? (data as FacultyMember) : null;
   const [facName, setFacName] = useState(initialMember?.name || '');
@@ -72,11 +192,13 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
   const [facAvatarUrl, setFacAvatarUrl] = useState(initialMember?.avatarUrl || '');
   const [facSkills, setFacSkills] = useState<string[]>(initialMember?.skills ? [...initialMember.skills] : []);
   const [facPublications, setFacPublications] = useState<string[]>(initialMember?.publications ? [...initialMember.publications] : []);
+  const [facGallery, setFacGallery] = useState<string[]>([]);
 
   // Faculty Section Visibility States
   const [showFacBio, setShowFacBio] = useState(!!initialMember?.bio?.trim());
   const [showFacSkills, setShowFacSkills] = useState((initialMember?.skills?.length || 0) > 0);
   const [showFacPublications, setShowFacPublications] = useState((initialMember?.publications?.length || 0) > 0);
+  const [showFacGallery, setShowFacGallery] = useState(false);
 
   // Lab State
   const initialLab = type === 'lab' ? (data as Lab) : null;
@@ -137,6 +259,14 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
     setFooterAddress('دانشگاه صنعتی شریف — خیابان آزادی، تهران، ایران');
     setFooterArchive('بایگانی دیجیتال دانشکده مهندسی مکانیک');
 
+    setSelectedThemeId('classic-white');
+    setPdfBgColor('#ffffff');
+    setPdfTextColor('#1e293b');
+    setPdfHeadingColor('#0f172a');
+    setPdfAccentColor('#ea580c');
+    setPdfCardBgColor('#f8fafc');
+    setPdfBorderColor('#0f172a');
+
     if (type === 'faculty' && initialMember) {
       setHeaderTitle('شناسنامه رسمی و رزومه علمی هیئت علمی');
       setFacName(initialMember.name || '');
@@ -147,9 +277,11 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
       setFacAvatarUrl(initialMember.avatarUrl || '');
       setFacSkills(initialMember.skills ? [...initialMember.skills] : []);
       setFacPublications(initialMember.publications ? [...initialMember.publications] : []);
+      setFacGallery([]);
       setShowFacBio(!!initialMember.bio?.trim());
       setShowFacSkills((initialMember.skills?.length || 0) > 0);
       setShowFacPublications((initialMember.publications?.length || 0) > 0);
+      setShowFacGallery(false);
     } else if (type === 'lab' && initialLab) {
       setHeaderTitle('شناسنامه فنی و تجهیزات تخصصی آزمایشگاه');
       setLabName(initialLab.name || '');
@@ -280,6 +412,21 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
           </div>
 
           <div className="flex items-center flex-wrap gap-2">
+            {/* Color Customization Toggle */}
+            <button
+              onClick={() => setShowColorPanel(!showColorPanel)}
+              className={`px-3 py-2 text-xs font-bold rounded flex items-center gap-1.5 transition-all border ${
+                showColorPanel
+                  ? 'bg-purple-500/20 border-purple-400 text-purple-300 hover:bg-purple-500/30'
+                  : 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white'
+              }`}
+              title="تغییر رنگ پس‌زمینه و رنگ متن‌ها در خروجی PDF"
+            >
+              <Palette className="w-3.5 h-3.5 text-purple-400" />
+              <span>تنظیم رنگ و تم خروجی</span>
+              {showColorPanel ? <ChevronUp className="w-3 h-3 text-purple-400" /> : <ChevronDown className="w-3 h-3 text-purple-400" />}
+            </button>
+
             {/* Toggle Page Density */}
             <button
               onClick={() => setPageDensity(pageDensity === 'compact' ? 'standard' : 'compact')}
@@ -337,6 +484,237 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
             </button>
           </div>
         </div>
+
+        {/* Color Palette & Customization Panel (Hidden in Print) */}
+        {showColorPanel && (
+          <div className="bg-slate-900 border-b-2 border-purple-500/60 p-3.5 sm:p-4 text-white text-xs space-y-3.5 no-print shadow-xl">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Paintbrush className="w-4 h-4 text-purple-400" />
+                <span className="font-bold text-sm text-purple-200">
+                  شخصی‌سازی رنگ پس‌زمینه، متن‌ها و قالب گرافیکی خروجی PDF:
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleApplyTheme(COLOR_THEMES[0])}
+                  className="text-[11px] text-slate-400 hover:text-white underline"
+                >
+                  بازگشت به رنگ‌های پیش‌فرض
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Themes Preset Grid */}
+            <div>
+              <span className="text-[11px] text-slate-400 font-bold block mb-1.5">
+                ۱. انتخاب سریع تم‌های هماهنگ دانشگاهی و صنعتی:
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+                {COLOR_THEMES.map((theme) => {
+                  const isSelected = selectedThemeId === theme.id;
+                  return (
+                    <button
+                      key={theme.id}
+                      onClick={() => handleApplyTheme(theme)}
+                      className={`p-2 rounded border text-right transition-all flex flex-col justify-between gap-1.5 ${
+                        isSelected
+                          ? 'border-purple-400 bg-purple-950/60 ring-2 ring-purple-500/40 shadow-sm'
+                          : 'border-slate-700 bg-slate-800/80 hover:bg-slate-800 hover:border-slate-600'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className="font-bold text-[11px] text-white truncate">{theme.name}</span>
+                        {isSelected && <Check className="w-3 h-3 text-purple-400 shrink-0" />}
+                      </div>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <span
+                          className="w-3.5 h-3.5 rounded-full border border-slate-500 shrink-0"
+                          style={{ backgroundColor: theme.bgColor }}
+                          title="رنگ پس‌زمینه"
+                        />
+                        <span
+                          className="w-3.5 h-3.5 rounded-full border border-slate-500 shrink-0"
+                          style={{ backgroundColor: theme.textColor }}
+                          title="رنگ متن"
+                        />
+                        <span
+                          className="w-3.5 h-3.5 rounded-full border border-slate-500 shrink-0"
+                          style={{ backgroundColor: theme.accentColor }}
+                          title="رنگ تاکیدی"
+                        />
+                        <span
+                          className="w-3.5 h-3.5 rounded-full border border-slate-500 shrink-0"
+                          style={{ backgroundColor: theme.cardBgColor }}
+                          title="رنگ کادرها"
+                        />
+                      </div>
+                      <span className="text-[9px] text-slate-400 truncate">{theme.desc}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Individual Granular Color Pickers */}
+            <div className="pt-2 border-t border-slate-800">
+              <span className="text-[11px] text-slate-400 font-bold block mb-2">
+                ۲. تنظیم دقیق و تفکیک‌شده رنگ‌ها:
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
+                {/* 1. Background Color */}
+                <div className="bg-slate-800/90 border border-slate-700 p-2 rounded flex flex-col gap-1.5">
+                  <span className="text-[11px] font-bold text-slate-300">رنگ پس‌زمینه صفحه:</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={pdfBgColor}
+                      onChange={(e) => handleCustomColorChange('bg', e.target.value)}
+                      className="w-7 h-7 rounded border border-slate-600 cursor-pointer bg-transparent"
+                    />
+                    <input
+                      type="text"
+                      value={pdfBgColor}
+                      onChange={(e) => handleCustomColorChange('bg', e.target.value)}
+                      className="text-[10px] font-mono bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-slate-200 w-16 text-center uppercase"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1 pt-0.5">
+                    {['#ffffff', '#fdfbf7', '#f8fafc', '#f7fdf9', '#0f172a'].map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => handleCustomColorChange('bg', c)}
+                        className="w-4 h-4 rounded-full border border-slate-600 transition-transform hover:scale-110"
+                        style={{ backgroundColor: c }}
+                        title={c}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. Text Color */}
+                <div className="bg-slate-800/90 border border-slate-700 p-2 rounded flex flex-col gap-1.5">
+                  <span className="text-[11px] font-bold text-slate-300">رنگ متن اصلی و توضیحات:</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={pdfTextColor}
+                      onChange={(e) => handleCustomColorChange('text', e.target.value)}
+                      className="w-7 h-7 rounded border border-slate-600 cursor-pointer bg-transparent"
+                    />
+                    <input
+                      type="text"
+                      value={pdfTextColor}
+                      onChange={(e) => handleCustomColorChange('text', e.target.value)}
+                      className="text-[10px] font-mono bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-slate-200 w-16 text-center uppercase"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1 pt-0.5">
+                    {['#1e293b', '#0f172a', '#292524', '#064e3b', '#f8fafc'].map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => handleCustomColorChange('text', c)}
+                        className="w-4 h-4 rounded-full border border-slate-600 transition-transform hover:scale-110"
+                        style={{ backgroundColor: c }}
+                        title={c}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. Heading Color */}
+                <div className="bg-slate-800/90 border border-slate-700 p-2 rounded flex flex-col gap-1.5">
+                  <span className="text-[11px] font-bold text-slate-300">رنگ عناوین و سرتیترها:</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={pdfHeadingColor}
+                      onChange={(e) => handleCustomColorChange('heading', e.target.value)}
+                      className="w-7 h-7 rounded border border-slate-600 cursor-pointer bg-transparent"
+                    />
+                    <input
+                      type="text"
+                      value={pdfHeadingColor}
+                      onChange={(e) => handleCustomColorChange('heading', e.target.value)}
+                      className="text-[10px] font-mono bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-slate-200 w-16 text-center uppercase"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1 pt-0.5">
+                    {['#0f172a', '#1e3a8a', '#064e3b', '#1c1917', '#ffffff'].map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => handleCustomColorChange('heading', c)}
+                        className="w-4 h-4 rounded-full border border-slate-600 transition-transform hover:scale-110"
+                        style={{ backgroundColor: c }}
+                        title={c}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* 4. Accent Color */}
+                <div className="bg-slate-800/90 border border-slate-700 p-2 rounded flex flex-col gap-1.5">
+                  <span className="text-[11px] font-bold text-slate-300">رنگ تاکیدی و آیکون‌ها:</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={pdfAccentColor}
+                      onChange={(e) => handleCustomColorChange('accent', e.target.value)}
+                      className="w-7 h-7 rounded border border-slate-600 cursor-pointer bg-transparent"
+                    />
+                    <input
+                      type="text"
+                      value={pdfAccentColor}
+                      onChange={(e) => handleCustomColorChange('accent', e.target.value)}
+                      className="text-[10px] font-mono bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-slate-200 w-16 text-center uppercase"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1 pt-0.5">
+                    {['#ea580c', '#2563eb', '#059669', '#c2410c', '#fb923c'].map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => handleCustomColorChange('accent', c)}
+                        className="w-4 h-4 rounded-full border border-slate-600 transition-transform hover:scale-110"
+                        style={{ backgroundColor: c }}
+                        title={c}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* 5. Card / Box Background */}
+                <div className="bg-slate-800/90 border border-slate-700 p-2 rounded flex flex-col gap-1.5">
+                  <span className="text-[11px] font-bold text-slate-300">رنگ کادرها و باکس‌ها:</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={pdfCardBgColor}
+                      onChange={(e) => handleCustomColorChange('card', e.target.value)}
+                      className="w-7 h-7 rounded border border-slate-600 cursor-pointer bg-transparent"
+                    />
+                    <input
+                      type="text"
+                      value={pdfCardBgColor}
+                      onChange={(e) => handleCustomColorChange('card', e.target.value)}
+                      className="text-[10px] font-mono bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-slate-200 w-16 text-center uppercase"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1 pt-0.5">
+                    {['#f8fafc', '#ffffff', '#f5efe6', '#eff6ff', '#1e293b'].map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => handleCustomColorChange('card', c)}
+                        className="w-4 h-4 rounded-full border border-slate-600 transition-transform hover:scale-110"
+                        style={{ backgroundColor: c }}
+                        title={c}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Live Edit Guidance Banner (Hidden in Print) */}
         {isEditMode && (
@@ -400,6 +778,18 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                 >
                   {showFacPublications ? <Eye className="w-3 h-3 text-emerald-400" /> : <EyeOff className="w-3 h-3 text-red-400" />}
                   <span>گزیده مقالات ({facPublications.length})</span>
+                </button>
+
+                <button
+                  onClick={() => setShowFacGallery(!showFacGallery)}
+                  className={`px-2.5 py-1 rounded text-[11px] font-bold flex items-center gap-1 transition-all border ${
+                    showFacGallery
+                      ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 hover:bg-emerald-500/30'
+                      : 'bg-slate-800 border-slate-700 text-slate-400 line-through hover:text-white'
+                  }`}
+                >
+                  {showFacGallery ? <Eye className="w-3 h-3 text-emerald-400" /> : <EyeOff className="w-3 h-3 text-red-400" />}
+                  <span>گالری تصاویر ({facGallery.length})</span>
                 </button>
               </>
             )}
@@ -513,7 +903,17 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
         {/* PRINTABLE DATASHEET CONTENT CONTAINER */}
         <div
           id="pdf-printable-content"
-          className={`bg-white text-slate-900 font-['Vazirmatn',sans-serif] ${
+          style={{
+            '--pdf-bg': pdfBgColor,
+            '--pdf-text': pdfTextColor,
+            '--pdf-heading': pdfHeadingColor,
+            '--pdf-accent': pdfAccentColor,
+            '--pdf-card-bg': pdfCardBgColor,
+            '--pdf-border': pdfBorderColor,
+            backgroundColor: pdfBgColor,
+            color: pdfTextColor,
+          } as React.CSSProperties}
+          className={`font-['Vazirmatn',sans-serif] transition-colors ${
             pageDensity === 'compact' ? 'p-6 sm:p-8' : 'p-8 sm:p-12'
           }`}
         >
@@ -522,15 +922,24 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
               <tr>
                 <td className="p-0 border-0 align-top">
                   {/* Official Header Banner - Rendered ONLY on Page 1 */}
-                  <div className={`pdf-header-banner pdf-avoid-break border-b-2 sm:border-b-4 border-slate-900 bg-white ${pageDensity === 'compact' ? 'pb-2.5 mb-3' : 'pb-4 mb-5'}`}>
+                  <div
+                    className={`pdf-header-banner pdf-avoid-break ${pageDensity === 'compact' ? 'pb-2.5 mb-3' : 'pb-4 mb-5'}`}
+                    style={{
+                      backgroundColor: pdfBgColor,
+                      borderBottomWidth: pageDensity === 'compact' ? '2px' : '4px',
+                      borderBottomStyle: 'solid',
+                      borderBottomColor: pdfBorderColor,
+                    }}
+                  >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 bg-orange-500 shrink-0"></span>
+                        <span className="w-2.5 h-2.5 shrink-0" style={{ backgroundColor: pdfAccentColor }}></span>
                         <span
                           contentEditable={isEditMode}
                           suppressContentEditableWarning
                           onBlur={(e) => setHeaderDept(e.currentTarget.textContent || '')}
-                          className="text-xs font-bold text-slate-600 uppercase tracking-wider"
+                          className="text-xs font-bold uppercase tracking-wider"
+                          style={{ color: pdfTextColor, opacity: 0.85 }}
                         >
                           {headerDept}
                         </span>
@@ -539,7 +948,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                         contentEditable={isEditMode}
                         suppressContentEditableWarning
                         onBlur={(e) => setHeaderTitle(e.currentTarget.textContent || '')}
-                        className={`${pageDensity === 'compact' ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'} font-black text-slate-900 leading-tight`}
+                        className={`${pageDensity === 'compact' ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'} font-black leading-tight`}
+                        style={{ color: pdfHeadingColor }}
                       >
                         {headerTitle}
                       </h1>
@@ -547,7 +957,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                         contentEditable={isEditMode}
                         suppressContentEditableWarning
                         onBlur={(e) => setHeaderSubtitle(e.currentTarget.textContent || '')}
-                        className="text-[11px] sm:text-xs text-slate-500 font-semibold"
+                        className="text-[11px] sm:text-xs font-semibold"
+                        style={{ color: pdfTextColor, opacity: 0.75 }}
                       >
                         {headerSubtitle}
                       </p>
@@ -560,16 +971,26 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                     {type === 'faculty' && (
                       <div className={pageDensity === 'compact' ? 'space-y-4' : 'space-y-7'}>
                         {/* Profile Card Summary */}
-                        <div className={`pdf-card pdf-avoid-break bg-slate-50 border-2 border-slate-900 flex flex-row gap-4 items-start ${
-                          pageDensity === 'compact' ? 'p-3.5 sm:p-4' : 'p-5 sm:p-6 gap-6'
-                        }`}>
+                        <div
+                          className={`pdf-card pdf-avoid-break flex flex-row gap-4 items-start rounded ${
+                            pageDensity === 'compact' ? 'p-3.5 sm:p-4' : 'p-5 sm:p-6 gap-6'
+                          }`}
+                          style={{
+                            backgroundColor: pdfCardBgColor,
+                            borderColor: pdfBorderColor,
+                            borderWidth: '2px',
+                            borderStyle: 'solid',
+                            color: pdfTextColor,
+                          }}
+                        >
                           <div className="space-y-1.5 shrink-0 text-center relative group">
                             <img
                               src={facAvatarUrl}
                               alt={facName}
-                              className={`rounded object-cover border-2 border-slate-900 bg-slate-200 mx-auto ${
+                              className={`rounded object-cover mx-auto ${
                                 pageDensity === 'compact' ? 'w-24 h-24 sm:w-28 sm:h-28' : 'w-28 h-28 sm:w-32 sm:h-32'
                               }`}
+                              style={{ borderColor: pdfBorderColor, borderWidth: '2px', borderStyle: 'solid' }}
                               onError={(e) => {
                                 (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300';
                               }}
@@ -612,7 +1033,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                               contentEditable={isEditMode}
                               suppressContentEditableWarning
                               onBlur={(e) => setFacName(e.currentTarget.textContent || '')}
-                              className={`${pageDensity === 'compact' ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'} font-black text-slate-900 leading-tight`}
+                              className={`${pageDensity === 'compact' ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'} font-black leading-tight`}
+                              style={{ color: pdfHeadingColor }}
                             >
                               {facName}
                             </h2>
@@ -621,13 +1043,14 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                               contentEditable={isEditMode}
                               suppressContentEditableWarning
                               onBlur={(e) => setFacShortDesc(e.currentTarget.textContent || '')}
-                              className="text-xs text-slate-700 leading-relaxed"
+                              className="text-xs leading-relaxed"
+                              style={{ color: pdfTextColor, opacity: 0.9 }}
                             >
                               {facShortDesc}
                             </p>
                             
-                            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-800 font-bold pt-1.5 border-t border-slate-300">
-                              <Building2 className="w-3.5 h-3.5 text-orange-500" />
+                            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold pt-1.5 border-t" style={{ borderColor: pdfBorderColor, color: pdfTextColor }}>
+                              <Building2 className="w-3.5 h-3.5" style={{ color: pdfAccentColor }} />
                               <span>دانشکده مهندسی مکانیک</span>
                             </div>
                           </div>
@@ -637,8 +1060,11 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                         {showFacBio ? (
                           <div className="pdf-section space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <h3 className="text-sm sm:text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
-                                <User className="w-4 h-4 text-orange-500" />
+                              <h3
+                                className="text-sm sm:text-base font-black border-r-4 pr-2 flex items-center gap-2"
+                                style={{ color: pdfHeadingColor, borderRightColor: pdfAccentColor }}
+                              >
+                                <User className="w-4 h-4" style={{ color: pdfAccentColor }} />
                                 بیوگرافی و سوابق علمی
                               </h3>
                               {isEditMode && (
@@ -668,7 +1094,14 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                               />
                             ) : (
                               <div
-                                className="text-xs sm:text-[13px] text-slate-700 leading-relaxed bg-slate-50/70 border border-slate-200/80 p-3.5 bio-rendered-content text-justify"
+                                className="text-xs sm:text-[13px] leading-relaxed p-3.5 bio-rendered-content text-justify rounded"
+                                style={{
+                                  backgroundColor: pdfCardBgColor,
+                                  borderColor: pdfBorderColor,
+                                  borderWidth: '1px',
+                                  borderStyle: 'solid',
+                                  color: pdfTextColor,
+                                }}
                                 dangerouslySetInnerHTML={{ __html: normalizeToHtml(facBio) }}
                               />
                             )}
@@ -692,8 +1125,11 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                         {showFacSkills && (facSkills.length > 0 || isEditMode) ? (
                           <div className="pdf-section space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <h3 className="text-sm sm:text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
-                                <Award className="w-4 h-4 text-orange-500" />
+                              <h3
+                                className="text-sm sm:text-base font-black border-r-4 pr-2 flex items-center gap-2"
+                                style={{ color: pdfHeadingColor, borderRightColor: pdfAccentColor }}
+                              >
+                                <Award className="w-4 h-4" style={{ color: pdfAccentColor }} />
                                 حوزه‌های تخصصی و مهارت‌ها
                               </h3>
                               {isEditMode && (
@@ -725,7 +1161,14 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                 {facSkills.map((skill, idx) => (
                                   <span
                                     key={idx}
-                                    className="bg-slate-100 border border-slate-300 text-slate-900 text-xs font-bold px-2.5 py-1 inline-flex items-center gap-1.5"
+                                    className="text-xs font-bold px-2.5 py-1 inline-flex items-center gap-1.5 rounded"
+                                    style={{
+                                      backgroundColor: pdfCardBgColor,
+                                      borderColor: pdfBorderColor,
+                                      borderWidth: '1px',
+                                      borderStyle: 'solid',
+                                      color: pdfTextColor,
+                                    }}
                                   >
                                     <span
                                       contentEditable={isEditMode}
@@ -777,8 +1220,11 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                         {showFacPublications && (facPublications.length > 0 || isEditMode) ? (
                           <div className="pdf-section space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <h3 className="text-sm sm:text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
-                                <BookOpen className="w-4 h-4 text-orange-500" />
+                              <h3
+                                className="text-sm sm:text-base font-black border-r-4 pr-2 flex items-center gap-2"
+                                style={{ color: pdfHeadingColor, borderRightColor: pdfAccentColor }}
+                              >
+                                <BookOpen className="w-4 h-4" style={{ color: pdfAccentColor }} />
                                 گزیده مقالات و انتشارات شاخص
                               </h3>
                               {isEditMode && (
@@ -808,8 +1254,18 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                             {facPublications.length > 0 ? (
                               <div className="space-y-1.5">
                                 {facPublications.map((pub, idx) => (
-                                  <div key={idx} className="pdf-block text-xs font-mono text-slate-800 bg-slate-50 border border-slate-200 p-2.5 flex items-start gap-2">
-                                    <span className="font-bold text-orange-600 shrink-0 pt-0.5">{idx + 1}.</span>
+                                  <div
+                                    key={idx}
+                                    className="pdf-block text-xs font-mono p-2.5 flex items-start gap-2 rounded"
+                                    style={{
+                                      backgroundColor: pdfCardBgColor,
+                                      borderColor: pdfBorderColor,
+                                      borderWidth: '1px',
+                                      borderStyle: 'solid',
+                                      color: pdfTextColor,
+                                    }}
+                                  >
+                                    <span className="font-bold shrink-0 pt-0.5" style={{ color: pdfAccentColor }}>{idx + 1}.</span>
                                     <div
                                       contentEditable={isEditMode}
                                       suppressContentEditableWarning
@@ -819,6 +1275,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                         setFacPublications(updated);
                                       }}
                                       className="flex-1 leading-relaxed"
+                                      style={{ color: pdfTextColor }}
                                     >
                                       {pub}
                                     </div>
@@ -866,6 +1323,121 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                             </button>
                           </div>
                         ) : null}
+
+                        {/* Faculty Visual Gallery */}
+                        {showFacGallery ? (
+                          <div className="pdf-avoid-break space-y-2">
+                            <div className="flex items-center justify-between border-b pb-1" style={{ borderColor: pdfBorderColor }}>
+                              <h3
+                                className="text-sm sm:text-base font-black border-r-4 pr-2 flex items-center gap-2"
+                                style={{ color: pdfHeadingColor, borderRightColor: pdfAccentColor }}
+                              >
+                                <ImageIcon className="w-4 h-4" style={{ color: pdfAccentColor }} />
+                                گالری تصاویر، فعالیت‌های پژوهشی و آزمایشگاهی
+                              </h3>
+                              {isEditMode && (
+                                <div className="flex items-center gap-2 no-print">
+                                  <button
+                                    onClick={() => setShowFacGallery(false)}
+                                    className="text-[11px] text-slate-500 hover:text-red-500 bg-slate-100 hover:bg-red-50 border border-slate-300 px-2 py-0.5 rounded flex items-center gap-1 font-bold transition-all"
+                                    title="مخفی کردن این بخش از خروجی چاپی"
+                                  >
+                                    <EyeOff className="w-3 h-3" />
+                                    <span>مخفی‌سازی بخش</span>
+                                  </button>
+                                  <label className="cursor-pointer text-xs bg-orange-500/10 text-orange-600 border border-orange-500/40 hover:bg-orange-500 hover:text-white px-2.5 py-1 rounded font-bold flex items-center gap-1 transition-all">
+                                    <Upload className="w-3.5 h-3.5" />
+                                    <span>+ افزودن عکس از سیستم</span>
+                                    <input
+                                      type="file"
+                                      multiple
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const fileList = e.target.files;
+                                        if (!fileList || fileList.length === 0) return;
+                                        for (let i = 0; i < fileList.length; i++) {
+                                          const file = fileList[i];
+                                          if (file) {
+                                            const reader = new FileReader();
+                                            reader.onload = (ev) => {
+                                              if (ev.target?.result) {
+                                                setFacGallery((prev) => [...prev, ev.target!.result as string]);
+                                              }
+                                            };
+                                            reader.readAsDataURL(file);
+                                          }
+                                        }
+                                      }}
+                                    />
+                                  </label>
+                                </div>
+                              )}
+                            </div>
+
+                            {facGallery.length > 0 ? (
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-1">
+                                {facGallery.map((imgUrl, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="pdf-card pdf-avoid-break rounded p-1.5 space-y-1 relative group"
+                                    style={{
+                                      backgroundColor: pdfCardBgColor,
+                                      borderColor: pdfBorderColor,
+                                      borderWidth: '1px',
+                                      borderStyle: 'solid',
+                                      color: pdfTextColor,
+                                    }}
+                                  >
+                                    <div className="overflow-hidden rounded border border-slate-200 aspect-video bg-white">
+                                      <img
+                                        src={imgUrl}
+                                        alt={`مستند استاد ${idx + 1}`}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300';
+                                        }}
+                                      />
+                                    </div>
+                                    <div className="flex items-center justify-between text-[10px] px-0.5" style={{ color: pdfTextColor, opacity: 0.85 }}>
+                                      <span className="font-bold">تصویر {idx + 1}</span>
+                                      {isEditMode && (
+                                        <button
+                                          onClick={() => {
+                                            const updated = facGallery.filter((_, i) => i !== idx);
+                                            setFacGallery(updated);
+                                            if (updated.length === 0) setShowFacGallery(false);
+                                          }}
+                                          className="text-red-500 hover:text-red-700 p-0.5 no-print"
+                                          title="حذف از چاپ"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : isEditMode ? (
+                              <div className="border border-dashed border-slate-300 p-3 text-center rounded text-xs text-slate-400 no-print">
+                                تصویری در گالری ثبت نشده است. برای افزودن از دکمه «+ افزودن عکس از سیستم» استفاده فرمایید.
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : !showFacGallery && isEditMode ? (
+                          <div className="border border-dashed border-slate-300 bg-slate-50 p-3 text-center text-xs text-slate-500 rounded flex items-center justify-between no-print">
+                            <span className="flex items-center gap-1.5">
+                              <EyeOff className="w-4 h-4 text-slate-400" />
+                              بخش «گالری تصاویر استاد» در خروجی چاپ مخفی است.
+                            </span>
+                            <button
+                              onClick={() => setShowFacGallery(true)}
+                              className="text-xs font-bold text-orange-600 hover:text-orange-700 underline"
+                            >
+                              فعال‌سازی و نمایش
+                            </button>
+                          </div>
+                        ) : null}
                       </div>
                     )}
 
@@ -873,11 +1445,20 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                     {type === 'lab' && (
                       <div className={pageDensity === 'compact' ? 'space-y-4' : 'space-y-7'}>
                         {/* Lab Card Summary */}
-                        <div className={`pdf-card pdf-avoid-break bg-slate-50 border-2 border-slate-900 ${
-                          pageDensity === 'compact' ? 'p-3.5 sm:p-4 space-y-2.5' : 'p-5 sm:p-6 space-y-4'
-                        }`}>
-                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-300 pb-2">
-                            <div className="flex items-center gap-1 bg-slate-900 text-white text-[11px] font-bold px-2.5 py-0.5 border-r-2 border-orange-500">
+                        <div
+                          className={`pdf-card pdf-avoid-break rounded ${
+                            pageDensity === 'compact' ? 'p-3.5 sm:p-4 space-y-2.5' : 'p-5 sm:p-6 space-y-4'
+                          }`}
+                          style={{
+                            backgroundColor: pdfCardBgColor,
+                            borderColor: pdfBorderColor,
+                            borderWidth: '2px',
+                            borderStyle: 'solid',
+                            color: pdfTextColor,
+                          }}
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2" style={{ borderColor: pdfBorderColor }}>
+                            <div className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 border-r-2" style={{ backgroundColor: pdfHeadingColor, color: pdfBgColor, borderRightColor: pdfAccentColor }}>
                               <span>آزمایشگاه پژوهشی —</span>
                               <span
                                 contentEditable={isEditMode}
@@ -887,8 +1468,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                 {labField}
                               </span>
                             </div>
-                            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                              <Mail className="w-3.5 h-3.5 text-orange-500" />
+                            <div className="flex items-center gap-1.5 text-xs font-bold" style={{ color: pdfTextColor }}>
+                              <Mail className="w-3.5 h-3.5" style={{ color: pdfAccentColor }} />
                               <span
                                 contentEditable={isEditMode}
                                 suppressContentEditableWarning
@@ -905,7 +1486,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                               <img
                                 src={labImageUrl}
                                 alt={labName}
-                                className="w-full sm:w-44 h-28 object-cover border border-slate-300 bg-white rounded"
+                                className="w-full sm:w-44 h-28 object-cover border bg-white rounded"
+                                style={{ borderColor: pdfBorderColor }}
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=400';
                                 }}
@@ -943,14 +1525,15 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                             </div>
 
                             <div className="space-y-1.5 flex-1 w-full text-right">
-                              <div className="flex items-center gap-1.5 text-xs font-bold text-orange-600">
+                              <div className="flex items-center gap-1.5 text-xs font-bold" style={{ color: pdfAccentColor }}>
                                 <User className="w-3.5 h-3.5 shrink-0" />
                                 <span>سرپرست علمی آزمایشگاه:</span>
                                 <span
                                   contentEditable={isEditMode}
                                   suppressContentEditableWarning
                                   onBlur={(e) => setLabSupervisor(e.currentTarget.textContent || '')}
-                                  className="text-slate-900 font-bold"
+                                  className="font-bold"
+                                  style={{ color: pdfHeadingColor }}
                                 >
                                   {labSupervisor}
                                 </span>
@@ -959,7 +1542,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                 contentEditable={isEditMode}
                                 suppressContentEditableWarning
                                 onBlur={(e) => setLabName(e.currentTarget.textContent || '')}
-                                className={`${pageDensity === 'compact' ? 'text-xl sm:text-2xl' : 'text-2xl'} font-black text-slate-900 leading-tight`}
+                                className={`${pageDensity === 'compact' ? 'text-xl sm:text-2xl' : 'text-2xl'} font-black leading-tight`}
+                                style={{ color: pdfHeadingColor }}
                               >
                                 {labName}
                               </h2>
@@ -967,7 +1551,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                 contentEditable={isEditMode}
                                 suppressContentEditableWarning
                                 onBlur={(e) => setLabShortDesc(e.currentTarget.textContent || '')}
-                                className="text-xs text-slate-700 leading-relaxed"
+                                className="text-xs leading-relaxed"
+                                style={{ color: pdfTextColor, opacity: 0.9 }}
                               >
                                 {labShortDesc}
                               </p>
@@ -979,8 +1564,11 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                         {showLabDesc ? (
                           <div className="pdf-section space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <h3 className="text-sm sm:text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
-                                <FlaskConical className="w-4 h-4 text-orange-500" />
+                              <h3
+                                className="text-sm sm:text-base font-black border-r-4 pr-2 flex items-center gap-2"
+                                style={{ color: pdfHeadingColor, borderRightColor: pdfAccentColor }}
+                              >
+                                <FlaskConical className="w-4 h-4" style={{ color: pdfAccentColor }} />
                                 معرفی و حوزه فعالیت تخصصی آزمایشگاه
                               </h3>
                               {isEditMode && (
@@ -1011,7 +1599,14 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                               />
                             ) : (
                               <div
-                                className="text-xs sm:text-[13px] text-slate-700 leading-relaxed bg-slate-50/70 border border-slate-200/80 p-3.5 bio-rendered-content text-justify"
+                                className="text-xs sm:text-[13px] leading-relaxed p-3.5 bio-rendered-content text-justify rounded"
+                                style={{
+                                  backgroundColor: pdfCardBgColor,
+                                  borderColor: pdfBorderColor,
+                                  borderWidth: '1px',
+                                  borderStyle: 'solid',
+                                  color: pdfTextColor,
+                                }}
                                 dangerouslySetInnerHTML={{ __html: normalizeToHtml(labFullDesc) }}
                               />
                             )}
@@ -1035,8 +1630,11 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                         {showLabEquipment && (labEquipment.length > 0 || isEditMode) ? (
                           <div className="pdf-section space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <h3 className="text-sm sm:text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
-                                <Wrench className="w-4 h-4 text-orange-500" />
+                              <h3
+                                className="text-sm sm:text-base font-black border-r-4 pr-2 flex items-center gap-2"
+                                style={{ color: pdfHeadingColor, borderRightColor: pdfAccentColor }}
+                              >
+                                <Wrench className="w-4 h-4" style={{ color: pdfAccentColor }} />
                                 تجهیزات، ابزارآلات و زیرساخت‌های آزمایشگاهی
                               </h3>
                               {isEditMode && (
@@ -1066,10 +1664,20 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                             {labEquipment.length > 0 ? (
                               <div className="space-y-1.5">
                                 {labEquipment.map((eq, idx) => (
-                                  <div key={idx} className="pdf-block bg-slate-50 border border-slate-200 p-2.5 text-xs text-slate-800 space-y-1 relative">
+                                  <div
+                                    key={idx}
+                                    className="pdf-block p-2.5 text-xs space-y-1 relative rounded"
+                                    style={{
+                                      backgroundColor: pdfCardBgColor,
+                                      borderColor: pdfBorderColor,
+                                      borderWidth: '1px',
+                                      borderStyle: 'solid',
+                                      color: pdfTextColor,
+                                    }}
+                                  >
                                     <div className="flex items-center justify-between gap-2">
                                       <div className="flex items-center gap-2 flex-1">
-                                        <span className="w-2 h-2 bg-orange-500 rounded-full shrink-0"></span>
+                                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: pdfAccentColor }}></span>
                                         <span
                                           contentEditable={isEditMode}
                                           suppressContentEditableWarning
@@ -1078,7 +1686,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                             updated[idx].name = e.currentTarget.textContent || '';
                                             setLabEquipment(updated);
                                           }}
-                                          className="font-bold text-slate-900 text-xs"
+                                          className="font-bold text-xs"
+                                          style={{ color: pdfHeadingColor }}
                                         >
                                           {eq.name}
                                         </span>
@@ -1097,8 +1706,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                         </button>
                                       )}
                                     </div>
-                                    <div className="flex items-center gap-2 pr-4 text-slate-600">
-                                      <span className="font-bold text-slate-500 shrink-0">مشخصات فنی:</span>
+                                    <div className="flex items-center gap-2 pr-4 text-xs opacity-90">
+                                      <span className="font-bold shrink-0" style={{ color: pdfTextColor }}>مشخصات فنی:</span>
                                       <span
                                         contentEditable={isEditMode}
                                         suppressContentEditableWarning
@@ -1107,6 +1716,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                           updated[idx].specs = e.currentTarget.textContent || '';
                                           setLabEquipment(updated);
                                         }}
+                                        style={{ color: pdfTextColor }}
                                       >
                                         {eq.specs}
                                       </span>
@@ -1137,8 +1747,11 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                         {showLabMembers && (labMembers.length > 0 || isEditMode) ? (
                           <div className="pdf-section space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <h3 className="text-sm sm:text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
-                                <User className="w-4 h-4 text-orange-500" />
+                              <h3
+                                className="text-sm sm:text-base font-black border-r-4 pr-2 flex items-center gap-2"
+                                style={{ color: pdfHeadingColor, borderRightColor: pdfAccentColor }}
+                              >
+                                <User className="w-4 h-4" style={{ color: pdfAccentColor }} />
                                 اعضای تیم و پژوهشگران آزمایشگاه
                               </h3>
                               {isEditMode && (
@@ -1170,7 +1783,14 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                 {labMembers.map((mem, idx) => (
                                   <span
                                     key={idx}
-                                    className="bg-slate-100 border border-slate-300 text-slate-900 text-xs font-bold px-2.5 py-1 inline-flex items-center gap-1.5"
+                                    className="text-xs font-bold px-2.5 py-1 inline-flex items-center gap-1.5 rounded"
+                                    style={{
+                                      backgroundColor: pdfCardBgColor,
+                                      borderColor: pdfBorderColor,
+                                      borderWidth: '1px',
+                                      borderStyle: 'solid',
+                                      color: pdfTextColor,
+                                    }}
                                   >
                                     <span
                                       contentEditable={isEditMode}
@@ -1222,8 +1842,11 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                         {showLabAchievements && (labAchievements.length > 0 || isEditMode) ? (
                           <div className="pdf-section space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <h3 className="text-sm sm:text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
-                                <Award className="w-4 h-4 text-orange-500" />
+                              <h3
+                                className="text-sm sm:text-base font-black border-r-4 pr-2 flex items-center gap-2"
+                                style={{ color: pdfHeadingColor, borderRightColor: pdfAccentColor }}
+                              >
+                                <Award className="w-4 h-4" style={{ color: pdfAccentColor }} />
                                 افتخارات و دستاوردهای علمی و پژوهشی
                               </h3>
                               {isEditMode && (
@@ -1253,8 +1876,18 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                             {labAchievements.length > 0 ? (
                               <div className="space-y-1.5">
                                 {labAchievements.map((ach, idx) => (
-                                  <div key={idx} className="pdf-block bg-slate-50 border border-slate-200 p-2.5 text-xs text-slate-800 font-bold flex items-center gap-2">
-                                    <span className="w-2 h-2 bg-orange-500 rounded-full shrink-0"></span>
+                                  <div
+                                    key={idx}
+                                    className="pdf-block p-2.5 text-xs font-bold flex items-center gap-2 rounded"
+                                    style={{
+                                      backgroundColor: pdfCardBgColor,
+                                      borderColor: pdfBorderColor,
+                                      borderWidth: '1px',
+                                      borderStyle: 'solid',
+                                      color: pdfTextColor,
+                                    }}
+                                  >
+                                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: pdfAccentColor }}></span>
                                     <span
                                       contentEditable={isEditMode}
                                       suppressContentEditableWarning
@@ -1264,6 +1897,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                         setLabAchievements(updated);
                                       }}
                                       className="flex-1"
+                                      style={{ color: pdfTextColor }}
                                     >
                                       {ach}
                                     </span>
@@ -1305,9 +1939,12 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                         {/* 5. Visual Gallery & Facility Images */}
                         {showLabGallery ? (
                           <div className="pdf-avoid-break space-y-2">
-                            <div className="flex items-center justify-between border-b border-slate-300 pb-1">
-                              <h3 className="text-sm sm:text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2 flex items-center gap-2">
-                                <ImageIcon className="w-4 h-4 text-orange-500" />
+                            <div className="flex items-center justify-between border-b pb-1" style={{ borderColor: pdfBorderColor }}>
+                              <h3
+                                className="text-sm sm:text-base font-black border-r-4 pr-2 flex items-center gap-2"
+                                style={{ color: pdfHeadingColor, borderRightColor: pdfAccentColor }}
+                              >
+                                <ImageIcon className="w-4 h-4" style={{ color: pdfAccentColor }} />
                                 گالری تصاویر، فضا و مستندات فنی آزمایشگاه
                               </h3>
                               {isEditMode && (
@@ -1355,7 +1992,14 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                 {labGallery.map((imgUrl, idx) => (
                                   <div
                                     key={idx}
-                                    className="pdf-card pdf-avoid-break bg-slate-50 border border-slate-300 rounded p-1.5 space-y-1 relative group"
+                                    className="pdf-card pdf-avoid-break rounded p-1.5 space-y-1 relative group"
+                                    style={{
+                                      backgroundColor: pdfCardBgColor,
+                                      borderColor: pdfBorderColor,
+                                      borderWidth: '1px',
+                                      borderStyle: 'solid',
+                                      color: pdfTextColor,
+                                    }}
                                   >
                                     <div className="overflow-hidden rounded border border-slate-200 aspect-video bg-white">
                                       <img
@@ -1367,8 +2011,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                         }}
                                       />
                                     </div>
-                                    <div className="flex items-center justify-between text-[10px] text-slate-500 px-0.5">
-                                      <span className="font-bold text-slate-700">تصویر {idx + 1}</span>
+                                    <div className="flex items-center justify-between text-[10px] px-0.5" style={{ color: pdfTextColor, opacity: 0.85 }}>
+                                      <span className="font-bold">تصویر {idx + 1}</span>
                                       {isEditMode && (
                                         <button
                                           onClick={() => {
@@ -1413,11 +2057,20 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                     {type === 'project' && (
                       <div className={pageDensity === 'compact' ? 'space-y-4' : 'space-y-7'}>
                         {/* Project Card Summary */}
-                        <div className={`pdf-card pdf-avoid-break bg-slate-50 border-2 border-slate-900 ${
-                          pageDensity === 'compact' ? 'p-3.5 sm:p-4 space-y-2.5' : 'p-5 sm:p-6 space-y-4'
-                        }`}>
-                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-300 pb-2">
-                            <div className="flex items-center gap-1 bg-slate-900 text-white text-[11px] font-bold px-2.5 py-0.5 border-r-2 border-orange-500">
+                        <div
+                          className={`pdf-card pdf-avoid-break rounded ${
+                            pageDensity === 'compact' ? 'p-3.5 sm:p-4 space-y-2.5' : 'p-5 sm:p-6 space-y-4'
+                          }`}
+                          style={{
+                            backgroundColor: pdfCardBgColor,
+                            borderColor: pdfBorderColor,
+                            borderWidth: '2px',
+                            borderStyle: 'solid',
+                            color: pdfTextColor,
+                          }}
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2" style={{ borderColor: pdfBorderColor }}>
+                            <div className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 border-r-2" style={{ backgroundColor: pdfHeadingColor, color: pdfBgColor, borderRightColor: pdfAccentColor }}>
                               <span>دسته‌بندی:</span>
                               <span
                                 contentEditable={isEditMode}
@@ -1427,7 +2080,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                 {projCategory}
                               </span>
                             </div>
-                            <div className="flex items-center gap-3 text-xs font-bold text-slate-700">
+                            <div className="flex items-center gap-3 text-xs font-bold" style={{ color: pdfTextColor }}>
                               <div className="flex items-center gap-1">
                                 <span>سال اجرا:</span>
                                 <span
@@ -1439,7 +2092,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                 </span>
                               </div>
                               <span>•</span>
-                              <div className="flex items-center gap-1 text-orange-600 font-bold">
+                              <div className="flex items-center gap-1 font-bold" style={{ color: pdfAccentColor }}>
                                 <span>وضعیت:</span>
                                 <span
                                   contentEditable={isEditMode}
@@ -1457,7 +2110,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                               <img
                                 src={projImageUrl}
                                 alt={projTitle}
-                                className="w-full sm:w-44 h-28 object-cover border border-slate-300 bg-white"
+                                className="w-full sm:w-44 h-28 object-cover border bg-white rounded"
+                                style={{ borderColor: pdfBorderColor }}
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=800';
                                 }}
@@ -1495,14 +2149,15 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                             </div>
 
                             <div className="space-y-1.5 flex-1 w-full text-right">
-                              <div className="flex items-center gap-1.5 text-xs font-bold text-orange-600">
+                              <div className="flex items-center gap-1.5 text-xs font-bold" style={{ color: pdfAccentColor }}>
                                 <Building2 className="w-3.5 h-3.5 shrink-0" />
                                 <span>طرف قرارداد / کارفرما:</span>
                                 <span
                                   contentEditable={isEditMode}
                                   suppressContentEditableWarning
                                   onBlur={(e) => setProjCompany(e.currentTarget.textContent || '')}
-                                  className="text-slate-900 font-bold"
+                                  className="font-bold"
+                                  style={{ color: pdfHeadingColor }}
                                 >
                                   {projCompany}
                                 </span>
@@ -1511,7 +2166,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                 contentEditable={isEditMode}
                                 suppressContentEditableWarning
                                 onBlur={(e) => setProjTitle(e.currentTarget.textContent || '')}
-                                className={`${pageDensity === 'compact' ? 'text-xl sm:text-2xl' : 'text-2xl'} font-black text-slate-900 leading-tight`}
+                                className={`${pageDensity === 'compact' ? 'text-xl sm:text-2xl' : 'text-2xl'} font-black leading-tight`}
+                                style={{ color: pdfHeadingColor }}
                               >
                                 {projTitle}
                               </h2>
@@ -1519,7 +2175,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                 contentEditable={isEditMode}
                                 suppressContentEditableWarning
                                 onBlur={(e) => setProjShortDesc(e.currentTarget.textContent || '')}
-                                className="text-xs text-slate-700 leading-relaxed"
+                                className="text-xs leading-relaxed"
+                                style={{ color: pdfTextColor, opacity: 0.9 }}
                               >
                                 {projShortDesc}
                               </p>
@@ -1531,7 +2188,10 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                         {showProjDesc ? (
                           <div className="pdf-section space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <h3 className="text-sm sm:text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2">
+                              <h3
+                                className="text-sm sm:text-base font-black border-r-4 pr-2"
+                                style={{ color: pdfHeadingColor, borderRightColor: pdfAccentColor }}
+                              >
                                 تشریح کامل پروژه و اهداف مهندسی
                               </h3>
                               {isEditMode && (
@@ -1549,7 +2209,14 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                               contentEditable={isEditMode}
                               suppressContentEditableWarning
                               onBlur={(e) => setProjFullDesc(e.currentTarget.textContent || '')}
-                              className="text-xs sm:text-[13px] text-slate-700 leading-relaxed bg-slate-50/70 border border-slate-200/80 p-3 whitespace-pre-line text-justify pdf-editorial-text"
+                              className="text-xs sm:text-[13px] leading-relaxed p-3 whitespace-pre-line text-justify pdf-editorial-text rounded"
+                              style={{
+                                backgroundColor: pdfCardBgColor,
+                                borderColor: pdfBorderColor,
+                                borderWidth: '1px',
+                                borderStyle: 'solid',
+                                color: pdfTextColor,
+                              }}
                             >
                               {projFullDesc}
                             </div>
@@ -1573,7 +2240,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                         {showProjExecution ? (
                           <div className="pdf-section space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <span className="text-[11px] font-bold text-slate-500">ارکان اجرایی و علمی پروژه:</span>
+                              <span className="text-[11px] font-bold opacity-80" style={{ color: pdfTextColor }}>ارکان اجرایی و علمی پروژه:</span>
                               {isEditMode && (
                                 <button
                                   onClick={() => setShowProjExecution(false)}
@@ -1586,24 +2253,44 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                               )}
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              <div className="border border-slate-300 p-3 bg-slate-50 space-y-1 text-right">
-                                <span className="text-[11px] font-bold text-slate-500 block">استاد راهنما / سرپرست پروژه:</span>
+                              <div
+                                className="p-3 space-y-1 text-right rounded"
+                                style={{
+                                  backgroundColor: pdfCardBgColor,
+                                  borderColor: pdfBorderColor,
+                                  borderWidth: '1px',
+                                  borderStyle: 'solid',
+                                  color: pdfTextColor,
+                                }}
+                              >
+                                <span className="text-[11px] font-bold opacity-75 block" style={{ color: pdfTextColor }}>استاد راهنما / سرپرست پروژه:</span>
                                 <div
                                   contentEditable={isEditMode}
                                   suppressContentEditableWarning
                                   onBlur={(e) => setProjLeadFac(e.currentTarget.textContent || '')}
-                                  className="text-xs sm:text-sm font-black text-slate-900"
+                                  className="text-xs sm:text-sm font-black"
+                                  style={{ color: pdfHeadingColor }}
                                 >
                                   {projLeadFac}
                                 </div>
                               </div>
-                              <div className="border border-slate-300 p-3 bg-slate-50 space-y-1 text-right">
-                                <span className="text-[11px] font-bold text-slate-500 block">آزمایشگاه تخصصی مجری:</span>
+                              <div
+                                className="p-3 space-y-1 text-right rounded"
+                                style={{
+                                  backgroundColor: pdfCardBgColor,
+                                  borderColor: pdfBorderColor,
+                                  borderWidth: '1px',
+                                  borderStyle: 'solid',
+                                  color: pdfTextColor,
+                                }}
+                              >
+                                <span className="text-[11px] font-bold opacity-75 block" style={{ color: pdfTextColor }}>آزمایشگاه تخصصی مجری:</span>
                                 <div
                                   contentEditable={isEditMode}
                                   suppressContentEditableWarning
                                   onBlur={(e) => setProjLabName(e.currentTarget.textContent || '')}
-                                  className="text-xs sm:text-sm font-black text-slate-900"
+                                  className="text-xs sm:text-sm font-black"
+                                  style={{ color: pdfHeadingColor }}
                                 >
                                   {projLabName}
                                 </div>
@@ -1629,7 +2316,10 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                         {showProjOutcomes && (projOutcomes.length > 0 || isEditMode) ? (
                           <div className="pdf-section space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <h3 className="text-sm sm:text-base font-black text-slate-900 border-r-4 border-orange-500 pr-2">
+                              <h3
+                                className="text-sm sm:text-base font-black border-r-4 pr-2"
+                                style={{ color: pdfHeadingColor, borderRightColor: pdfAccentColor }}
+                              >
                                 نتایج کلیدی و تحویلی‌های پروژه
                               </h3>
                               {isEditMode && (
@@ -1659,8 +2349,18 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                             {projOutcomes.length > 0 ? (
                               <div className="space-y-1.5">
                                 {projOutcomes.map((out, idx) => (
-                                  <div key={idx} className="pdf-block bg-slate-50 border border-slate-200 p-2.5 text-xs text-slate-800 font-bold flex items-center gap-2">
-                                    <span className="w-2 h-2 bg-orange-500 rounded-full shrink-0"></span>
+                                  <div
+                                    key={idx}
+                                    className="pdf-block p-2.5 text-xs font-bold flex items-center gap-2 rounded"
+                                    style={{
+                                      backgroundColor: pdfCardBgColor,
+                                      borderColor: pdfBorderColor,
+                                      borderWidth: '1px',
+                                      borderStyle: 'solid',
+                                      color: pdfTextColor,
+                                    }}
+                                  >
+                                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: pdfAccentColor }}></span>
                                     <span
                                       contentEditable={isEditMode}
                                       suppressContentEditableWarning
@@ -1670,6 +2370,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                                         setProjOutcomes(updated);
                                       }}
                                       className="flex-1"
+                                      style={{ color: pdfTextColor }}
                                     >
                                       {out}
                                     </span>
@@ -1726,16 +2427,26 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
           </table>
 
           {/* Official Fixed PDF Footer Banner */}
-          <div className={`pdf-footer-banner border-t-2 border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600 bg-white ${
-            pageDensity === 'compact' ? 'pt-2 mt-4 pb-0.5' : 'pt-3 mt-6 pb-1'
-          }`}>
+          <div
+            className={`pdf-footer-banner flex flex-col sm:flex-row items-center justify-between gap-3 text-xs ${
+              pageDensity === 'compact' ? 'pt-2 mt-4 pb-0.5' : 'pt-3 mt-6 pb-1'
+            }`}
+            style={{
+              backgroundColor: pdfBgColor,
+              borderTopWidth: '2px',
+              borderTopStyle: 'solid',
+              borderTopColor: pdfBorderColor,
+              color: pdfTextColor,
+            }}
+          >
             {/* Right Side: University Address & Digital Archive */}
             <div className="space-y-0.5 text-center sm:text-right w-full sm:w-auto">
               <div
                 contentEditable={isEditMode}
                 suppressContentEditableWarning
                 onBlur={(e) => setFooterAddress(e.currentTarget.textContent || '')}
-                className="font-bold text-slate-900 text-xs"
+                className="font-bold text-xs"
+                style={{ color: pdfHeadingColor }}
               >
                 {footerAddress}
               </div>
@@ -1743,21 +2454,32 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                 contentEditable={isEditMode}
                 suppressContentEditableWarning
                 onBlur={(e) => setFooterArchive(e.currentTarget.textContent || '')}
-                className="text-[11px] text-slate-500"
+                className="text-[11px]"
+                style={{ color: pdfTextColor, opacity: 0.75 }}
               >
                 {footerArchive}
               </div>
             </div>
 
             {/* Left Side: Issue Date */}
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100 border border-slate-300 px-3 py-1 shrink-0">
-              <Calendar className="w-3.5 h-3.5 text-orange-500" />
+            <div
+              className="flex items-center gap-1.5 text-xs font-bold px-3 py-1 shrink-0 rounded"
+              style={{
+                backgroundColor: pdfCardBgColor,
+                borderColor: pdfBorderColor,
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                color: pdfTextColor,
+              }}
+            >
+              <Calendar className="w-3.5 h-3.5" style={{ color: pdfAccentColor }} />
               <span>تاریخ صدور:</span>
               <span
                 contentEditable={isEditMode}
                 suppressContentEditableWarning
                 onBlur={(e) => setIssueDate(e.currentTarget.textContent || '')}
-                className="font-mono text-slate-900 mr-1"
+                className="font-mono mr-1"
+                style={{ color: pdfHeadingColor }}
                 dir="ltr"
               >
                 {issueDate}
