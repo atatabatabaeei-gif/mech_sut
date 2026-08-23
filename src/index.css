@@ -419,8 +419,56 @@
 .bio-rendered-content mark {
   background-color: #fed7aa;
   color: #7c2d12;
-  padding: 0.1rem 0.3rem;
-  border-radius: 0.2rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+}
+
+/* Pre-styled colored callout boxes for rich text editor and bio */
+.callout-box {
+  display: block;
+  border-right-width: 4px;
+  border-right-style: solid;
+  padding: 0.75rem 1rem;
+  margin: 0.85rem 0;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.callout-box-orange {
+  background-color: rgba(234, 88, 12, 0.08);
+  border-right-color: #ea580c;
+  color: #9a3412;
+}
+
+.callout-box-blue {
+  background-color: rgba(37, 99, 235, 0.08);
+  border-right-color: #2563eb;
+  color: #1e40af;
+}
+
+.callout-box-green {
+  background-color: rgba(5, 150, 105, 0.08);
+  border-right-color: #059669;
+  color: #065f46;
+}
+
+.callout-box-amber {
+  background-color: rgba(217, 119, 6, 0.08);
+  border-right-color: #d97706;
+  color: #92400e;
+}
+
+.callout-box-slate {
+  background-color: rgba(71, 85, 105, 0.08);
+  border-right-color: #475569;
+  color: #334155;
+}
+
+.callout-box strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.925rem;
 }
 
 
