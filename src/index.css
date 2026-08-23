@@ -71,7 +71,7 @@
 @media print {
   @page {
     size: A4 portrait;
-    margin: 0 !important;
+    margin: 10mm 12mm 16mm 12mm;
   }
 
   /* 1. Completely hide the main application inside #root so it consumes 0 height and 0 print pages */
@@ -131,8 +131,7 @@
     position: static !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 8mm 12mm 12mm 12mm !important;
-    box-sizing: border-box !important;
+    padding: 0 !important;
     background-color: var(--pdf-bg, #ffffff) !important;
     color: var(--pdf-text, #0f172a) !important;
     display: block !important;
