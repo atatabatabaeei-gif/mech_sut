@@ -614,26 +614,6 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({ type, data, onCl
                           </div>
 
                           <div className="space-y-2 flex-1 w-full text-right">
-                            <div className="flex flex-wrap items-center gap-1.5">
-                              <span className="bg-slate-900 text-white text-[11px] font-bold px-2 py-0.5 inline-flex items-center gap-1">
-                                <span
-                                  contentEditable={isEditMode}
-                                  suppressContentEditableWarning
-                                  onBlur={(e) => setFacTitle(e.currentTarget.textContent || '')}
-                                >
-                                  {facTitle}
-                                </span>
-                                <span>—</span>
-                                <span
-                                  contentEditable={isEditMode}
-                                  suppressContentEditableWarning
-                                  onBlur={(e) => setFacField(e.currentTarget.textContent || '')}
-                                >
-                                  {facField}
-                                </span>
-                              </span>
-                            </div>
-
                             <h2
                               contentEditable={isEditMode}
                               suppressContentEditableWarning
